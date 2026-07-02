@@ -268,15 +268,33 @@
     list.push(Pto.slice());
   }
 
+  function normDeg(d) {
+    while (d > 180) d -= 360;
+    while (d <= -180) d += 360;
+    return d;
+  }
+  function faceDirDeg(face) {
+    return deg(Math.atan2(face.pout[1] - face.pin[1], face.pout[0] - face.pin[0]));
+  }
+  // rigid motion mapping segment a1->a2 onto b1->b2 (equal lengths)
+  function makeRigid(a1, a2, b1, b2) {
+    var ang = Math.atan2(b2[1] - b1[1], b2[0] - b1[0]) - Math.atan2(a2[1] - a1[1], a2[0] - a1[0]);
+    var cs = Math.cos(ang), sn = Math.sin(ang);
+    return function (p) {
+      var dx = p[0] - a1[0], dy = p[1] - a1[1];
+      return [b1[0] + dx * cs - dy * sn, b1[1] + dx * sn + dy * cs];
+    };
+  }
+
   /* Weichenstein: union of a segment and its mirror twin sharing the entry face
      (Kai: "eins gespiegelt, Fuge auf Fuge"). One entry, two exits at +-angle.
-     The two intrados circles are exactly tangent at the entry face corners, the
-     two extrados arcs cross at X ahead of the face (the concave notch).        */
-  function makeSwitchItem(cur, type, inverted) {
+     rot = which face sits on the parent joint (the stone REALLY turns to the
+     next Fugenpassung): 0 = entry face, 1 = arm N, 2 = arm I.                 */
+  function makeSwitchItem(cur, type, rot) {
+    rot = rot || 0;
     var t = STONES[type];
     var N = stepStone(cur, t.base, false);
     var I = stepStone(cur, t.base, true);
-    var main = inverted ? I : N, side = inverted ? N : I;
     var Pin = cur.Pin.slice(), Pout = add(cur.Pin, mul(cur.u, 2));
     var T = [cur.u[1], -cur.u[0]];                 // travel direction
     var faceMid = add(Pin, cur.u);
@@ -295,22 +313,51 @@
     pts.push(I.item.endFace.pout.slice());
     arcAppend(pts, CI, t.Ri, I.item.endFace.pout, Pout);
 
+    var slices = N.item.slices.concat(I.item.slices);   // overlap is fine for SAT
+    var E = { pin: Pin.slice(), pout: Pout.slice() };
+    var armN = N.item.endFace, armI = I.item.endFace;
+    var centroid = polyCentroid(pts);
+    var mainFace, sideFace;
+
+    if (rot) {
+      // really turn the stone: re-attach it by one of its arms
+      var attach = rot === 1 ? armN : armI;
+      var map = makeRigid(attach.pin, attach.pout, Pin, Pout);
+      if (dot(sub(map(centroid), faceMid), T) < 0) map = makeRigid(attach.pout, attach.pin, Pin, Pout);
+      var mapFace = function (f) { return { pin: map(f.pin), pout: map(f.pout) }; };
+      pts = pts.map(map);
+      slices = slices.map(function (q) { return ensureCCW(q.map(map)); });
+      centroid = map(centroid);
+      mainFace = mapFace(rot === 1 ? armI : armN);
+      sideFace = mapFace(E);
+      // orient the free faces so chains keep growing away from the stone
+      [mainFace, sideFace].forEach(function (g) {
+        var ug = norm(sub(g.pout, g.pin));
+        var gm = mul(add(g.pin, g.pout), 0.5);
+        if (dot([ug[1], -ug[0]], sub(gm, centroid)) < 0) {
+          var tmp = g.pin; g.pin = g.pout; g.pout = tmp;
+        }
+      });
+    } else {
+      mainFace = armN;
+      sideFace = armI;
+    }
+
     var area = Math.abs(polySignedArea(pts));
     var grams = { wgelb: massCalibration.wgelbGrams, worange: massCalibration.worangeGrams }[type];
+    var uAng = deg(Math.atan2(cur.u[1], cur.u[0]));
     var item = {
-      type: type, inverted: !!inverted, isSwitch: true,
-      poly: pts,
-      slices: N.item.slices.concat(I.item.slices),  // overlap is fine for SAT
-      centroid: polyCentroid(pts),
-      area: area,
+      type: type, inverted: false, rot: rot, isSwitch: true,
+      poly: pts, slices: slices,
+      centroid: centroid, area: area,
       massRel: (grams != null && grams > 0) ? grams : area,
       startFace: { pin: Pin.slice(), pout: Pout.slice() },
-      endFace: main.item.endFace,                   // main-path continuation
-      exitSideFace: side.item.endFace,
-      exitSideCur: side.cur,
-      turn: main.item.turn
+      endFace: mainFace,                            // main-path continuation
+      exitSideFace: sideFace,
+      exitSideCur: { Pin: sideFace.pin.slice(), u: norm(sub(sideFace.pout, sideFace.pin)) },
+      turn: -normDeg(faceDirDeg(mainFace) - uAng)
     };
-    return { item: item, cur: main.cur };
+    return { item: item, cur: { Pin: mainFace.pin.slice(), u: norm(sub(mainFace.pout, mainFace.pin)) } };
   }
 
   function faceOfCur(cur) {
@@ -325,7 +372,7 @@
     var prevIdx = parentIdx, prevFace = parentFace;
     for (i = 0; i < nodes.length; i++) {
       nd = nodes[i];
-      st = STONES[nd.type].sw ? makeSwitchItem(cur, nd.type, nd.inverted)
+      st = STONES[nd.type].sw ? makeSwitchItem(cur, nd.type, nd.rot)
                               : stepStone(cur, nd.type, nd.inverted);
       item = st.item;
       item.chain = chainKey;
@@ -362,7 +409,7 @@
 
   function mirrorItem(it) {
     return {
-      type: it.type, inverted: it.inverted, chain: it.chain, idx: it.idx, born: it.born,
+      type: it.type, inverted: it.inverted, rot: it.rot, chain: it.chain, idx: it.idx, born: it.born,
       isSwitch: it.isSwitch,
       area: it.area, massRel: it.massRel,
       poly: it.poly.map(mirX),
@@ -1433,7 +1480,7 @@
       }
       var sn = selNode();
       if (sn && STONES[sn.type].sw) {
-        setTask('Weiche markiert &ndash; &#8635; tauscht ihre beiden Ausg&auml;nge, &#10005; nimmt sie samt Seitenast raus.');
+        setTask('Weiche markiert &ndash; &#8635; dreht sie zur n&auml;chsten Fugenpassung; was dann nicht mehr anschlie&szlig;t, f&auml;llt weg.');
       } else {
         setTask('Stein markiert &ndash; unten: Vorrat tauscht ihn, &#8635; dreht die Kr&uuml;mmung, &#10005; nimmt ihn raus.');
       }
@@ -1504,7 +1551,7 @@
       inv = arr.length ? !!arr[arr.length - 1].inverted : true;
     }
     var nd = { type: typeKey, inverted: inv, born: NOW() };
-    if (STONES[typeKey].sw) nd.side = [];
+    if (STONES[typeKey].sw) { nd.side = []; nd.rot = 0; }
     arr.push(nd);
     tok(190, .08, .08);
     setTimeout(function () { tok(150, .1, .07); }, 110);
@@ -1559,8 +1606,8 @@
     if (!s || s.type === typeKey) return;
     if (state.sel.chain.length === 0) dropKeyOnEdit();
     s.type = typeKey;
-    if (STONES[typeKey].sw && !s.side) s.side = [];
-    if (!STONES[typeKey].sw && s.side) delete s.side;
+    if (STONES[typeKey].sw) { if (!s.side) s.side = []; if (s.rot == null) s.rot = 0; }
+    else { if (s.side) delete s.side; if (s.rot) delete s.rot; }
     s.born = NOW();
     tok(230, .07, .07);
     refresh();
@@ -1579,6 +1626,56 @@
     var s = selNode();
     if (!s) return;
     clearResult();
+    if (STONES[s.type].sw) {
+      // the stone REALLY turns to its next joint fit. Attached branches stay
+      // wherever the rotated stone offers a face at the exact same spot again;
+      // whatever is no longer connected gets removed (Kai's rule).
+      var arr2 = resolveChain(state.sel.chain);
+      if (!arr2) return;
+      var idx2 = state.sel.idx;
+      var oldItem = null;
+      for (var q = 0; q < model.left.length; q++) {
+        if (keyStr(model.left[q].chain) === keyStr(state.sel.chain) && model.left[q].idx === idx2) {
+          oldItem = model.left[q];
+          break;
+        }
+      }
+      var newRot = ((s.rot || 0) + 1) % 3;
+      var mainRest = arr2.slice(idx2 + 1);
+      var sideChain = s.side || [];
+      var keptMain = [], keptSide = [];
+      if (oldItem) {
+        var cur2 = { Pin: oldItem.startFace.pin, u: norm(sub(oldItem.startFace.pout, oldItem.startFace.pin)) };
+        var probe2 = makeSwitchItem(cur2, s.type, newRot).item;
+        var oldRoots = [{ face: oldItem.endFace, nodes: mainRest },
+                        { face: oldItem.exitSideFace, nodes: sideChain }];
+        var newSlots = [{ face: probe2.endFace, key: 'main' },
+                        { face: probe2.exitSideFace, key: 'side' }];
+        for (var a2 = 0; a2 < oldRoots.length; a2++) {
+          if (!oldRoots[a2].nodes.length) continue;
+          for (var b2 = 0; b2 < newSlots.length; b2++) {
+            if (newSlots[b2].used) continue;
+            if (faceGap(oldRoots[a2].face, newSlots[b2].face) <= JOIN_TOL_CM) {
+              newSlots[b2].used = true;
+              if (newSlots[b2].key === 'main') keptMain = oldRoots[a2].nodes;
+              else keptSide = oldRoots[a2].nodes;
+              break;
+            }
+          }
+        }
+      }
+      var removed = (mainRest.length + sideChain.length) - (keptMain.length + keptSide.length);
+      s.rot = newRot;
+      s.side = keptSide;
+      arr2.splice(idx2 + 1);
+      for (var c2 = 0; c2 < keptMain.length; c2++) arr2.push(keptMain[c2]);
+      if (state.sel.chain.length === 0) dropKeyOnEdit();
+      if (!resolveChain(state.activeFront)) state.activeFront = [];
+      tok(260, .07, .07);
+      refresh();
+      if (removed > 0) setTask('Weiche gedreht &ndash; ' + removed + ' nicht mehr verbundene Steine wurden entfernt.');
+      return;
+    }
     if (state.sel.chain.length === 0) dropKeyOnEdit();
     s.inverted = !s.inverted;
     tok(260, .07, .07);
@@ -1878,7 +1975,7 @@
     var dy = (1 - p) * 120, al = .35 + .65 * p;
     var pts = it.poly.map(w2s);
     drawPolyScreen(pts, col, al, dy, p > .5);
-    if (it.inverted) {
+    if (it.inverted || it.rot) {
       var c = w2s(it.centroid);
       ctx.save();
       ctx.globalAlpha = .85 * al;
@@ -2475,11 +2572,29 @@
     chk('switch: union area between 1x and 2x segment',
       swI.area > stoneArea('gelb') && swI.area < 2 * stoneArea('gelb'), swI.area.toFixed(3));
     chk('switch: centroid on the symmetry axis', Math.abs(swI.centroid[0] - 1) < 1e-6, swI.centroid[0].toFixed(5));
-    var swV = makeSwitchItem({ Pin: [0, 0], u: [1, 0] }, 'wgelb', true).item;
-    chk('switch: Drehen swaps the exits', swI.turn === -swV.turn && Math.abs(swI.turn) === 60,
-      swI.turn + '/' + swV.turn);
-    var mSw = archModel([{ type: 'wgelb', inverted: true, born: 0 }], null);
-    chk('inverted switch bends the main path outward', Math.abs(mSw.missing - 300) < 1e-9, 'missing=' + mSw.missing);
+    // real rotation: the stone re-seats by one of its arms on the parent joint
+    var so1 = makeSwitchItem({ Pin: [0, 0], u: [1, 0] }, 'worange', 1).item;
+    var so2 = makeSwitchItem({ Pin: [0, 0], u: [1, 0] }, 'worange', 2).item;
+    var so0 = makeSwitchItem({ Pin: [0, 0], u: [1, 0] }, 'worange', 0).item;
+    chk('switch rot: main exit visibly re-seats',
+      faceGap(so0.endFace, so1.endFace) > 1 && faceGap(so1.endFace, so2.endFace) > 1,
+      faceGap(so0.endFace, so1.endFace).toFixed(2) + 'cm');
+    chk('switch rot: free faces stay 2cm',
+      Math.abs(dist(so1.endFace.pin, so1.endFace.pout) - 2) < 1e-9 &&
+      Math.abs(dist(so1.exitSideFace.pin, so1.exitSideFace.pout) - 2) < 1e-9 &&
+      Math.abs(dist(so2.endFace.pin, so2.endFace.pout) - 2) < 1e-9);
+    chk('switch rot: the two arm seats mirror each other', Math.abs(so1.turn + so2.turn) < 1e-6,
+      'turns=' + so1.turn.toFixed(1) + '/' + so2.turn.toFixed(1));
+    var mSw0 = archModel([{ type: 'worange', rot: 0, born: 0, side: [] }], null);
+    var mSw1 = archModel([{ type: 'worange', rot: 1, born: 0, side: [] }], null);
+    chk('rotated switch changes the main-path angle', Math.abs(mSw0.missing - mSw1.missing) > 1,
+      'missing ' + fmtDeg(mSw0.missing) + ' -> ' + fmtDeg(mSw1.missing));
+    // wgelb raster property: its three seats offer the same face spots again
+    var yg0 = makeSwitchItem({ Pin: [0, 0], u: [1, 0] }, 'wgelb', 0).item;
+    var yg1 = makeSwitchItem({ Pin: [0, 0], u: [1, 0] }, 'wgelb', 1).item;
+    chk('wgelb rot: faces land on the same raster (branches survive)',
+      faceGap(yg0.endFace, yg1.endFace) < JOIN_TOL_CM && faceGap(yg0.exitSideFace, yg1.exitSideFace) < JOIN_TOL_CM,
+      faceGap(yg0.endFace, yg1.endFace).toFixed(3) + 'cm');
 
     // portal: springer switches, side branches arc back down to the ground
     var sideArc = [];
@@ -2506,13 +2621,13 @@
     var evCan = evaluateArch(canti, null);
     chk('cantilever branch evaluates', evCan.state !== 'error', evCan.state);
 
-    // Drehen on a switch relocates its side branch to the other arm
-    var rotA = archModel([{ type: 'worange', inverted: false, born: 0, side: [{ type: 'orange', inverted: true, born: 0 }] }], null);
-    var rotB = archModel([{ type: 'worange', inverted: true, born: 0, side: [{ type: 'orange', inverted: true, born: 0 }] }], null);
+    // Drehen relocates the through-path: the main front of a rotated switch moves
+    var rotA = archModel([{ type: 'worange', rot: 0, born: 0, side: [] }], null);
+    var rotB = archModel([{ type: 'worange', rot: 1, born: 0, side: [] }], null);
     var fA = null, fB = null;
-    rotA.fronts.forEach(function (f) { if (!f.main) fA = f; });
-    rotB.fronts.forEach(function (f) { if (!f.main) fB = f; });
-    chk('switch rotation moves the branch arm', fA && fB && dist(fA.face.pin, fB.face.pin) > 1,
+    rotA.fronts.forEach(function (f) { if (f.main) fA = f; });
+    rotB.fronts.forEach(function (f) { if (f.main) fB = f; });
+    chk('switch rotation moves the main front', fA && fB && dist(fA.face.pin, fB.face.pin) > 1,
       fA && fB ? dist(fA.face.pin, fB.face.pin).toFixed(2) + 'cm apart' : 'missing front');
 
     // three switches: apex switch pair closed on top by a single bridge switch
