@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="de" class="no-js" data-bar="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>kaju · Bau einen Bogen</title>
+<meta name="description" content="Erlebe das kaju-Bausystem: Wie aus einzelnen Naturhartgips-Steinen ein Bogen wird, der von allein trägt.">
+<link rel="stylesheet" href="css/erlebnis.css">
+</head>
+<body>
+
+<!-- STORY BAR · app chapter indicator -->
+<nav class="storybar" aria-label="Kapitel">
+  <div class="storybar__segs" id="segs"></div>
+  <span class="storybar__label" id="seglabel">Start</span>
+</nav>
+
+<main id="app">
+
+<!-- ============ CH 0 · COVER ============ -->
+<section class="chapter cover ch--tuerkis" id="k0" data-bar="light" data-title="Start">
+  <div class="chapter__inner">
+    <img class="cover__logo blk" src="assets/kaju_logo_white.png" alt="kaju SPIELBAUSTEINE">
+    <img class="cover__arch" id="cover-arch" src="assets/arch-clean.png" alt="Ein freistehender Bogen aus kaju-Steinen" aria-hidden="true">
+    <h1 class="savu blk">Bau einen <span class="h1-hold">Bogen</span>.</h1>
+    <p class="cover__sub blk">Kein Kleber, kein Klick: kaju-Steine tragen sich selbst, wenn die Form stimmt. Finde heraus, wie.</p>
+    <div class="cover__cta blk">
+      <a class="btn btn--braun" href="#k1" id="start-btn">Los geht&rsquo;s
+        <svg viewBox="0 0 24 24"><line x1="12" y1="4" x2="12" y2="19"/><polyline points="6 13 12 19 18 13"/></svg>
+      </a>
+      <span class="cover__hint">3 Minuten &middot; zum Mitbauen</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CH 1 · DER STEIN ============ -->
+<section class="chapter stein ch--gruen cutl" id="k1" data-bar="light" data-title="Der Stein">
+  <div class="chapter__inner stein__grid">
+    <div>
+      <div class="stein__head">
+        <h2 class="blk">Alles beginnt mit einem Stein.</h2>
+      </div>
+      <div class="stein__stage">
+        <img class="stein__img" id="stein-img" src="assets/stein-orange.png" alt="Ein einzelner kaju-Bogenbaustein aus orangem Naturhartgips, mit Noppen auf der Fugenfl&auml;che">
+      </div>
+    </div>
+    <div>
+      <div class="stein__facts">
+        <div class="fact blk"><span class="fact__dot"></span><span><b>Naturhartgips, massiv</b><span>Rund 30 Gramm &ndash; liegt sp&uuml;rbar in der Hand. Matt und k&uuml;hl.</span></span></div>
+        <div class="fact blk"><span class="fact__dot"></span><span><b>Pigment in der Masse</b><span>Durchgef&auml;rbt statt lackiert, die Kanten weich verrundet.</span></span></div>
+        <div class="fact blk"><span class="fact__dot"></span><span><b>Drei Kr&uuml;mmungen</b><span>Mehr braucht es nicht f&uuml;r Rundbogen, Spitzbogen und alles dazwischen.</span></span></div>
+      </div>
+      <div class="fuge blk">
+        <p class="fuge__title">Die Fuge f&uuml;hrt.</p>
+        <p>Noppe trifft Mulde: Sauber gesetzt verzahnen sich die Steine formschl&uuml;ssig &ndash; mit gerade mal <span class="fuge__mm">0,2&nbsp;mm Spiel</span>. Das verhindert Verrutschen. Tragen? Muss der Bogen selbst.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CH 2 · DAS WACHSEN · scroll-scrubbed stop motion ============ -->
+<section class="chapter wachsen ch--papier cutr" id="k2" data-bar="dark" data-title="Das Wachsen">
+  <div class="chapter__inner wachsen__pin">
+    <div class="wachsen__grid">
+      <div class="wachsen__head">
+        <h2>Stein f&uuml;r Stein w&auml;chst der Bogen.</h2>
+        <p class="wachsen__foot">Eine Hand h&auml;lt, die andere setzt, dann greifen beide um. Dein Daumen baut mit: Scroll bewegt die H&auml;nde.</p>
+      </div>
+      <div class="wachsen__frame">
+        <canvas class="wachsen__canvas" id="wachsen-canvas" width="820" height="1024" aria-label="Stop-Motion: Ein Bogen w&auml;chst Stein f&uuml;r Stein"></canvas>
+        <span class="wachsen__word savu" id="wachsen-word">Halten.</span>
+        <span class="wachsen__count" id="wachsen-count">01/28</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CH 3 · DIE BAUPROBE · interactive ============ -->
+<section class="chapter bauprobe ch--dunkel cutl" id="k3" data-bar="light" data-title="Die Bauprobe">
+  <div class="chapter__inner bauprobe__grid">
+    <div class="bauprobe__head">
+      <h2 class="savu blk">Jetzt Du.</h2>
+      <p class="bauprobe__task blk" id="bp-task">Tipp auf die B&uuml;hne: Setz Stein f&uuml;r Stein.</p>
+    </div>
+    <div>
+      <div class="bauprobe__stage blk" id="bp-stage">
+        <canvas class="bauprobe__canvas" id="bp-canvas" width="820" height="700" aria-label="Interaktive Bauprobe: Bogen setzen, ausrichten, loslassen"></canvas>
+        <div class="bauprobe__verdict"><span id="bp-verdict">Tr&auml;gt.</span></div>
+      </div>
+      <div class="bauprobe__controls">
+        <button class="holdbtn" id="bp-hold" disabled>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12m0-1.5v-2a1.5 1.5 0 0 1 3 0V12m0-1v-1a1.5 1.5 0 0 1 3 0v2.5c0 4.5-2.5 7.5-6 7.5-2.7 0-4.3-1.2-5.6-3.4L4 12.7a1.6 1.6 0 0 1 2.7-1.6L8 13"/></svg>
+          <span id="bp-hold-label">Halten &amp; loslassen</span>
+        </button>
+        <button class="bauprobe__reset" id="bp-reset" hidden>Nochmal bauen</button>
+      </div>
+      <div class="bauprobe__tip" id="bp-tip"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CH 4 · DIE KRAFT · scrubbed force flow ============ -->
+<section class="chapter kraft ch--tuerkis cutr" id="k4" data-bar="light" data-title="Die Kraft">
+  <div class="chapter__inner kraft__grid">
+    <div>
+      <h2>Warum h&auml;lt der ohne Kleber?</h2>
+      <p class="kraft__cap" id="kraft-cap"><b>Jeder Stein dr&uuml;ckt auf den n&auml;chsten.</b> Druck h&auml;lt die Kette zusammen &ndash; Zug gibt es in einem Bogen nicht.</p>
+    </div>
+    <div class="kraft__stage">
+      <canvas class="kraft__canvas" id="kraft-canvas" width="820" height="760" aria-label="Kraftfluss durch den Bogen: Druck flie&szlig;t durch die Steine in den Boden"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CH 5 · LOSLASSEN · video moment ============ -->
+<section class="chapter los ch--dunkel cutl" id="k5" data-bar="light" data-title="Loslassen">
+  <div class="chapter__inner los__grid">
+    <div>
+      <h2>Jetzt <em>loslassen</em>.</h2>
+      <p class="los__text">Der Moment, f&uuml;r den gebaut wird: Die H&auml;nde gehen auf &ndash; und der Bogen bleibt. Dein Kind sieht sofort: Das habe ich herausgefunden.</p>
+    </div>
+    <div class="los__media blk">
+      <video id="los-video" playsinline muted loop preload="none" poster="assets/arch-clean.png">
+        <!-- PLATZHALTER · Slot V1: Loop "Hände lösen sich, Bogen bleibt stehen", 6-10 s, 4:5, s. PLATZHALTER.md -->
+      </video>
+      <span class="los__ph">Hier echtes Video: H&auml;nde l&ouml;sen sich, Bogen bleibt (Loop)</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CH 6 · WACHSENDES KÖNNEN · horizontal scrub ============ -->
+<section class="chapter koennen ch--papier cutr" id="k6" data-bar="dark" data-title="Das K&ouml;nnen">
+  <div class="koennen__head">
+    <h2>Von leicht bis kniffelig.</h2>
+    <p class="koennen__sub">Dieselben Steine, wachsende Aufgaben &ndash; bis zum eigenen Bauwerk.</p>
+  </div>
+  <div class="koennen__viewport" id="koennen-viewport">
+    <div class="koennen__track" id="koennen-track">
+      <article class="stufe"><div class="stufe__media"><img src="assets/bauplaner-mini-rundbogen-3-gelbe.jpg" alt="Stufe 1: kleiner Bogen aus drei Steinen"></div><div class="stufe__body"><span class="stufe__num savu">01</span><h3 class="stufe__name">Kleiner Bogen</h3><p class="stufe__desc">Drei Steine, der erste freistehende Bogen.</p></div></article>
+      <article class="stufe"><div class="stufe__media"><img src="assets/bauplaner-rundbogen-6o.jpg" alt="Stufe 2: gr&ouml;&szlig;erer Rundbogen"></div><div class="stufe__body"><span class="stufe__num savu">02</span><h3 class="stufe__name">Gr&ouml;&szlig;erer Bogen</h3><p class="stufe__desc">Mehr Segmente, weitere Spannweite.</p></div></article>
+      <article class="stufe"><div class="stufe__media"><img src="assets/bauplaner-korbbogen.jpg" alt="Stufe 3: Korbbogen mit flacher Kr&uuml;mmung"></div><div class="stufe__body"><span class="stufe__num savu">03</span><h3 class="stufe__name">Andere Kr&uuml;mmung</h3><p class="stufe__desc">Flacher gesetzt &ndash; der Korbbogen schiebt st&auml;rker.</p></div></article>
+      <article class="stufe"><div class="stufe__media"><img src="assets/bauplaner-spitzbogenv3.jpg" alt="Stufe 4: Spitzbogen"></div><div class="stufe__body"><span class="stufe__num savu">04</span><h3 class="stufe__name">Spitzbogen</h3><p class="stufe__desc">Zwei Kr&uuml;mmungen treffen sich oben.</p></div></article>
+      <article class="stufe"><div class="stufe__media"><img src="assets/bauplaner-doppelbogen.jpg" alt="Stufe 5: Doppelbogen als Arkade"></div><div class="stufe__body"><span class="stufe__num savu">05</span><h3 class="stufe__name">Doppelbogen</h3><p class="stufe__desc">B&ouml;gen reihen sich zur Arkade.</p></div></article>
+      <article class="stufe stufe--last"><div class="stufe__media"><img src="assets/bauplaner-kreisportal-mit-stabilisierung.jpg" alt="Stufe 6: freie Konstruktion mit Kreisportal"></div><div class="stufe__body"><span class="stufe__num savu">06</span><h3 class="stufe__name">Freie Konstruktion</h3><p class="stufe__desc">Aus B&ouml;gen wird ein eigenes Bauwerk.</p></div></article>
+    </div>
+  </div>
+  <div class="koennen__progress" aria-hidden="true"><i id="koennen-bar"></i></div>
+</section>
+
+<!-- ============ CH 7 · DIE BAUWELT ============ -->
+<section class="chapter welt ch--gelb cutl" id="k7" data-bar="dark" data-title="Die Bauwelt">
+  <div class="chapter__inner">
+    <h2 class="blk">Und wenn nichts mehr stehen muss? Dann leg was.</h2>
+    <p class="welt__sub blk">Bauen ist die halbe Spielbreite: Dieselben Steine legen Bilder, rollen Murmeln und bauen ganze Welten.</p>
+    <div class="welt__grid">
+      <figure class="welt__tile welt__tile--wide blk">
+        <img src="assets/bauplaner-schmetterling.jpg" alt="Legebild: Schmetterling aus flach gelegten kaju-Steinen">
+        <figcaption>Legebilder<small>Flach gelegt statt hoch gebaut &ndash; gleichwertig, nicht Beiwerk.</small></figcaption>
+      </figure>
+      <figure class="welt__tile blk">
+        <img src="assets/bauplaner-bruecke.jpg" alt="Konstruktion: Br&uuml;cke aus kaju-B&ouml;gen">
+        <figcaption>Konstruktionen<small>Br&uuml;cken, Tore, Portale.</small></figcaption>
+      </figure>
+      <figure class="welt__tile blk">
+        <img src="assets/V5-HERO-103_kind-baut-konzentriert.jpg" alt="Kind spielt mit Murmeln an kaju-B&ouml;gen">
+        <figcaption>Murmelbahnen<small>Tore und Gef&auml;lle werden zur Bahn.</small></figcaption>
+      </figure>
+      <figure class="welt__tile blk">
+        <img src="assets/bauplaner-baum.jpg" alt="Spielwelt: Baum aus kaju-Steinen">
+        <figcaption>Spielwelten<small>Orte zum Bespielen und Weitererz&auml;hlen.</small></figcaption>
+      </figure>
+      <figure class="welt__tile blk">
+        <img src="assets/bauplaner-rakete.jpg" alt="Spielidee: Rakete aus kaju-Steinen">
+        <figcaption>Eigene Ideen<small>Offene Aufgaben, eigene Regeln.</small></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CH 8 · DIE WERKSTATT ============ -->
+<section class="chapter werkstatt ch--dunkel cutr" id="k8" data-bar="light" data-title="Die Werkstatt">
+  <div class="chapter__inner werkstatt__grid">
+    <div class="werkstatt__media blk">
+      <img src="assets/V5-HER-101_gips-in-formen-giessen.jpg" alt="Gr&uuml;ner Naturhartgips wird von Hand in Silikonformen gegossen">
+      <span class="los__ph">Hier echtes Video: Gie&szlig;en, Entformen, Schleifen (20&ndash;30 s)</span>
+    </div>
+    <div>
+      <span class="kicker blk">Manufaktur K&ouml;nigswinter</span>
+      <h2 class="blk">Von Hand gegossen, Stein f&uuml;r Stein.</h2>
+      <p class="blk">Ich habe das Bogenprinzip entwickelt, weil mich interessiert hat, wie alte Steinb&ouml;gen tragen: &uuml;ber Form und Druck, nicht &uuml;ber Klebstoff. Die Fuge hilft beim Setzen &ndash; das Herausfinden bleibt beim Kind.</p>
+      <p class="blk">Naturhartgips, weil er massiv und ehrlich in der Hand liegt. Gefertigt in kleinen Serien, jeder Stein entformt, geschliffen und gepr&uuml;ft.</p>
+      <p class="werkstatt__sig blk">Viel Spass beim T&uuml;fteln, euer Kai.</p>
+      <div class="werkstatt__seals blk">
+        <img src="assets/spiel_gut_siegel_200.png" alt="Siegel: spiel gut">
+        <img src="assets/bewegte_innovation_siegel_trasparent_200.png" alt="Siegel: Bewegte Innovation der Universit&auml;t W&uuml;rzburg">
+        <p>Das kajuBOGENBAU Starter-Set ist ausgezeichnet mit &raquo;spiel gut&laquo; und &raquo;Bewegte Innovation&laquo; der Uni W&uuml;rzburg.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CH 9 · FINALE ============ -->
+<section class="chapter finale ch--orange cutl" id="k9" data-bar="dark" data-title="Dein Bogen">
+  <div class="chapter__inner">
+    <h2 class="blk">Selber herausfinden, <em>was h&auml;lt</em>.</h2>
+    <div class="finale__cta blk">
+      <a class="btn" href="https://www.kaju-spielbausteine.de" target="_blank" rel="noopener">Sets ansehen
+        <svg viewBox="0 0 24 24"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+      </a>
+    </div>
+    <div class="finale__trust blk">
+      <span>Naturhartgips &middot; ab 3 Jahren</span>
+      <span>Handgefertigt in K&ouml;nigswinter</span>
+    </div>
+    <p class="finale__tag blk">Spiel, das tr&auml;gt. Auch ohne dich.</p>
+    <img class="finale__logo blk" src="assets/kaju_logo_braun.png" alt="kaju SPIELBAUSTEINE">
+    <button class="finale__again blk" id="again-btn">Nochmal von vorn</button>
+  </div>
+</section>
+
+</main>
+
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="js/sequencer.js"></script>
+<script src="js/bauprobe.js"></script>
+<script src="js/kraft.js"></script>
+<script src="js/erlebnis.js"></script>
+</body>
+</html>

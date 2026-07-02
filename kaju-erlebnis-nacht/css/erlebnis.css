@@ -1,0 +1,401 @@
+/* ==========================================================================
+   kaju ERLEBNIS · immersive mobile-first chapter experience
+   Print-DNA: pigment fields, Savu caps display, 2px brown frames,
+   hard block shadows (4px 4px 0), diagonal cuts between chapters.
+   ========================================================================== */
+
+/* ---------- fonts ---------- */
+@font-face{font-family:"Savu";src:url("../assets/Savu_c.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Ciutadella";src:url("../assets/Ciutadella_reg.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Ciutadella";src:url("../assets/Ciutadella_semi_bold.woff2") format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Ciutadella";src:url("../assets/Ciutadella_bold.woff2") format("woff2");font-weight:700;font-display:swap}
+
+/* ---------- tokens ---------- */
+:root{
+  --tuerkis:#0096ae; --tuerkis-deep:#007e93;
+  --rot:#a93015; --rot-deep:#8f2812;
+  --orange:#f39200; --orange-deep:#d97f00;
+  --gelb:#f1c953; --gelb-deep:#e3b83a;
+  --gruen:#6cac53; --gruen-deep:#5b9a44;
+  --braun:#532c29;
+  --dunkel:#2c1a15;            /* stage dark, warm */
+  --papier:#faf7f4;
+  --tinte:#241813;
+  --ink-soft:#5d4a3e;
+
+  --savu:"Savu",system-ui,sans-serif;
+  --body:"Ciutadella",system-ui,sans-serif;
+
+  --shadow-block:4px 4px 0 var(--braun);
+  --shadow-block-lg:8px 8px 0 var(--braun);
+  --frame:2px solid var(--braun);
+
+  --ease-block:cubic-bezier(.34,1.56,.64,1);   /* overshoot: block drops in */
+  --ease-smooth:cubic-bezier(.2,.7,.2,1);
+
+  --cut:clamp(30px,8vw,64px);                  /* diagonal chapter cut */
+  --bar-h:52px;                                /* story bar zone */
+  --gutter:clamp(20px,5.5vw,34px);
+}
+
+/* ---------- reset / base ---------- */
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  font-family:var(--body);color:var(--tinte);background:var(--papier);
+  line-height:1.5;-webkit-font-smoothing:antialiased;
+  overflow-x:clip;
+}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:3px solid var(--tuerkis);outline-offset:3px}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- type utilities ---------- */
+.savu{font-family:var(--savu);font-weight:400;text-transform:uppercase;line-height:.92;letter-spacing:.01em}
+.kicker{
+  display:inline-block;border:1.5px solid currentColor;padding:7px 13px 6px;
+  font-weight:600;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+}
+.lead{font-size:clamp(16.5px,4.4vw,19px);line-height:1.55;max-width:34ch}
+
+/* ---------- the signature block button ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:12px;white-space:nowrap;
+  background:var(--rot);color:#fff;font-weight:600;font-size:16.5px;
+  padding:16px 24px;border:var(--frame);box-shadow:var(--shadow-block);
+  transition:transform .18s var(--ease-smooth),box-shadow .18s var(--ease-smooth),background .18s;
+  user-select:none;-webkit-user-select:none;touch-action:manipulation;
+}
+.btn:hover{background:var(--rot-deep)}
+.btn:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--braun)}
+.btn--braun{background:var(--braun)}
+.btn--braun:hover{background:#42221f}
+.btn--ghost{background:transparent;color:inherit;box-shadow:none;border:2px solid currentColor}
+.btn--ghost:active{transform:translate(2px,2px)}
+.btn svg{width:18px;height:18px;stroke:currentColor;stroke-width:2.2;fill:none;flex:none}
+
+/* ==========================================================================
+   STORY BAR (app chapter indicator)
+   ========================================================================== */
+.storybar{
+  position:fixed;top:0;left:0;right:0;z-index:60;
+  padding:10px var(--gutter) 8px;
+  display:flex;flex-direction:column;gap:7px;
+  pointer-events:none;
+  transition:opacity .3s;
+}
+.storybar__segs{display:flex;gap:5px}
+.storybar__seg{
+  position:relative;flex:1;height:4px;border-radius:2px;
+  background:var(--seg-bg,rgba(255,255,255,.34));
+  pointer-events:auto;padding:0;
+  transition:background .35s;
+}
+.storybar__seg::after{ /* bigger touch target */
+  content:"";position:absolute;inset:-12px -3px;
+}
+.storybar__fill{
+  position:absolute;inset:0;border-radius:2px;background:var(--seg-fg,#fff);
+  transform:scaleX(0);transform-origin:left center;
+  transition:background .35s;
+}
+.storybar__label{
+  align-self:flex-start;
+  font-weight:600;font-size:10.5px;letter-spacing:.19em;text-transform:uppercase;
+  color:var(--seg-fg,#fff);opacity:.92;transition:color .35s;
+  pointer-events:auto;
+}
+/* theme flips per chapter via html[data-bar] */
+html[data-bar="dark"] .storybar{--seg-bg:rgba(83,44,41,.22);--seg-fg:var(--braun)}
+html[data-bar="light"] .storybar{--seg-bg:rgba(255,255,255,.32);--seg-fg:#fff}
+
+/* ==========================================================================
+   CHAPTER SCAFFOLD
+   ========================================================================== */
+.chapter{
+  position:relative;
+  min-height:100dvh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:calc(var(--bar-h) + 26px) var(--gutter) calc(var(--cut) + 34px);
+}
+.chapter__inner{width:100%;max-width:1160px;margin:0 auto}
+
+/* pigment themes */
+.ch--tuerkis{background:var(--tuerkis);color:#fff}
+.ch--gruen{background:var(--gruen);color:#fff}
+.ch--gelb{background:var(--gelb);color:var(--braun)}
+.ch--orange{background:var(--orange);color:var(--braun)}
+.ch--papier{background:var(--papier);color:var(--tinte)}
+.ch--dunkel{background:var(--dunkel);color:#f5ece2}
+
+/* diagonal cut: triangle flap on top of the chapter, inherits its bg */
+.cutl::before,.cutr::before{
+  content:"";position:absolute;bottom:calc(100% - 1px);left:0;right:0;height:var(--cut);
+  background:inherit;pointer-events:none;z-index:2;
+}
+.cutl::before{clip-path:polygon(0 100%,100% 0,100% 100%)}
+.cutr::before{clip-path:polygon(0 0,0 100%,100% 100%)}
+
+/* ==========================================================================
+   REVEAL / MOTION PRIMITIVES  (blocks drop into place)
+   ========================================================================== */
+.blk{opacity:0;transform:translateY(34px)}
+html.no-js .blk,html[data-reduced] .blk{opacity:1;transform:none}
+/* shadowed elements grow their block shadow while dropping (JS-driven) */
+
+/* ==========================================================================
+   CH 0 · COVER
+   ========================================================================== */
+.cover{justify-content:flex-end;overflow:clip}
+.cover .chapter__inner{display:flex;flex-direction:column;min-height:calc(100dvh - var(--bar-h) - var(--cut) - 60px)}
+.cover__logo{width:112px;margin-bottom:auto}
+.cover__arch{
+  position:absolute;right:-4%;top:14%;width:min(58vw,400px);
+  filter:drop-shadow(10px 12px 0 rgba(35,15,10,.18));
+}
+.cover h1{font-size:clamp(58px,17.5vw,150px);color:#fff}
+.cover h1 .h1-hold{color:var(--gelb)}
+.cover__sub{margin-top:18px;font-size:clamp(17px,4.6vw,21px);line-height:1.5;max-width:30ch;color:#e7f6f8}
+.cover__cta{margin-top:30px;display:flex;align-items:center;gap:20px}
+.cover__hint{font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+
+/* ==========================================================================
+   CH 1 · DER STEIN
+   ========================================================================== */
+.stein__stage{position:relative;margin:8px auto 0;width:min(78vw,420px)}
+.stein__img{width:100%;filter:drop-shadow(12px 14px 0 rgba(35,15,10,.16));transform-origin:50% 60%}
+.stein__facts{margin-top:26px;display:grid;gap:12px}
+.fact{
+  display:flex;gap:14px;align-items:flex-start;
+  background:#fff;color:var(--tinte);border:var(--frame);box-shadow:var(--shadow-block);
+  padding:14px 16px;
+}
+.fact b{display:block;font-size:16px;line-height:1.2}
+.fact span{font-size:14px;color:var(--ink-soft);line-height:1.4}
+.fact__dot{width:12px;height:12px;flex:none;margin-top:4px;background:var(--orange)}
+.fact:nth-child(2) .fact__dot{background:var(--tuerkis)}
+.fact:nth-child(3) .fact__dot{background:var(--rot)}
+.stein h2{font-size:clamp(30px,8.4vw,56px);font-weight:700;letter-spacing:-.02em;line-height:1.02;text-wrap:balance;max-width:18ch}
+
+/* fuge detail strip */
+.fuge{
+  margin-top:30px;background:var(--braun);color:#f5ece2;border:0;
+  padding:20px 20px 22px;box-shadow:8px 8px 0 rgba(35,15,10,.28);
+}
+.fuge__title{font-family:var(--savu);text-transform:uppercase;font-size:clamp(20px,5.4vw,26px);color:var(--gelb)}
+.fuge p{margin-top:8px;font-size:15.5px;line-height:1.5;color:#eaddcf}
+.fuge__mm{font-weight:700;color:#fff;white-space:nowrap}
+
+/* ==========================================================================
+   CH 2 · DAS WACHSEN  (scroll-scrubbed stop motion)
+   ========================================================================== */
+.wachsen__pin{position:relative}
+.wachsen h2{font-size:clamp(30px,8.4vw,54px);font-weight:700;letter-spacing:-.02em;line-height:1.02;max-width:14ch}
+.wachsen__frame{
+  position:relative;margin-top:16px;
+  border:var(--frame);box-shadow:var(--shadow-block-lg);
+  background:var(--papier);overflow:hidden;
+}
+.wachsen__canvas{display:block;width:100%;height:auto}
+.wachsen__word{
+  position:absolute;left:14px;top:12px;
+  font-family:var(--savu);text-transform:uppercase;
+  font-size:clamp(26px,7.4vw,44px);color:var(--braun);
+  opacity:0;transform:translateY(10px);
+}
+.wachsen__count{
+  position:absolute;right:14px;top:14px;
+  font-weight:700;font-size:12px;letter-spacing:.14em;color:var(--ink-soft);
+  font-variant-numeric:tabular-nums;
+}
+.wachsen__foot{margin-top:14px;font-size:15px;color:var(--ink-soft);max-width:38ch}
+
+/* ==========================================================================
+   CH 3 · DIE BAUPROBE  (interactive canvas)
+   ========================================================================== */
+.bauprobe{--seg:#f5ece2}
+.bauprobe h2{font-size:clamp(34px,9.2vw,58px)}
+.bauprobe__head{display:flex;flex-direction:column;gap:10px}
+.bauprobe__task{font-size:clamp(16px,4.4vw,18.5px);line-height:1.5;color:#eadfd2;max-width:34ch;min-height:3em}
+.bauprobe__stage{
+  position:relative;margin-top:14px;
+  border:2px solid rgba(245,236,226,.28);
+  background:#241511;
+  box-shadow:10px 10px 0 rgba(0,0,0,.35);
+  touch-action:none;                    /* full pointer control on canvas */
+  overflow:hidden;
+}
+.bauprobe__canvas{display:block;width:100%;height:auto}
+.bauprobe__verdict{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+.bauprobe__verdict span{
+  font-family:var(--savu);text-transform:uppercase;
+  font-size:clamp(44px,13vw,92px);color:#fff;
+  opacity:0;transform:translateY(16px) scale(.96);
+  text-shadow:5px 5px 0 rgba(0,0,0,.35);
+}
+.bauprobe__controls{margin-top:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.holdbtn{
+  position:relative;display:inline-flex;align-items:center;gap:12px;
+  background:var(--gelb);color:var(--braun);font-weight:700;font-size:17px;
+  padding:18px 26px;border:var(--frame);box-shadow:var(--shadow-block);
+  user-select:none;-webkit-user-select:none;touch-action:none;
+  transition:transform .15s var(--ease-smooth),box-shadow .15s var(--ease-smooth),background .2s;
+}
+.holdbtn.is-holding{transform:translate(4px,4px);box-shadow:0 0 0 var(--braun);background:var(--gelb-deep)}
+.holdbtn[disabled]{opacity:.4}
+.bauprobe__reset{font-weight:600;font-size:14.5px;border-bottom:2px solid currentColor;padding-bottom:2px;opacity:.85}
+.bauprobe__reset:hover{opacity:1}
+.bauprobe__tip{
+  margin-top:16px;background:rgba(245,236,226,.08);border:1.5px solid rgba(245,236,226,.25);
+  padding:13px 15px;font-size:14.5px;line-height:1.5;color:#e6d9c9;max-width:46ch;
+  display:none;
+}
+.bauprobe__tip.is-on{display:block}
+.bauprobe__tip b{color:#fff}
+
+/* ==========================================================================
+   CH 4 · KRAFT  (why it stands - scrubbed force flow)
+   ========================================================================== */
+.kraft h2{font-size:clamp(32px,8.8vw,56px);font-weight:700;letter-spacing:-.02em;line-height:1.02;max-width:24ch}
+.kraft__stage{position:relative;margin-top:18px}
+.kraft__canvas{display:block;width:100%;height:auto}
+.kraft__cap{margin-top:14px;font-size:clamp(15.5px,4.2vw,17.5px);line-height:1.55;color:#e7f6f8;max-width:38ch;min-height:4.6em}
+.kraft__cap b{color:#fff}
+
+/* ==========================================================================
+   CH 5 · LOSLASSEN  (video moment)
+   ========================================================================== */
+.los h2{font-family:var(--savu);font-weight:400;text-transform:uppercase;font-size:clamp(52px,15vw,120px);line-height:.9;color:#f5ece2}
+.los h2 em{font-style:normal;color:var(--orange)}
+.los__media{
+  position:relative;margin-top:24px;border:var(--frame);
+  box-shadow:var(--shadow-block-lg);background:#000;overflow:hidden;aspect-ratio:4/5;
+}
+.los__media video,.los__media img{width:100%;height:100%;object-fit:cover}
+.los__ph{
+  position:absolute;left:12px;bottom:12px;right:12px;
+  border:1.5px solid rgba(255,255,255,.75);color:#fff;background:rgba(30,15,10,.55);
+  font-weight:600;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  padding:8px 10px;text-align:center;
+}
+.los__text{margin-top:18px;font-size:clamp(16px,4.4vw,18.5px);line-height:1.55;color:#eadfd2;max-width:36ch}
+
+/* ==========================================================================
+   CH 6 · WACHSENDES KÖNNEN  (horizontal scrub through 6 stages)
+   ========================================================================== */
+.koennen{padding-left:0;padding-right:0;overflow:clip}
+.koennen__head{padding:0 var(--gutter)}
+.koennen h2{font-size:clamp(30px,8.4vw,54px);font-weight:700;letter-spacing:-.02em;line-height:1.02;max-width:16ch}
+.koennen__sub{margin-top:10px;font-size:16px;color:var(--ink-soft);max-width:36ch}
+.koennen__viewport{margin-top:22px}
+.koennen__track{display:flex;gap:16px;padding:0 var(--gutter);width:max-content}
+.stufe{
+  width:min(74vw,340px);flex:none;background:#fff;border:var(--frame);
+  box-shadow:var(--shadow-block);overflow:hidden;
+}
+.stufe__media{aspect-ratio:1;background:#eee;overflow:hidden}
+.stufe__media img{width:100%;height:100%;object-fit:cover}
+.stufe__body{padding:16px 16px 18px;border-top:var(--frame)}
+.stufe__num{font-family:var(--savu);font-size:30px;color:var(--orange);line-height:1}
+.stufe--last .stufe__num{color:var(--rot)}
+.stufe__name{font-weight:700;font-size:20px;margin-top:4px;line-height:1.05}
+.stufe__desc{font-size:14.5px;color:var(--ink-soft);margin-top:6px;line-height:1.45}
+.koennen__progress{
+  margin:20px var(--gutter) 0;height:4px;background:#e8e2da;position:relative;
+}
+.koennen__progress i{position:absolute;inset:0;background:var(--orange);transform-origin:left;transform:scaleX(0)}
+
+/* ==========================================================================
+   CH 7 · BAUWELT  (yellow field, equal play modes)
+   ========================================================================== */
+.welt h2{font-size:clamp(32px,8.8vw,56px);font-weight:700;letter-spacing:-.02em;line-height:1.02;max-width:22ch}
+.welt__sub{margin-top:12px;font-size:clamp(16px,4.4vw,18px);line-height:1.5;color:#6e4a1c;max-width:36ch}
+.welt__grid{margin-top:24px;display:grid;gap:14px;grid-template-columns:repeat(2,1fr)}
+.welt__tile{
+  position:relative;background:#fff;border:var(--frame);box-shadow:var(--shadow-block);overflow:hidden;
+}
+.welt__tile img{aspect-ratio:1;width:100%;object-fit:cover}
+.welt__tile figcaption{
+  padding:10px 12px 12px;border-top:var(--frame);
+  font-weight:700;font-size:15px;line-height:1.1;color:var(--tinte);background:#fff;
+}
+.welt__tile figcaption small{display:block;font-weight:400;font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+.welt__tile--wide{grid-column:span 2}
+.welt__tile--wide img{aspect-ratio:16/9}
+
+/* ==========================================================================
+   CH 8 · WERKSTATT
+   ========================================================================== */
+.werkstatt__media{
+  position:relative;border:var(--frame);box-shadow:var(--shadow-block-lg);overflow:hidden;aspect-ratio:5/4;background:#000;
+}
+.werkstatt__media img,.werkstatt__media video{width:100%;height:100%;object-fit:cover}
+.werkstatt h2{margin-top:26px;font-size:clamp(30px,8.4vw,52px);font-weight:700;letter-spacing:-.02em;line-height:1.05;max-width:20ch}
+.werkstatt p{margin-top:14px;font-size:clamp(15.5px,4.2vw,17.5px);line-height:1.6;color:#eadfd2;max-width:52ch}
+.werkstatt p.werkstatt__sig{font-family:var(--savu);text-transform:uppercase;font-size:clamp(21px,5.6vw,28px);color:var(--gelb);margin-top:20px}
+.werkstatt__seals{margin-top:26px;display:flex;gap:16px;align-items:center}
+.werkstatt__seals img{width:74px;height:auto;flex:none}
+.werkstatt__seals p{font-size:13.5px;line-height:1.45;color:#d9c9b8;margin:0;max-width:30ch}
+
+/* ==========================================================================
+   CH 9 · FINALE
+   ========================================================================== */
+.finale{text-align:center}
+.finale h2{font-family:var(--savu);font-weight:400;text-transform:uppercase;font-size:clamp(40px,11.5vw,96px);line-height:.94;max-width:12ch;margin:0 auto}
+.finale h2 em{font-style:normal;color:#fff}
+.finale__cta{margin-top:34px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.finale__trust{margin-top:40px;display:flex;flex-direction:column;gap:8px;font-size:14px;color:#6e4a1c}
+.finale__tag{font-family:var(--savu);text-transform:uppercase;font-size:clamp(15px,4vw,19px);color:#6e4a1c;margin-top:38px}
+.finale__logo{width:120px;margin:34px auto 0}
+.finale__again{margin-top:26px;font-weight:600;font-size:14px;border-bottom:2px solid currentColor;padding-bottom:2px;opacity:.8}
+.finale__again:hover{opacity:1}
+
+/* ==========================================================================
+   DESKTOP ENRICHMENT
+   ========================================================================== */
+@media(min-width:900px){
+  .chapter{padding-left:48px;padding-right:48px}
+  .cover h1{font-size:clamp(80px,8.6vw,132px);max-width:10ch;position:relative;z-index:1}
+  .cover__arch{right:5%;top:11%;width:min(29vw,450px)}
+  .cover__sub{max-width:38ch}
+
+  .stein__grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+  .stein__stage{margin:0}
+  .stein__facts{margin-top:28px}
+
+  .wachsen__grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;align-items:center}
+  .wachsen__frame{margin-top:0}
+  .wachsen__foot{max-width:30ch}
+
+  .bauprobe__grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:56px;align-items:center}
+  .bauprobe__stage{margin-top:0}
+
+  .kraft__grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+  .kraft__stage{margin-top:0}
+
+  .los__grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+  .los__media{margin-top:0;aspect-ratio:4/5;max-height:74vh}
+
+  .stufe{width:340px}
+
+  .welt__grid{grid-template-columns:repeat(3,1fr)}
+  .welt__tile--wide{grid-column:span 2}
+  .welt__sub{max-width:46ch}
+
+  .werkstatt__grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+  .werkstatt h2{margin-top:0}
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   ========================================================================== */
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none!important;animation:none!important}
+}
+html[data-reduced] .koennen__viewport{overflow-x:auto;-webkit-overflow-scrolling:touch}
