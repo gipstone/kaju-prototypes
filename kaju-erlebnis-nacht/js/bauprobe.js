@@ -41,7 +41,14 @@
   var MAX_STONES = 16;                // per half
 
   var CLOSURE_TOL_DEG = 0.01;         // spec 4.5
-  var CONTACT_TOL_CM = 0.02;          // spec 6.3 (0.2 mm)
+  var CONTACT_TOL_CM = 0.02;          // spec 6.3 (0.2 mm) - fugengenau chain steps
+  // Real stones are forgiving: edges are rounded and every joint has ~0.2mm
+  // play, so a chain of stones can flex a few millimetres. Sharp polygon
+  // corners + rigid chains overestimate clashes, so buildability checks use
+  // looser limits than the exact chain construction (Kai: "in echt kann man
+  // das problemlos bauen").
+  var OVERLAP_TOL_CM = 0.35;          // allowed interpenetration before 'overlap'
+  var JOIN_TOL_CM = 0.45;             // branch feet / meeting fronts count as joined
   var LEN_SCALE = 10;                 // spec 7.5: solver works in dm
 
   // spec 12 - development values, NOT calibrated against real stones yet
@@ -413,9 +420,47 @@
     return t.Ri * Math.cos(phL) - front.Pin[0];
   }
 
+  // single on-axis stone capping a mirrored pair of open fronts: entry face
+  // horizontal on the symmetry axis, both switch arms reach down onto the pair
+  // (Kai: two apex switches can be closed on top with a third switch)
+  function fitBridge(frontFace, type) {
+    if (!STONES[type] || !STONES[type].sw) return null;
+    var probe = makeSwitchItem({ Pin: [-1, 0], u: [1, 0] }, type, false).item;
+    var arms = [probe.endFace, probe.exitSideFace];
+    var li = (arms[0].pin[0] + arms[0].pout[0]) < (arms[1].pin[0] + arms[1].pout[0]) ? 0 : 1;
+    var armMidY = (arms[li].pin[1] + arms[li].pout[1]) / 2;
+    var targetY = (frontFace.pin[1] + frontFace.pout[1]) / 2;
+    var h = targetY - armMidY;
+    var item = makeSwitchItem({ Pin: [-1, h], u: [1, 0] }, type, false).item;
+    var arm = [item.endFace, item.exitSideFace][li];
+    var gap = Math.min(faceGap(arm, frontFace),
+      Math.max(dist(arm.pin, frontFace.pout), dist(arm.pout, frontFace.pin)));
+    item.isBridge = true;
+    return { item: item, gap: gap };
+  }
+
+  function attachBridges(m, bridges) {
+    if (!bridges) return;
+    for (var key in bridges) {
+      var spec = bridges[key], found = null;
+      for (var i = 0; i < m.fronts.length; i++) {
+        if (!m.fronts[i].main && keyStr(m.fronts[i].chain) === key) { found = m.fronts[i]; break; }
+      }
+      var fit = found ? fitBridge(found.face, spec.type) : null;
+      if (fit && fit.gap <= JOIN_TOL_CM) {
+        fit.item.born = spec.born || 0;
+        fit.item.bridgeKey = key;
+        m.bridgeItems.push({ item: fit.item, frontKey: key, endIdx: found.endIdx, frontFace: found.face });
+        found.bridged = true;
+      } else {
+        m.bridgeDropped.push(key);
+      }
+    }
+  }
+
   // model of the whole arch: left items, keystone, mirrored right items,
   // missing angle, closure + geometric validity, merged chain + contacts
-  function archModel(stones, keyType) {
+  function archModel(stones, keyType, bridges) {
     var half = computeHalf(stones, 0);
     var m = {
       half: half,
@@ -424,10 +469,11 @@
       key: null, shift: 0,
       missing: 180 - 2 * half.sumDeg - (keyType ? STONES[keyType].angle : 0),
       closed: false, valid: false, errors: [], joinGap: Infinity,
-      fronts: half.fronts
+      fronts: half.fronts, bridgeItems: [], bridgeDropped: []
     };
     if (!stones.length || Math.abs(m.missing) > CLOSURE_TOL_DEG) {
       if (keyType) m.key = makeKeystone(half.front, keyType);   // dangling key (edited arch)
+      attachBridges(m, bridges);
       return m;
     }
     // angle sum closes: push the legs together on the ground + fit the keystone
@@ -444,6 +490,7 @@
       var last = faceOfCur(half.front);
       m.joinGap = faceGap(last, mirFace(last));
     }
+    attachBridges(m, bridges);
     m.closed = true;
     buildChain(m);
     validateChain(m);
@@ -485,7 +532,8 @@
     for (i = 0; i < m.fronts.length; i++) {
       f = m.fronts[i];
       if (f.main) continue;
-      var onGround = Math.abs(f.face.pin[1]) <= CONTACT_TOL_CM && Math.abs(f.face.pout[1]) <= CONTACT_TOL_CM;
+      if (f.bridged) continue;
+      var onGround = Math.abs(f.face.pin[1]) <= JOIN_TOL_CM && Math.abs(f.face.pout[1]) <= JOIN_TOL_CM;
       if (onGround) {
         specs.push({ a: -1, b: f.endIdx, face: f.face, kind: 'stone-ground' });
         specs.push({ a: -1, b: R(f.endIdx), face: mirFace(f.face), kind: 'stone-ground' });
@@ -500,10 +548,18 @@
         var g1 = faceGap(open[i].face, open[j].face);
         var g2 = Math.max(dist(open[i].face.pin, open[j].face.pout),
                           dist(open[i].face.pout, open[j].face.pin));
-        if (Math.min(g1, g2) <= CONTACT_TOL_CM) {
+        if (Math.min(g1, g2) <= JOIN_TOL_CM) {
           specs.push({ a: open[i].idx, b: open[j].idx, face: open[i].face, kind: 'stone-stone' });
         }
       }
+    }
+    // bridge stones: single on-axis stones capping a mirrored front pair
+    for (i = 0; i < (m.bridgeItems || []).length; i++) {
+      var br = m.bridgeItems[i];
+      var bIdx = m.chain.length;
+      m.chain.push(br.item);
+      specs.push({ a: br.endIdx, b: bIdx, face: br.frontFace, kind: 'stone-stone' });
+      specs.push({ a: R(br.endIdx), b: bIdx, face: mirFace(br.frontFace), kind: 'stone-stone' });
     }
     m.contactSpecs = specs;
   }
@@ -567,7 +623,7 @@
     for (i = 0; i < m.chain.length; i++) {
       b = m.chain[i];
       for (j = 0; j < b.poly.length; j++) {
-        if (b.poly[j][1] < -CONTACT_TOL_CM) { errs.push('below-ground'); i = m.chain.length; break; }
+        if (b.poly[j][1] < -OVERLAP_TOL_CM) { errs.push('below-ground'); i = m.chain.length; break; }
       }
     }
     var sf = m.left[0].startFace;
@@ -581,7 +637,7 @@
     for (i = 0; i < m.chain.length && errs.indexOf('overlap') < 0; i++) {
       for (j = i + 1; j < m.chain.length; j++) {
         if (touching[i + '_' + j]) continue;
-        if (bodiesOverlap(m.chain[i], m.chain[j], CONTACT_TOL_CM)) { errs.push('overlap'); break; }
+        if (bodiesOverlap(m.chain[i], m.chain[j], OVERLAP_TOL_CM)) { errs.push('overlap'); break; }
       }
     }
     m.errors = errs;
@@ -858,8 +914,8 @@
   }
 
   // spec 15: central evaluation flow
-  function evaluateArch(stones, keyType) {
-    var m = archModel(stones, keyType);
+  function evaluateArch(stones, keyType, bridges) {
+    var m = archModel(stones, keyType, bridges);
     if (!m.closed) return { state: 'incomplete', missing: m.missing, model: m };
     if (!m.valid) return { state: 'invalidGeometry', errors: m.errors, model: m };
     var contacts = detectContacts(m);
@@ -1208,8 +1264,9 @@
       stones: [],            // left half main chain; switch nodes carry .side = [nodes]
       key: null,             // keystone type once placed (single stone!)
       offer: null,           // stone type floating over the gap
-      sel: null,             // {kind:'pair', chain, idx} | {kind:'key'}
+      sel: null,             // {kind:'pair', chain, idx} | {kind:'key'} | {kind:'bridge', frontKey}
       activeFront: [],       // chain key of the front new stones attach to ([] = main)
+      bridges: {},           // frontKey -> {type, born}: on-axis singles capping a front pair
       result: null,          // last StabilityResult
       world: null,           // collapse world
       solveToken: 0,
@@ -1242,7 +1299,8 @@
   }
 
   function rebuild() {
-    model = archModel(state.stones, state.key);
+    model = archModel(state.stones, state.key, state.bridges);
+    for (var d = 0; d < model.bridgeDropped.length; d++) delete state.bridges[model.bridgeDropped[d]];
     state.offer = null;
     state.offerModel = null;
     if (!state.key && state.stones.length && model.missing > 0) {
@@ -1368,6 +1426,11 @@
       return;
     }
     if (state.sel) {
+      if (state.sel.kind === 'bridge') {
+        setTask('Br&uuml;cke markiert &ndash; sie schlie&szlig;t beide &Auml;ste zugleich. Vorrat (Weiche) tauscht sie, &#10005; nimmt sie raus.');
+        setTip('');
+        return;
+      }
       var sn = selNode();
       if (sn && STONES[sn.type].sw) {
         setTask('Weiche markiert &ndash; &#8635; tauscht ihre beiden Ausg&auml;nge, &#10005; nimmt sie samt Seitenast raus.');
@@ -1415,6 +1478,24 @@
     var arr = resolveChain(state.activeFront);
     if (!arr) { state.activeFront = []; arr = state.stones; }
     clearResult();
+    // a switch that exactly caps the active front pair goes in ONCE as a bridge
+    if (state.activeFront.length > 0 && STONES[typeKey].sw && model.fronts) {
+      var afKey = keyStr(state.activeFront);
+      for (var fi = 0; fi < model.fronts.length; fi++) {
+        var fr = model.fronts[fi];
+        if (fr.main || fr.bridged || keyStr(fr.chain) !== afKey) continue;
+        var fitB = fitBridge(fr.face, typeKey);
+        if (fitB && fitB.gap <= JOIN_TOL_CM && !state.bridges[afKey]) {
+          state.bridges[afKey] = { type: typeKey, born: NOW() };
+          tok(320, .07, .07);
+          setTimeout(function () { tok(430, .12, .08); }, 120);
+          state.sel = null;
+          refresh();
+          return;
+        }
+        break;
+      }
+    }
     if (state.activeFront.length === 0) dropKeyOnEdit();
     // side branches default to the branch's own curvature sense so the arc
     // continues smoothly; the user can still rotate every stone afterwards
@@ -1444,6 +1525,20 @@
   function swapSel(typeKey) {
     if (!state.sel) return;
     clearResult();
+    if (state.sel.kind === 'bridge') {
+      if (!STONES[typeKey].sw) {
+        setTask('Nur eine Weiche kann als Br&uuml;cke zwei &Auml;ste zugleich schlie&szlig;en.');
+        return;
+      }
+      var bEntry = state.bridges[state.sel.frontKey];
+      if (bEntry && bEntry.type !== typeKey) {
+        bEntry.type = typeKey;
+        bEntry.born = NOW();
+        tok(230, .07, .07);
+        refresh();                       // re-fitted; silently dropped if it no longer fits
+      }
+      return;
+    }
     if (state.sel.kind === 'key') {
       if (state.key === typeKey) return;
       if (STONES[typeKey].sw) {
@@ -1477,6 +1572,10 @@
       setTask('Der Schlussstein l&auml;sst sich nicht drehen &ndash; er schlie&szlig;t die L&uuml;cke nach innen.');
       return;
     }
+    if (state.sel.kind === 'bridge') {
+      setTask('Die Br&uuml;cke ist spiegelsymmetrisch &ndash; Drehen &auml;ndert nichts an ihr.');
+      return;
+    }
     var s = selNode();
     if (!s) return;
     clearResult();
@@ -1491,9 +1590,12 @@
     clearResult();
     if (state.sel.kind === 'key') {
       state.key = null;
+    } else if (state.sel.kind === 'bridge') {
+      delete state.bridges[state.sel.frontKey];
     } else {
+      // Kai: removing a stone takes the loose rest of its arm with it
       var arr = resolveChain(state.sel.chain);
-      if (arr) arr.splice(state.sel.idx, 1);          // a switch takes its side branch with it
+      if (arr) arr.splice(state.sel.idx);
       if (state.sel.chain.length === 0) dropKeyOnEdit();
       if (!resolveChain(state.activeFront)) state.activeFront = [];
     }
@@ -1520,7 +1622,7 @@
     var token = ++state.solveToken;
     setTimeout(function () {
       if (token !== state.solveToken) return;         // stale request, spec 7.1
-      var ev = evaluateArch(state.stones, state.key);
+      var ev = evaluateArch(state.stones, state.key, state.bridges);
       if (token !== state.solveToken) return;
       if (ev.state === 'incomplete' || ev.state === 'invalidGeometry') {
         state.phase = 'build';
@@ -1594,6 +1696,7 @@
       }
     } else {
       for (i = 0; i < model.left.length; i++) { grow(model.left[i].poly, 0.5); grow(model.right[i].poly, 0.5); }
+      for (i = 0; i < model.bridgeItems.length; i++) grow(model.bridgeItems[i].item.poly, 0.5);
       if (model.key) grow(model.key.poly, 0.5);
       else if (state.offer && state.offerModel) grow(state.offerModel.key.poly, 3);
     }
@@ -1799,6 +1902,7 @@
     for (var i = 0; i < model.fronts.length; i++) {
       var f = model.fronts[i];
       if (f.main && model.closed) continue;
+      if (f.bridged) continue;
       var isActive = keyStr(f.chain) === activeKey;
       var grounded = !f.main &&
         Math.abs(f.face.pin[1]) <= CONTACT_TOL_CM && Math.abs(f.face.pout[1]) <= CONTACT_TOL_CM;
@@ -1978,6 +2082,14 @@
         }
       }
       drawGhosts();
+      for (var bi2 = 0; bi2 < model.bridgeItems.length; bi2++) {
+        var bit = model.bridgeItems[bi2];
+        var bpts = drawStoneItem(bit.item, now);
+        if (state.sel && state.sel.kind === 'bridge' && state.sel.frontKey === bit.frontKey) {
+          strokePolyScreen(bpts, 'rgba(241,201,83,.4)', 7);
+          strokePolyScreen(bpts, PAPIER, 3);
+        }
+      }
       if (model.key) {
         var kb = model.key;
         kb.born = state.keyBorn || 0;
@@ -2113,6 +2225,17 @@
       if (Math.hypot(p[0] - oc[0], p[1] - (oc[1] - 34)) < Math.max(44, cam.z * 2.4)) {
         state.keyBorn = NOW();
         placeKeystone(state.offer);
+        return;
+      }
+    }
+
+    // bridge stones
+    for (i = 0; i < model.bridgeItems.length; i++) {
+      if (inPoly(wp, model.bridgeItems[i].item.poly)) {
+        if (state.phase === 'result') { state.phase = 'build'; clearResult(); }
+        state.sel = { kind: 'bridge', frontKey: model.bridgeItems[i].frontKey };
+        tok(320, .05, .05);
+        applyTexts();
         return;
       }
     }
@@ -2383,6 +2506,36 @@
     var evCan = evaluateArch(canti, null);
     chk('cantilever branch evaluates', evCan.state !== 'error', evCan.state);
 
+    // Drehen on a switch relocates its side branch to the other arm
+    var rotA = archModel([{ type: 'worange', inverted: false, born: 0, side: [{ type: 'orange', inverted: true, born: 0 }] }], null);
+    var rotB = archModel([{ type: 'worange', inverted: true, born: 0, side: [{ type: 'orange', inverted: true, born: 0 }] }], null);
+    var fA = null, fB = null;
+    rotA.fronts.forEach(function (f) { if (!f.main) fA = f; });
+    rotB.fronts.forEach(function (f) { if (!f.main) fB = f; });
+    chk('switch rotation moves the branch arm', fA && fB && dist(fA.face.pin, fB.face.pin) > 1,
+      fA && fB ? dist(fA.face.pin, fB.face.pin).toFixed(2) + 'cm apart' : 'missing front');
+
+    // three switches: apex switch pair closed on top by a single bridge switch
+    var triSw = [
+      { type: 'orange', inverted: false, born: 0 },
+      { type: 'orange', inverted: false, born: 0 },
+      { type: 'worange', inverted: false, born: 0, side: [] }
+    ];
+    var mTri0 = archModel(triSw, null);
+    chk('apex switch pair closes the bow', mTri0.closed, 'missing=' + mTri0.missing);
+    var triFront = null;
+    mTri0.fronts.forEach(function (f) { if (!f.main) triFront = f; });
+    var triFit = triFront ? fitBridge(triFront.face, 'worange') : null;
+    chk('bridge switch fits on the apex pair', !!triFit && triFit.gap <= JOIN_TOL_CM,
+      triFit ? 'gap=' + triFit.gap.toFixed(3) + 'cm' : 'no front');
+    var mTri = archModel(triSw, null, { '2': { type: 'worange', born: 0 } });
+    chk('three switches joined: bridge attached + valid', mTri.bridgeItems.length === 1 && mTri.valid,
+      'bridges=' + mTri.bridgeItems.length + ' errs=' + mTri.errors.join(','));
+    var evTri = evaluateArch(triSw, null, { '2': { type: 'worange', born: 0 } });
+    chk('three-switch structure reaches the solver',
+      evTri.state === 'stable' || evTri.state === 'critical' || evTri.state === 'unstable',
+      evTri.state + (evTri.result && evTri.result.alphaMax != null ? ' a=' + evTri.result.alphaMax.toFixed(3) : ''));
+
     // dynamics determinism (spec 16.3)
     var mE = archModel(stonesOf(['gelb']), 'gelb');
     var w1 = createCollapseWorld(mE.chain), w2 = createCollapseWorld(mE.chain);
@@ -2476,6 +2629,7 @@
           points: state.result.pressurePoints.length, solveMs: state.result.solveMs } : null,
         settled: state.world ? state.world.settled : null, worldTime: state.world ? state.world.time : null,
         outcome: state.world ? state.world.outcome : null,
+        bridges: Object.keys(state.bridges),
         bar: barButtons.map(function (b) { return { id: b.id, enabled: b.enabled, rect: b.rect }; })
       };
     },
@@ -2484,6 +2638,7 @@
       archModel: archModel, detectContacts: detectContacts,
       analyzeStatics: analyzeStatics, evaluateArch: evaluateArch,
       lpSolve: lpSolve, createCollapseWorld: createCollapseWorld, stepWorld: stepWorld,
+      bodiesOverlap: bodiesOverlap, fitBridge: fitBridge, makeSwitchItem: makeSwitchItem,
       DYN: DYN
     }
   };
