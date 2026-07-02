@@ -51,18 +51,23 @@
     stoneGroundMu: 0.50
   };
   // spec 3.3 - set real measured grams here to override area-proportional masses
-  var massCalibration = { gelbGrams: null, orangeGrams: null, gruenGrams: null, wuerfelGrams: null };
+  var massCalibration = { gelbGrams: null, orangeGrams: null, gruenGrams: null, wuerfelGrams: null,
+                          wgelbGrams: null, worangeGrams: null };
 
+  // Weichensteine (wgelb/worange): one entry face, two exit faces - the union of
+  // a segment and its mirror twin laid Fuge auf Fuge (Kai's construction rule).
   var STONES = {
     gelb:    { angle: 60, Ri: 2,  Ra: 4,  color: '#f1c953', label: '60°' },
     orange:  { angle: 30, Ri: 6,  Ra: 8,  color: '#f39200', label: '30°' },
     gruen:   { angle: 15, Ri: 14, Ra: 16, color: '#6cac53', label: '15°' },
-    wuerfel: { angle: 90, Ri: null, Ra: null, color: '#a93015', label: '90°' }
+    wuerfel: { angle: 90, Ri: null, Ra: null, color: '#a93015', label: '90°' },
+    wgelb:   { angle: 60, Ri: 2,  Ra: 4,  color: '#f1c953', label: '±60°', sw: true, base: 'gelb' },
+    worange: { angle: 30, Ri: 6,  Ra: 8,  color: '#f39200', label: '±30°', sw: true, base: 'orange' }
   };
-  var PAL_ORDER = ['gelb', 'orange', 'gruen', 'wuerfel'];
+  var PAL_ORDER = ['gelb', 'orange', 'gruen', 'wuerfel', 'wgelb', 'worange'];
 
-  var PAL = { y: 554, w: 120, h: 72, gap: 14 };
-  PAL.x0 = (W - (4 * PAL.w + 3 * PAL.gap)) / 2;
+  var PAL = { y: 554, w: 100, h: 72, gap: 10 };
+  PAL.x0 = (W - (6 * PAL.w + 5 * PAL.gap)) / 2;
   var BAR = { y: 640, h: 46 };        // action buttons live BELOW the palette
 
   /* ================= small math ================= */
@@ -99,6 +104,19 @@
     for (var i = 0; i < pts.length; i++) { x += pts[i][0]; y += pts[i][1]; }
     return [x / pts.length, y / pts.length];
   }
+  // area-weighted centroid, valid for any simple (also concave) polygon
+  function polyCentroid(pts) {
+    var A = 0, cx = 0, cy = 0, i, j, cr;
+    for (i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+      cr = pts[j][0] * pts[i][1] - pts[i][0] * pts[j][1];
+      A += cr;
+      cx += (pts[j][0] + pts[i][0]) * cr;
+      cy += (pts[j][1] + pts[i][1]) * cr;
+    }
+    A /= 2;
+    return [cx / (6 * A), cy / (6 * A)];
+  }
+  function keyStr(chain) { return chain.join('.'); }
   function inPoly(p, pts) {
     var c = false, i, j;
     for (i = 0, j = pts.length - 1; i < pts.length; j = i++) {
@@ -223,31 +241,122 @@
       item.poly = sectorPoly(C, Ri, Ra, ph0, ph1);
       item.slices = sectorSlices(C, Ri, Ra, ph0, ph1);
       item.centroid = add(C, mul(edir((ph0 + ph1) / 2), rs));
+      item.C = C;
     }
     return { item: item, cur: next };
+  }
+
+  // faceted arc from Pfrom to Pto around C (shortest sweep, <=5deg facets);
+  // Pfrom is assumed to be in the list already
+  function arcAppend(list, C, r, Pfrom, Pto) {
+    var a0 = Math.atan2(Pfrom[1] - C[1], Pfrom[0] - C[0]);
+    var a1 = Math.atan2(Pto[1] - C[1], Pto[0] - C[0]);
+    var d = a1 - a0;
+    while (d > Math.PI) d -= 2 * Math.PI;
+    while (d < -Math.PI) d += 2 * Math.PI;
+    var n = Math.max(1, Math.ceil(Math.abs(deg(d)) / 5)), i;
+    for (i = 1; i < n; i++) {
+      list.push([C[0] + Math.cos(a0 + d * i / n) * r, C[1] + Math.sin(a0 + d * i / n) * r]);
+    }
+    list.push(Pto.slice());
+  }
+
+  /* Weichenstein: union of a segment and its mirror twin sharing the entry face
+     (Kai: "eins gespiegelt, Fuge auf Fuge"). One entry, two exits at +-angle.
+     The two intrados circles are exactly tangent at the entry face corners, the
+     two extrados arcs cross at X ahead of the face (the concave notch).        */
+  function makeSwitchItem(cur, type, inverted) {
+    var t = STONES[type];
+    var N = stepStone(cur, t.base, false);
+    var I = stepStone(cur, t.base, true);
+    var main = inverted ? I : N, side = inverted ? N : I;
+    var Pin = cur.Pin.slice(), Pout = add(cur.Pin, mul(cur.u, 2));
+    var T = [cur.u[1], -cur.u[0]];                 // travel direction
+    var faceMid = add(Pin, cur.u);
+    var CN = N.item.C, CI = I.item.C, Ra = t.Ra;
+    var dvec = sub(CI, CN), d = len(dvec), dirC = mul(dvec, 1 / d);
+    var h = Math.sqrt(Math.max(0, Ra * Ra - d * d / 4));
+    var midC = mul(add(CN, CI), 0.5);
+    var X1 = add(midC, mul(perp(dirC), h));
+    var X = dot(sub(X1, faceMid), T) > 0 ? X1 : add(midC, mul(perp(dirC), -h));
+
+    var pts = [Pin.slice()];
+    arcAppend(pts, CN, t.Ri, Pin, N.item.endFace.pin);
+    pts.push(N.item.endFace.pout.slice());
+    arcAppend(pts, CN, Ra, N.item.endFace.pout, X);
+    arcAppend(pts, CI, Ra, X, I.item.endFace.pin);
+    pts.push(I.item.endFace.pout.slice());
+    arcAppend(pts, CI, t.Ri, I.item.endFace.pout, Pout);
+
+    var area = Math.abs(polySignedArea(pts));
+    var grams = { wgelb: massCalibration.wgelbGrams, worange: massCalibration.worangeGrams }[type];
+    var item = {
+      type: type, inverted: !!inverted, isSwitch: true,
+      poly: pts,
+      slices: N.item.slices.concat(I.item.slices),  // overlap is fine for SAT
+      centroid: polyCentroid(pts),
+      area: area,
+      massRel: (grams != null && grams > 0) ? grams : area,
+      startFace: { pin: Pin.slice(), pout: Pout.slice() },
+      endFace: main.item.endFace,                   // main-path continuation
+      exitSideFace: side.item.endFace,
+      exitSideCur: side.cur,
+      turn: main.item.turn
+    };
+    return { item: item, cur: main.cur };
+  }
+
+  function faceOfCur(cur) {
+    return { pin: cur.Pin.slice(), pout: add(cur.Pin, mul(cur.u, 2)) };
+  }
+
+  // recursive chain walker: places one chain of nodes, records items, the
+  // parent joints (links) and every open build front; switch stones recurse
+  // into their side chain with an extended chain key
+  function walkChainRec(nodes, cur, ctx, chainKey, parentIdx, parentFace) {
+    var turn = 0, i, nd, st, item, myIdx;
+    var prevIdx = parentIdx, prevFace = parentFace;
+    for (i = 0; i < nodes.length; i++) {
+      nd = nodes[i];
+      st = STONES[nd.type].sw ? makeSwitchItem(cur, nd.type, nd.inverted)
+                              : stepStone(cur, nd.type, nd.inverted);
+      item = st.item;
+      item.chain = chainKey;
+      item.idx = i;
+      item.born = nd.born || 0;
+      myIdx = ctx.items.length;
+      ctx.items.push(item);
+      if (prevIdx >= 0) ctx.links.push({ a: prevIdx, b: myIdx, face: prevFace });
+      if (item.isSwitch) {
+        var sideKey = chainKey.concat([i]);
+        var se = walkChainRec(nd.side || [], item.exitSideCur, ctx, sideKey, myIdx, item.exitSideFace);
+        ctx.fronts.push({ chain: sideKey, cur: se.cur, face: faceOfCur(se.cur), endIdx: se.endIdx, main: false });
+      }
+      prevIdx = myIdx;
+      prevFace = item.endFace;
+      cur = st.cur;
+      turn += item.turn;
+    }
+    return { cur: cur, turn: turn, endIdx: prevIdx };
   }
 
   // shift: symmetric slide of the springers along the ground (closing the arch
   // means pushing both legs together on the floor - exactly like real stones)
   function computeHalf(stones, shift) {
-    var items = [], sum = 0, i, st;
+    var ctx = { items: [], links: [], fronts: [] };
     var first = stones[0];
     var anchorR = first && STONES[first.type].Ri != null ? STONES[first.type].Ri : 2;
     var cur = { Pin: [-anchorR + (shift || 0), 0], u: [-1, 0] };
-    for (i = 0; i < stones.length; i++) {
-      st = stepStone(cur, stones[i].type, stones[i].inverted);
-      st.item.pairIdx = i;
-      st.item.born = stones[i].born || 0;
-      items.push(st.item);
-      cur = st.cur;
-      sum += st.item.turn;
-    }
-    return { items: items, front: cur, sumDeg: sum };
+    var main = walkChainRec(stones, cur, ctx, [], -1, null);
+    ctx.fronts.unshift({ chain: [], cur: main.cur, face: faceOfCur(main.cur), endIdx: main.endIdx, main: true });
+    return { items: ctx.items, front: main.cur, sumDeg: main.turn,
+             fronts: ctx.fronts, links: ctx.links, mainEndIdx: main.endIdx };
   }
 
   function mirrorItem(it) {
     return {
-      type: it.type, inverted: it.inverted, pairIdx: it.pairIdx, born: it.born,
+      type: it.type, inverted: it.inverted, chain: it.chain, idx: it.idx, born: it.born,
+      isSwitch: it.isSwitch,
       area: it.area, massRel: it.massRel,
       poly: it.poly.map(mirX),
       slices: it.slices.map(function (q) { return ensureCCW(q.map(mirX)); }),
@@ -314,7 +423,8 @@
       right: half.items.map(mirrorItem),
       key: null, shift: 0,
       missing: 180 - 2 * half.sumDeg - (keyType ? STONES[keyType].angle : 0),
-      closed: false, valid: false, errors: [], joinGap: Infinity
+      closed: false, valid: false, errors: [], joinGap: Infinity,
+      fronts: half.fronts
     };
     if (!stones.length || Math.abs(m.missing) > CLOSURE_TOL_DEG) {
       if (keyType) m.key = makeKeystone(half.front, keyType);   // dangling key (edited arch)
@@ -326,12 +436,12 @@
     m.half = half;
     m.left = half.items;
     m.right = half.items.map(mirrorItem);
+    m.fronts = half.fronts;
     if (keyType) {
       m.key = makeKeystone(half.front, keyType);
-      var frontFace = { pin: half.front.Pin, pout: add(half.front.Pin, mul(half.front.u, 2)) };
-      m.joinGap = faceGap(m.key.startFace, frontFace);
+      m.joinGap = faceGap(m.key.startFace, faceOfCur(half.front));
     } else {
-      var last = half.items[half.items.length - 1].endFace;
+      var last = faceOfCur(half.front);
       m.joinGap = faceGap(last, mirFace(last));
     }
     m.closed = true;
@@ -341,31 +451,61 @@
     return m;
   }
 
-  // merged chain: left leg bottom->top, keystone, right leg top->bottom (spec 4.x + Kai)
+  // merged structure: all left items, keystone, all mirrored right items.
+  // Contacts come from the walk links plus supports, side-branch feet and
+  // joints where two open fronts happen to meet face on face.
   function buildChain(m) {
-    var bodies = [], i;
-    for (i = 0; i < m.left.length; i++) bodies.push(m.left[i]);
-    if (m.key) bodies.push(m.key);
-    for (i = m.right.length - 1; i >= 0; i--) bodies.push(m.right[i]);
+    var nL = m.left.length, hasKey = !!m.key, i, j;
+    var bodies = m.left.slice();
+    if (hasKey) bodies.push(m.key);
+    for (i = 0; i < m.right.length; i++) bodies.push(m.right[i]);
     m.chain = bodies;
+    var R = function (k) { return nL + (hasKey ? 1 : 0) + k; };
 
-    // contact faces along the chain, in polyline order (left support ... right support)
-    var faces = [], n = m.left.length;
-    faces.push({ a: -1, b: 0, face: m.left[0].startFace, kind: 'stone-ground' });
-    for (i = 0; i < n - 1; i++) faces.push({ a: i, b: i + 1, face: m.left[i].endFace, kind: 'stone-stone' });
-    if (m.key) {
-      faces.push({ a: n - 1, b: n, face: m.key.startFace, kind: 'stone-stone' });
-      faces.push({ a: n, b: n + 1, face: m.key.endFace, kind: 'stone-stone' });
-    } else if (n >= 1 && bodies.length >= 2) {
-      faces.push({ a: n - 1, b: n, face: m.left[n - 1].endFace, kind: 'stone-stone' });
+    var specs = [];
+    specs.push({ a: -1, b: 0, face: m.left[0].startFace, kind: 'stone-ground' });
+    specs.push({ a: -1, b: R(0), face: mirFace(m.left[0].startFace), kind: 'stone-ground' });
+    var links = m.half.links, l;
+    for (i = 0; i < links.length; i++) {
+      l = links[i];
+      specs.push({ a: l.a, b: l.b, face: l.face, kind: 'stone-stone' });
+      specs.push({ a: R(l.a), b: R(l.b), face: mirFace(l.face), kind: 'stone-stone' });
     }
-    var off = n + (m.key ? 1 : 0);
-    for (i = 0; i < n - 1; i++) {
-      // between mirrored items (n-1-i) and (n-2-i): mirrored face of left joint n-2-i
-      faces.push({ a: off + i, b: off + i + 1, face: mirFace(m.left[n - 2 - i].endFace), kind: 'stone-stone' });
+    // apex: keystone joints or the two main fronts meeting on the axis
+    var e = m.half.mainEndIdx;
+    if (hasKey) {
+      specs.push({ a: e, b: nL, face: m.key.startFace, kind: 'stone-stone' });
+      specs.push({ a: nL, b: R(e), face: m.key.endFace, kind: 'stone-stone' });
+    } else {
+      specs.push({ a: e, b: R(e), face: faceOfCur(m.half.front), kind: 'stone-stone' });
     }
-    faces.push({ a: -1, b: bodies.length - 1, face: mirFace(m.left[0].startFace), kind: 'stone-ground' });
-    m.contactSpecs = faces;
+    // open side fronts: ground support when the end face lies on the ground,
+    // otherwise candidates for front-meets-front joints
+    var open = [], f;
+    for (i = 0; i < m.fronts.length; i++) {
+      f = m.fronts[i];
+      if (f.main) continue;
+      var onGround = Math.abs(f.face.pin[1]) <= CONTACT_TOL_CM && Math.abs(f.face.pout[1]) <= CONTACT_TOL_CM;
+      if (onGround) {
+        specs.push({ a: -1, b: f.endIdx, face: f.face, kind: 'stone-ground' });
+        specs.push({ a: -1, b: R(f.endIdx), face: mirFace(f.face), kind: 'stone-ground' });
+      } else {
+        open.push({ face: f.face, idx: f.endIdx });
+        open.push({ face: mirFace(f.face), idx: R(f.endIdx) });
+      }
+    }
+    for (i = 0; i < open.length; i++) {
+      for (j = i + 1; j < open.length; j++) {
+        if (open[i].idx === open[j].idx) continue;
+        var g1 = faceGap(open[i].face, open[j].face);
+        var g2 = Math.max(dist(open[i].face.pin, open[j].face.pout),
+                          dist(open[i].face.pout, open[j].face.pin));
+        if (Math.min(g1, g2) <= CONTACT_TOL_CM) {
+          specs.push({ a: open[i].idx, b: open[j].idx, face: open[i].face, kind: 'stone-stone' });
+        }
+      }
+    }
+    m.contactSpecs = specs;
   }
 
   function detectContacts(m) {
@@ -432,8 +572,15 @@
     }
     var sf = m.left[0].startFace;
     if (Math.abs(sf.pin[1]) > CONTACT_TOL_CM || Math.abs(sf.pout[1]) > CONTACT_TOL_CM) errs.push('no-support');
+    // bodies joined by a contact may touch; everything else must stay clear
+    var touching = {};
+    for (i = 0; i < m.contactSpecs.length; i++) {
+      var cs = m.contactSpecs[i];
+      if (cs.a >= 0) touching[Math.min(cs.a, cs.b) + '_' + Math.max(cs.a, cs.b)] = true;
+    }
     for (i = 0; i < m.chain.length && errs.indexOf('overlap') < 0; i++) {
-      for (j = i + 2; j < m.chain.length; j++) {
+      for (j = i + 1; j < m.chain.length; j++) {
+        if (touching[i + '_' + j]) continue;
         if (bodiesOverlap(m.chain[i], m.chain[j], CONTACT_TOL_CM)) { errs.push('overlap'); break; }
       }
     }
@@ -760,16 +907,17 @@
 
   function makeDynBody(item, idx) {
     var c = item.centroid;
-    var fixtures = [], area = 0, i;
+    var fixtures = [], i;
     for (i = 0; i < item.slices.length; i++) {
-      var f = item.slices[i].map(function (p) { return sub(p, c); });
-      fixtures.push(f);
-      area += polySignedArea(f);
+      fixtures.push(item.slices[i].map(function (p) { return sub(p, c); }));
     }
+    // mass and inertia from the true outline (switch stones have overlapping
+    // collision slices - summing those would double-count the shared region)
+    var outline = ensureCCW(item.poly.map(function (p) { return sub(p, c); }));
+    var area = Math.abs(polySignedArea(outline));
     var mass = item.massRel;
     var rho = mass / area;
-    var inertia = 0;
-    for (i = 0; i < fixtures.length; i++) inertia += polyInertia(fixtures[i], rho);
+    var inertia = Math.abs(polyInertia(outline, rho));
     return {
       idx: idx, type: item.type,
       pos: c.slice(), ang: 0,
@@ -1057,16 +1205,40 @@
   function freshState() {
     return {
       phase: 'build',        // build | solving | result | collapsing | settled
-      stones: [],            // left half: {type, inverted, born}
+      stones: [],            // left half main chain; switch nodes carry .side = [nodes]
       key: null,             // keystone type once placed (single stone!)
       offer: null,           // stone type floating over the gap
-      sel: null,             // {kind:'pair', idx} | {kind:'key'}
+      sel: null,             // {kind:'pair', chain, idx} | {kind:'key'}
+      activeFront: [],       // chain key of the front new stones attach to ([] = main)
       result: null,          // last StabilityResult
       world: null,           // collapse world
       solveToken: 0,
-      lastTap: 0, lastTapIdx: null,
+      lastTap: 0, lastTapKey: null,
       pulse: 0
     };
+  }
+
+  function countNodes(nodes) {
+    var n = 0, i;
+    for (i = 0; i < nodes.length; i++) {
+      n++;
+      if (nodes[i].side) n += countNodes(nodes[i].side);
+    }
+    return n;
+  }
+  function resolveChain(chainKey) {
+    var arr = state.stones, i, nd;
+    for (i = 0; i < chainKey.length; i++) {
+      nd = arr && arr[chainKey[i]];
+      if (!nd || !nd.side) return null;
+      arr = nd.side;
+    }
+    return arr;
+  }
+  function selNode() {
+    if (!state.sel || state.sel.kind !== 'pair') return null;
+    var arr = resolveChain(state.sel.chain);
+    return arr ? arr[state.sel.idx] : null;
   }
 
   function rebuild() {
@@ -1076,6 +1248,7 @@
     if (!state.key && state.stones.length && model.missing > 0) {
       for (var i = 0; i < PAL_ORDER.length; i++) {
         var k = PAL_ORDER[i];
+        if (STONES[k].sw) continue;                  // a switch cannot close the gap
         if (Math.abs(STONES[k].angle - model.missing) <= CLOSURE_TOL_DEG) {
           var probe = archModel(state.stones, k);
           if (probe.closed && probe.joinGap <= CONTACT_TOL_CM) {
@@ -1195,8 +1368,18 @@
       return;
     }
     if (state.sel) {
-      setTask('Stein markiert &ndash; unten: Vorrat tauscht ihn, &#8635; dreht die Kr&uuml;mmung, &#10005; nimmt ihn raus.');
+      var sn = selNode();
+      if (sn && STONES[sn.type].sw) {
+        setTask('Weiche markiert &ndash; &#8635; tauscht ihre beiden Ausg&auml;nge, &#10005; nimmt sie samt Seitenast raus.');
+      } else {
+        setTask('Stein markiert &ndash; unten: Vorrat tauscht ihn, &#8635; dreht die Kr&uuml;mmung, &#10005; nimmt ihn raus.');
+      }
       setTip('');
+      return;
+    }
+    if (state.activeFront.length) {
+      setTask('Du baust am Seitenast &ndash; neue Steine setzen am leuchtenden Geist an. Anderen Geist antippen wechselt die Stelle.');
+      setTip('Erreicht der Ast den Boden (gr&uuml;ner Geist), tr&auml;gt er mit &ndash; sonst h&auml;ngt er frei am Bogen.');
       return;
     }
     if (state.offer) {
@@ -1226,11 +1409,22 @@
     if (state.key) { state.key = null; }
   }
 
-  function addPair(typeKey) {
-    if (state.stones.length >= MAX_STONES) return;
+  // add a stone at the active build front (main chain or a switch side chain)
+  function addStone(typeKey) {
+    if (countNodes(state.stones) >= MAX_STONES) return;
+    var arr = resolveChain(state.activeFront);
+    if (!arr) { state.activeFront = []; arr = state.stones; }
     clearResult();
-    dropKeyOnEdit();
-    state.stones.push({ type: typeKey, inverted: false, born: NOW() });
+    if (state.activeFront.length === 0) dropKeyOnEdit();
+    // side branches default to the branch's own curvature sense so the arc
+    // continues smoothly; the user can still rotate every stone afterwards
+    var inv = false;
+    if (state.activeFront.length > 0) {
+      inv = arr.length ? !!arr[arr.length - 1].inverted : true;
+    }
+    var nd = { type: typeKey, inverted: inv, born: NOW() };
+    if (STONES[typeKey].sw) nd.side = [];
+    arr.push(nd);
     tok(190, .08, .08);
     setTimeout(function () { tok(150, .1, .07); }, 110);
     state.sel = null;
@@ -1252,6 +1446,10 @@
     clearResult();
     if (state.sel.kind === 'key') {
       if (state.key === typeKey) return;
+      if (STONES[typeKey].sw) {
+        setTask('Eine Weiche kann kein Schlussstein sein &ndash; ihr zweiter Ausgang h&auml;tte keinen Anschluss.');
+        return;
+      }
       var probe = archModel(state.stones, typeKey);
       if (probe.closed && probe.joinGap <= CONTACT_TOL_CM) {
         state.key = typeKey;
@@ -1262,10 +1460,12 @@
       }
       return;
     }
-    var s = state.stones[state.sel.idx];
+    var s = selNode();
     if (!s || s.type === typeKey) return;
-    dropKeyOnEdit();
+    if (state.sel.chain.length === 0) dropKeyOnEdit();
     s.type = typeKey;
+    if (STONES[typeKey].sw && !s.side) s.side = [];
+    if (!STONES[typeKey].sw && s.side) delete s.side;
     s.born = NOW();
     tok(230, .07, .07);
     refresh();
@@ -1277,10 +1477,10 @@
       setTask('Der Schlussstein l&auml;sst sich nicht drehen &ndash; er schlie&szlig;t die L&uuml;cke nach innen.');
       return;
     }
-    var s = state.stones[state.sel.idx];
+    var s = selNode();
     if (!s) return;
     clearResult();
-    dropKeyOnEdit();
+    if (state.sel.chain.length === 0) dropKeyOnEdit();
     s.inverted = !s.inverted;
     tok(260, .07, .07);
     refresh();
@@ -1292,8 +1492,10 @@
     if (state.sel.kind === 'key') {
       state.key = null;
     } else {
-      state.stones.splice(state.sel.idx, 1);
-      dropKeyOnEdit();
+      var arr = resolveChain(state.sel.chain);
+      if (arr) arr.splice(state.sel.idx, 1);          // a switch takes its side branch with it
+      if (state.sel.chain.length === 0) dropKeyOnEdit();
+      if (!resolveChain(state.activeFront)) state.activeFront = [];
     }
     state.sel = null;
     tok(120, .09, .08);
@@ -1471,6 +1673,11 @@
       var poly;
       if (k === 'wuerfel') {
         poly = [[tcx - 15, tcy - 13], [tcx + 15, tcy - 13], [tcx + 15, tcy + 17], [tcx - 15, tcy + 17]];
+      } else if (t.sw) {
+        // switch glyph: real union outline, entry face down, fan opening up
+        var sw = makeSwitchItem({ Pin: [1, 0], u: [1, 0] }, k, false).item;
+        var s = 10;
+        poly = sw.poly.map(function (p) { return [tcx + (p[0] - 2) * s, PAL.y + 48 + p[1] * s]; });
       } else {
         var C = [tcx, tcy + t.Ra * 15 - 13];
         var a0 = rad(90 + t.angle / 2), a1 = rad(90 - t.angle / 2);
@@ -1581,6 +1788,52 @@
     return pts;
   }
 
+  // ghost markers at every open build front (Kai: Geistersteine an den
+  // Weichen-Ausgängen; the glowing one is where the next stone will attach)
+  var ghostHits = [];
+  function drawGhosts() {
+    ghostHits = [];
+    if (state.phase !== 'build' && state.phase !== 'result') return;
+    if (!model.fronts || model.fronts.length < 2) return;   // only once a switch exists
+    var activeKey = keyStr(state.activeFront);
+    for (var i = 0; i < model.fronts.length; i++) {
+      var f = model.fronts[i];
+      if (f.main && model.closed) continue;
+      var isActive = keyStr(f.chain) === activeKey;
+      var grounded = !f.main &&
+        Math.abs(f.face.pin[1]) <= CONTACT_TOL_CM && Math.abs(f.face.pout[1]) <= CONTACT_TOL_CM;
+      var T = [f.cur.u[1], -f.cur.u[0]];
+      ghostMarker(f.face, T, f.chain, isActive, grounded);
+      ghostMarker(mirFace(f.face), [-T[0], T[1]], f.chain, isActive, grounded);
+    }
+  }
+  function ghostMarker(face, T, chain, active, grounded) {
+    var mid = mul(add(face.pin, face.pout), 0.5);
+    var c = w2s(add(mid, mul(T, 1.4)));
+    var p1 = w2s(face.pin), p2 = w2s(face.pout);
+    var col = grounded ? '#6cac53' : (active ? '#f1c953' : 'rgba(245,236,226,.55)');
+    ctx.save();
+    ctx.globalAlpha = active ? .95 : .6;
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 4]);
+    ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.stroke();
+    ctx.setLineDash([]);
+    var r = active ? 13 + Math.sin(state.pulse * 3) * 1.5 : 11;
+    ctx.beginPath();
+    ctx.arc(c[0], c[1], r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(20,16,14,.75)';
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = col;
+    ctx.font = '600 15px "Ciutadella", system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('+', c[0], c[1] + 1);
+    ctx.restore();
+    ghostHits.push({ x: c[0], y: c[1], chain: chain });
+  }
+
   function drawPressureLine() {
     var res = state.result;
     if (!res || !res.pressurePoints.length) return;
@@ -1589,10 +1842,28 @@
     ctx.globalAlpha = .9;
     ctx.strokeStyle = 'rgba(241,201,83,.8)';
     ctx.lineWidth = 2.5;
-    ctx.setLineDash([1, 0]);
-    ctx.beginPath();
-    pts.forEach(function (p, i) { i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); });
-    ctx.stroke();
+    // discrete support polygon: connect the loaded pressure points of each
+    // body - a plain stone gets one segment, a switch a real force fork
+    var byBody = {}, bi, bj;
+    for (bi = 0; bi < res.contacts.length; bi++) {
+      var solB = res.contacts[bi];
+      if (!solB.loaded || !res.contactGeo) continue;
+      var geo = res.contactGeo[bi];
+      if (geo.a >= 0) (byBody[geo.a] = byBody[geo.a] || []).push(solB.point);
+      if (geo.b >= 0) (byBody[geo.b] = byBody[geo.b] || []).push(solB.point);
+    }
+    for (var bk in byBody) {
+      var bp = byBody[bk];
+      for (bi = 0; bi < bp.length; bi++) {
+        for (bj = bi + 1; bj < bp.length; bj++) {
+          var q1 = w2s(bp[bi]), q2 = w2s(bp[bj]);
+          ctx.beginPath();
+          ctx.moveTo(q1[0], q1[1]);
+          ctx.lineTo(q2[0], q2[1]);
+          ctx.stroke();
+        }
+      }
+    }
     for (var i = 0; i < pts.length; i++) {
       var hinge = res.pressurePoints[i].hinge;
       ctx.beginPath();
@@ -1698,11 +1969,15 @@
       }
     } else {
       var selPts = null, selPtsR = null, selKey = null;
+      var selId = state.sel && state.sel.kind === 'pair' ? keyStr(state.sel.chain) + ':' + state.sel.idx : null;
       for (var s = 0; s < model.left.length; s++) {
         var ptsL = drawStoneItem(model.left[s], now);
         var ptsR = drawStoneItem(model.right[s], now);
-        if (state.sel && state.sel.kind === 'pair' && state.sel.idx === s) { selPts = ptsL; selPtsR = ptsR; }
+        if (selId !== null && keyStr(model.left[s].chain) + ':' + model.left[s].idx === selId) {
+          selPts = ptsL; selPtsR = ptsR;
+        }
       }
+      drawGhosts();
       if (model.key) {
         var kb = model.key;
         kb.born = state.keyBorn || 0;
@@ -1799,8 +2074,10 @@
       if (p[0] >= r[0] && p[0] <= r[0] + r[2] && p[1] >= r[1] && p[1] <= r[1] + r[3]) {
         var k = palItems[i].key;
         if (state.sel) { swapSel(k); return; }
-        // Kai req 3: a stone that exactly closes the gap goes in ONCE (keystone)
-        if (!state.key && state.stones.length && Math.abs(STONES[k].angle - model.missing) <= CLOSURE_TOL_DEG) {
+        // Kai req 3: a stone that exactly closes the gap goes in ONCE (keystone);
+        // only on the main front, and a switch can never be the closing stone
+        if (!state.key && state.stones.length && state.activeFront.length === 0 && !STONES[k].sw &&
+            Math.abs(STONES[k].angle - model.missing) <= CLOSURE_TOL_DEG) {
           var probe = archModel(state.stones, k);
           if (probe.closed && probe.joinGap <= CONTACT_TOL_CM) {
             state.keyBorn = NOW();
@@ -1811,7 +2088,18 @@
           return;
         }
         if (state.phase === 'result') { state.phase = 'build'; clearResult(); }
-        addPair(k);
+        addStone(k);
+        return;
+      }
+    }
+
+    // ghost fronts: choose where the next stone attaches
+    for (i = 0; i < ghostHits.length; i++) {
+      if (Math.hypot(p[0] - ghostHits[i].x, p[1] - ghostHits[i].y) < Math.max(26, cam.z * 1.2)) {
+        state.activeFront = ghostHits[i].chain.slice();
+        state.sel = null;
+        tok(360, .05, .05);
+        applyTexts();
         return;
       }
     }
@@ -1838,19 +2126,21 @@
       return;
     }
 
-    // stones (either side selects the pair)
+    // stones (either side selects the mirrored pair)
     for (i = model.left.length - 1; i >= 0; i--) {
       if (inPoly(wp, model.left[i].poly) || inPoly(wp, model.right[i].poly)) {
         var nowMs = NOW();
+        var it = model.left[i];
+        var tapKey = keyStr(it.chain) + ':' + it.idx;
         if (state.phase === 'result') { state.phase = 'build'; clearResult(); }
-        if (state.sel && state.sel.kind === 'pair' && state.sel.idx === i &&
-            state.lastTapIdx === i && nowMs - state.lastTap < 380) {
+        if (state.sel && state.sel.kind === 'pair' &&
+            state.lastTapKey === tapKey && nowMs - state.lastTap < 380) {
           removeSel();
           return;
         }
-        state.sel = { kind: 'pair', idx: i };
+        state.sel = { kind: 'pair', chain: it.chain.slice(), idx: it.idx };
         state.lastTap = nowMs;
-        state.lastTapIdx = i;
+        state.lastTapKey = tapKey;
         tok(320, .05, .05);
         applyTexts();
         return;
@@ -2055,6 +2345,44 @@
     var evX = evaluateArch(sInv2, null);   // per side 60-30+30+60 = 120 -> missing -60
     chk('X: open combo stays incomplete', evX.state === 'incomplete', evX.state);
 
+    // Weichensteine: mirrored-twin union, one entry, two exits
+    var swI = makeSwitchItem({ Pin: [0, 0], u: [1, 0] }, 'wgelb', false).item;
+    chk('switch: exit faces are 2cm', Math.abs(dist(swI.endFace.pin, swI.endFace.pout) - 2) < 1e-9 &&
+      Math.abs(dist(swI.exitSideFace.pin, swI.exitSideFace.pout) - 2) < 1e-9);
+    chk('switch: union area between 1x and 2x segment',
+      swI.area > stoneArea('gelb') && swI.area < 2 * stoneArea('gelb'), swI.area.toFixed(3));
+    chk('switch: centroid on the symmetry axis', Math.abs(swI.centroid[0] - 1) < 1e-6, swI.centroid[0].toFixed(5));
+    var swV = makeSwitchItem({ Pin: [0, 0], u: [1, 0] }, 'wgelb', true).item;
+    chk('switch: Drehen swaps the exits', swI.turn === -swV.turn && Math.abs(swI.turn) === 60,
+      swI.turn + '/' + swV.turn);
+    var mSw = archModel([{ type: 'wgelb', inverted: true, born: 0 }], null);
+    chk('inverted switch bends the main path outward', Math.abs(mSw.missing - 300) < 1e-9, 'missing=' + mSw.missing);
+
+    // portal: springer switches, side branches arc back down to the ground
+    var sideArc = [];
+    for (i = 0; i < 5; i++) sideArc.push({ type: 'orange', inverted: true, born: 0 });
+    var portal = [
+      { type: 'worange', inverted: false, born: 0, side: sideArc },
+      { type: 'orange', inverted: false, born: 0 },
+      { type: 'orange', inverted: false, born: 0 }
+    ];
+    var mPor = archModel(portal, null);
+    var grounds = mPor.contactSpecs ? mPor.contactSpecs.filter(function (c) { return c.kind === 'stone-ground'; }).length : 0;
+    chk('portal: closes and side feet reach the ground', mPor.closed && mPor.valid && grounds === 4,
+      'closed=' + mPor.closed + ' errs=' + (mPor.errors || []).join(',') + ' grounds=' + grounds);
+    var evPor = evaluateArch(portal, null);
+    chk('portal: solver judges the whole structure',
+      evPor.state === 'stable' || evPor.state === 'critical' || evPor.state === 'unstable',
+      evPor.state + (evPor.result && evPor.result.alphaMax != null ? ' a=' + evPor.result.alphaMax.toFixed(3) : ''));
+
+    // cantilever stub hanging off a switch: honest, must evaluate without error
+    var canti = [
+      { type: 'worange', inverted: false, born: 0, side: [{ type: 'orange', inverted: true, born: 0 }] },
+      { type: 'gelb', inverted: false, born: 0 }
+    ];
+    var evCan = evaluateArch(canti, null);
+    chk('cantilever branch evaluates', evCan.state !== 'error', evCan.state);
+
     // dynamics determinism (spec 16.3)
     var mE = archModel(stonesOf(['gelb']), 'gelb');
     var w1 = createCollapseWorld(mE.chain), w2 = createCollapseWorld(mE.chain);
@@ -2134,6 +2462,11 @@
         closed: model ? model.closed : false, valid: model ? model.valid : false,
         missing: model ? model.missing : null,
         camera: { z: cam.z, ox: cam.ox, gy: GY },
+        activeFront: state.activeFront,
+        fronts: model && model.fronts ? model.fronts.map(function (f) {
+          return { chain: f.chain, main: f.main, mid: mul(add(f.face.pin, f.face.pout), 0.5) };
+        }) : [],
+        ghosts: ghostHits.map(function (g) { return { x: g.x, y: g.y, chain: g.chain }; }),
         centroids: model ? model.left.map(function (it) { return it.centroid; }) : [],
         centroidsR: model ? model.right.map(function (it) { return it.centroid; }) : [],
         keyCentroid: model && model.key ? model.key.centroid : null,
