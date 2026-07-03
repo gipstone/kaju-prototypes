@@ -471,19 +471,29 @@
   // horizontal on the symmetry axis, both switch arms reach down onto the pair
   // (Kai: two apex switches can be closed on top with a third switch)
   function fitBridge(frontFace, type) {
-    if (!STONES[type] || !STONES[type].sw) return null;
-    var probe = makeSwitchItem({ Pin: [-1, 0], u: [1, 0] }, type, false).item;
-    var arms = [probe.endFace, probe.exitSideFace];
-    var li = (arms[0].pin[0] + arms[0].pout[0]) < (arms[1].pin[0] + arms[1].pout[0]) ? 0 : 1;
-    var armMidY = (arms[li].pin[1] + arms[li].pout[1]) / 2;
-    var targetY = (frontFace.pin[1] + frontFace.pout[1]) / 2;
-    var h = targetY - armMidY;
-    var item = makeSwitchItem({ Pin: [-1, h], u: [1, 0] }, type, false).item;
-    var arm = [item.endFace, item.exitSideFace][li];
-    var gap = Math.min(faceGap(arm, frontFace),
-      Math.max(dist(arm.pin, frontFace.pout), dist(arm.pout, frontFace.pin)));
-    item.isBridge = true;
-    return { item: item, gap: gap };
+    if (!STONES[type]) return null;
+    if (STONES[type].sw) {
+      var probe = makeSwitchItem({ Pin: [-1, 0], u: [1, 0] }, type, false).item;
+      var arms = [probe.endFace, probe.exitSideFace];
+      var li = (arms[0].pin[0] + arms[0].pout[0]) < (arms[1].pin[0] + arms[1].pout[0]) ? 0 : 1;
+      var armMidY = (arms[li].pin[1] + arms[li].pout[1]) / 2;
+      var targetY = (frontFace.pin[1] + frontFace.pout[1]) / 2;
+      var h = targetY - armMidY;
+      var item = makeSwitchItem({ Pin: [-1, h], u: [1, 0] }, type, false).item;
+      var arm = [item.endFace, item.exitSideFace][li];
+      var gap = Math.min(faceGap(arm, frontFace),
+        Math.max(dist(arm.pin, frontFace.pout), dist(arm.pout, frontFace.pin)));
+      item.isBridge = true;
+      return { item: item, gap: gap };
+    }
+    // plain stone as a single on-axis piece capping the mirrored front pair
+    // (Kai: when two arms meet, ONE stone should do the job, not a nested pair)
+    var curF = { Pin: frontFace.pin.slice(), u: norm(sub(frontFace.pout, frontFace.pin)) };
+    var item2 = makeKeystone(curF, type);
+    var gap2 = Math.min(faceGap(item2.startFace, frontFace),
+      Math.max(dist(item2.startFace.pin, frontFace.pout), dist(item2.startFace.pout, frontFace.pin)));
+    item2.isBridge = true;
+    return { item: item2, gap: gap2 };
   }
 
   function attachBridges(m, bridges) {
@@ -515,21 +525,22 @@
       right: half.items.map(mirrorItem),
       key: null, shift: 0,
       missing: 180 - 2 * half.sumDeg - (keyType ? STONES[keyType].angle : 0),
-      closed: false, valid: false, errors: [], joinGap: Infinity,
+      closed: false, allClosed: false, valid: false, errors: [], joinGap: Infinity,
       fronts: half.fronts, bridgeItems: [], bridgeDropped: []
     };
-    if (!stones.length || Math.abs(m.missing) > CLOSURE_TOL_DEG) {
-      if (keyType) m.key = makeKeystone(half.front, keyType);   // dangling key (edited arch)
-      attachBridges(m, bridges);
+    if (!stones.length) {
+      if (keyType) m.key = makeKeystone(half.front, keyType);
       return m;
     }
-    // angle sum closes: push the legs together on the ground + fit the keystone
-    m.shift = closureShift(half.front, keyType);
-    half = computeHalf(stones, m.shift);
-    m.half = half;
-    m.left = half.items;
-    m.right = half.items.map(mirrorItem);
-    m.fronts = half.fronts;
+    if (Math.abs(m.missing) <= CLOSURE_TOL_DEG) {
+      // slide assist for the symmetric bow: push the legs together on the ground
+      m.shift = closureShift(half.front, keyType);
+      half = computeHalf(stones, m.shift);
+      m.half = half;
+      m.left = half.items;
+      m.right = half.items.map(mirrorItem);
+      m.fronts = half.fronts;
+    }
     if (keyType) {
       m.key = makeKeystone(half.front, keyType);
       m.joinGap = faceGap(m.key.startFace, faceOfCur(half.front));
@@ -538,10 +549,17 @@
       m.joinGap = faceGap(last, mirFace(last));
     }
     attachBridges(m, bridges);
-    m.closed = true;
+    // closure is structural now: joints exist wherever faces actually meet.
+    // Any geometrically valid structure can be tested - open branches are
+    // honest cantilevers (Kai: Simulation auch bei offenen Aesten).
     buildChain(m);
     validateChain(m);
     m.valid = m.errors.length === 0;
+    m.allClosed = m.closed;
+    for (var fi = 0; fi < m.fronts.length; fi++) {
+      var ff = m.fronts[fi];
+      if (!ff.main && !(ff.bridged || ff.grounded || ff.joined)) m.allClosed = false;
+    }
     return m;
   }
 
@@ -565,28 +583,35 @@
       specs.push({ a: l.a, b: l.b, face: l.face, kind: 'stone-stone' });
       specs.push({ a: R(l.a), b: R(l.b), face: mirFace(l.face), kind: 'stone-stone' });
     }
-    // apex: keystone joints or the two main fronts meeting on the axis
+    // apex: keystone joints, or the two main fronts if they actually meet
     var e = m.half.mainEndIdx;
+    var mainFrontFace = faceOfCur(m.half.front);
+    var mainF = null;
+    for (i = 0; i < m.fronts.length; i++) if (m.fronts[i].main) mainF = m.fronts[i];
     if (hasKey) {
       specs.push({ a: e, b: nL, face: m.key.startFace, kind: 'stone-stone' });
       specs.push({ a: nL, b: R(e), face: m.key.endFace, kind: 'stone-stone' });
-    } else {
-      specs.push({ a: e, b: R(e), face: faceOfCur(m.half.front), kind: 'stone-stone' });
+      m.closed = true;
+      if (mainF) mainF.joined = true;
+    } else if (faceGap(mainFrontFace, mirFace(mainFrontFace)) <= JOIN_TOL_CM) {
+      specs.push({ a: e, b: R(e), face: mainFrontFace, kind: 'stone-stone' });
+      m.closed = true;
+      if (mainF) mainF.joined = true;
     }
-    // open side fronts: ground support when the end face lies on the ground,
-    // otherwise candidates for front-meets-front joints
+    // every unconsumed front (including an unjoined main front): ground support
+    // when the face lies on the floor, otherwise candidate for front joints
     var open = [], f;
     for (i = 0; i < m.fronts.length; i++) {
       f = m.fronts[i];
-      if (f.main) continue;
-      if (f.bridged) continue;
+      if (f.bridged || f.joined) continue;
       var onGround = Math.abs(f.face.pin[1]) <= JOIN_TOL_CM && Math.abs(f.face.pout[1]) <= JOIN_TOL_CM;
       if (onGround) {
+        f.grounded = true;
         specs.push({ a: -1, b: f.endIdx, face: f.face, kind: 'stone-ground' });
         specs.push({ a: -1, b: R(f.endIdx), face: mirFace(f.face), kind: 'stone-ground' });
       } else {
-        open.push({ face: f.face, idx: f.endIdx });
-        open.push({ face: mirFace(f.face), idx: R(f.endIdx) });
+        open.push({ face: f.face, idx: f.endIdx, ref: f });
+        open.push({ face: mirFace(f.face), idx: R(f.endIdx), ref: f });
       }
     }
     for (i = 0; i < open.length; i++) {
@@ -597,6 +622,9 @@
                           dist(open[i].face.pout, open[j].face.pin));
         if (Math.min(g1, g2) <= JOIN_TOL_CM) {
           specs.push({ a: open[i].idx, b: open[j].idx, face: open[i].face, kind: 'stone-stone' });
+          open[i].ref.joined = true;
+          open[j].ref.joined = true;
+          if (open[i].ref.main || open[j].ref.main) m.closed = true;
         }
       }
     }
@@ -663,10 +691,10 @@
     return false;
   }
 
-  // spec 4.6: geometric validity, NOT a physics verdict
+  // spec 4.6: geometric validity, NOT a physics verdict. Open joints are no
+  // longer an error - unjoined fronts are simply open, the solver judges them.
   function validateChain(m) {
     var errs = [], i, j, b;
-    if (m.joinGap > CONTACT_TOL_CM) errs.push('joint-gap');
     for (i = 0; i < m.chain.length; i++) {
       b = m.chain[i];
       for (j = 0; j < b.poly.length; j++) {
@@ -960,10 +988,11 @@
     return res;
   }
 
-  // spec 15: central evaluation flow
+  // spec 15: central evaluation flow. Deviation on Kai's request: any valid
+  // structure is testable - closure is not required, open branches are honest.
   function evaluateArch(stones, keyType, bridges) {
     var m = archModel(stones, keyType, bridges);
-    if (!m.closed) return { state: 'incomplete', missing: m.missing, model: m };
+    if (!stones || !stones.length) return { state: 'incomplete', missing: m.missing, model: m };
     if (!m.valid) return { state: 'invalidGeometry', errors: m.errors, model: m };
     var contacts = detectContacts(m);
     var st = analyzeStatics(m.chain, contacts);
@@ -1460,16 +1489,19 @@
       setTip('');
       return;
     }
-    if (model.closed && !model.valid) {
-      setTask('Die Steine schlie&szlig;en noch nicht sauber an.');
-      setTip(model.errors.indexOf('joint-gap') >= 0
-        ? 'Die Winkel stimmen, aber die Fugen treffen sich nicht &ndash; die Form klafft. &Auml;ndere die Reihenfolge oder dreh einen Stein zur&uuml;ck.'
-        : 'Steine &uuml;berschneiden sich oder stecken im Boden &ndash; so kann der Bogen nicht stehen.');
+    if (!model.valid) {
+      setTask('Steine &uuml;berschneiden sich oder stecken im Boden &ndash; so l&auml;sst sich das nicht pr&uuml;fen.');
+      setTip('Nimm den zuletzt gesetzten Stein raus oder dreh eine Weiche zur&uuml;ck.');
       return;
     }
-    if (model.closed) {
-      setTask('Der Bogen ist geschlossen. Ob er wirklich tr&auml;gt? Unten: <b>Bogen testen</b>.');
+    if (model.allClosed && !state.sel) {
+      setTask('Alles geschlossen. Ob die Konstruktion wirklich tr&auml;gt? Unten: <b>Bogen testen</b>.');
       setTip('<b>Werkstatt-Tipp:</b> Geschlossen hei&szlig;t noch nicht stabil &ndash; erst die Kr&auml;fteprobe zeigt es.');
+      return;
+    }
+    if (model.closed && !state.sel && !state.activeFront.length) {
+      setTask('Der Bogen ist geschlossen. Testen geht jederzeit &ndash; auch mit offenen &Auml;sten.');
+      setTip('<b>Werkstatt-Tipp:</b> Offene &Auml;ste h&auml;ngen frei &ndash; die Kr&auml;fteprobe zeigt, ob sie halten.');
       return;
     }
     if (state.sel) {
@@ -1525,8 +1557,8 @@
     var arr = resolveChain(state.activeFront);
     if (!arr) { state.activeFront = []; arr = state.stones; }
     clearResult();
-    // a switch that exactly caps the active front pair goes in ONCE as a bridge
-    if (state.activeFront.length > 0 && STONES[typeKey].sw && model.fronts) {
+    // a stone that caps the active front pair goes in ONCE as an on-axis bridge
+    if (state.activeFront.length > 0 && model.fronts) {
       var afKey = keyStr(state.activeFront);
       for (var fi = 0; fi < model.fronts.length; fi++) {
         var fr = model.fronts[fi];
@@ -1553,6 +1585,36 @@
     var nd = { type: typeKey, inverted: inv, born: NOW() };
     if (STONES[typeKey].sw) { nd.side = []; nd.rot = 0; }
     arr.push(nd);
+    // Kai: two stones must never lie inside each other. If the new pair would
+    // bury itself in an existing stone (or its own mirror twin), take it back -
+    // and set the single on-axis stone instead where that roughly fits.
+    var probe2 = archModel(state.stones, state.key, state.bridges);
+    var afk = keyStr(state.activeFront), L = -1;
+    for (var li2 = 0; li2 < probe2.left.length; li2++) {
+      if (keyStr(probe2.left[li2].chain) === afk && probe2.left[li2].idx === arr.length - 1) { L = li2; break; }
+    }
+    if (L >= 0 && probe2.chain) {
+      var twinIdx = probe2.left.length + (probe2.key ? 1 : 0) + L;
+      var deep = -1;
+      for (var bj2 = 0; bj2 < probe2.chain.length; bj2++) {
+        if (bj2 === L) continue;
+        if (bodiesOverlap(probe2.chain[L], probe2.chain[bj2], 1.0)) { deep = bj2; break; }
+      }
+      if (deep >= 0) {
+        arr.pop();
+        if (deep === twinIdx && state.activeFront.length === 0 && !state.key) {
+          var kTry = archModel(state.stones, typeKey, state.bridges);
+          if (kTry.key && kTry.joinGap <= JOIN_TOL_CM) {
+            state.keyBorn = NOW();
+            placeKeystone(typeKey);
+            return;
+          }
+        }
+        refresh();
+        setTask('Da ist kein Platz mehr &ndash; der Stein l&auml;ge in einem anderen Stein.');
+        return;
+      }
+    }
     tok(190, .08, .08);
     setTimeout(function () { tok(150, .1, .07); }, 110);
     state.sel = null;
@@ -1711,7 +1773,7 @@
   /* ================= test button flow (spec 15) ================= */
 
   function startTest() {
-    if (!model.closed || !model.valid) return;
+    if (!state.stones.length || !model.valid) return;
     state.phase = 'solving';
     state.sel = null;
     clearResult();
@@ -1932,8 +1994,9 @@
       var hasSel = !!state.sel;
       btns.push({ id: 'rotate', label: '↻  Drehen', enabled: hasSel });
       btns.push({ id: 'remove', label: '✕  Entfernen', enabled: hasSel });
+      var testable = state.stones.length > 0 && model.valid;
       btns.push({ id: 'test', label: state.phase === 'result' ? 'Nochmal testen' : 'Bogen testen',
-                  enabled: model.closed && model.valid, accent: model.closed && model.valid && state.phase !== 'result' });
+                  enabled: testable, accent: testable && model.allClosed && state.phase !== 'result' });
     }
     var n = btns.length;
     var bw = n === 2 ? 250 : 216, gap = 16;
@@ -1999,7 +2062,7 @@
     for (var i = 0; i < model.fronts.length; i++) {
       var f = model.fronts[i];
       if (f.main && model.closed) continue;
-      if (f.bridged) continue;
+      if (f.bridged || f.joined) continue;
       var isActive = keyStr(f.chain) === activeKey;
       var grounded = !f.main &&
         Math.abs(f.face.pin[1]) <= CONTACT_TOL_CM && Math.abs(f.face.pout[1]) <= CONTACT_TOL_CM;
@@ -2223,19 +2286,34 @@
       col = '#f39200';
     } else if (state.phase === 'solving') {
       txt = 'Kräfte werden geprüft …';
-    } else if (model.closed && model.valid) {
-      if (state.phase === 'result' && state.result) {
-        txt = state.result.status === 'stable' ? 'Der Bogen steht. ✓' : 'Der Bogen steht – gerade so.';
-        col = state.result.status === 'stable' ? '#f1c953' : '#f39200';
-      } else {
-        txt = 'Bogen geschlossen ✓'; col = '#f1c953';
-      }
-    } else if (model.closed) {
-      txt = 'Fast – die Fugen schließen nicht sauber.'; col = '#f39200';
+    } else if (state.phase === 'result' && state.result) {
+      txt = state.result.status === 'stable' ? 'Die Konstruktion steht. ✓' : 'Die Konstruktion steht – gerade so.';
+      col = state.result.status === 'stable' ? '#f1c953' : '#f39200';
     } else if (state.stones.length) {
-      var M = model.missing;
-      if (M > CLOSURE_TOL_DEG) txt = 'Noch ' + fmtDeg(M) + '° offen';
-      else if (M < -CLOSURE_TOL_DEG) { txt = fmtDeg(-M) + '° zu viel'; col = '#f39200'; }
+      if (!model.valid) {
+        txt = 'Steine überschneiden sich'; col = '#f39200';
+      } else if (model.allClosed) {
+        txt = 'Konstruktion geschlossen ✓'; col = '#f1c953';
+      } else if (state.activeFront.length) {
+        // per-arm readout (Kai): the branch currently being built
+        var af = null;
+        for (var fi2 = 0; fi2 < model.fronts.length; fi2++) {
+          if (!model.fronts[fi2].main && keyStr(model.fronts[fi2].chain) === keyStr(state.activeFront)) {
+            af = model.fronts[fi2]; break;
+          }
+        }
+        if (af && (af.grounded || af.joined || af.bridged)) { txt = 'Ast angeschlossen ✓'; col = '#6cac53'; }
+        else if (af) {
+          var dd = Math.abs(normDeg(faceDirDeg(af.face)));
+          dd = Math.min(dd, 180 - dd);
+          txt = 'Ast: noch ' + fmtDeg(dd) + '° bis waagerecht';
+        }
+      } else {
+        var M = model.missing;
+        if (model.closed) { txt = 'Bogen geschlossen ✓'; col = '#f1c953'; }
+        else if (M > CLOSURE_TOL_DEG) txt = 'Noch ' + fmtDeg(M) + '° offen';
+        else if (M < -CLOSURE_TOL_DEG) { txt = fmtDeg(-M) + '° zu viel'; col = '#f39200'; }
+      }
     }
     if (txt) {
       ctx.save();
@@ -2511,11 +2589,14 @@
     chk('G: 12 green closes + solver runs', evG.state !== 'incomplete' && evG.state !== 'invalidGeometry' && evG.state !== 'error',
       evG.state + ' α=' + (evG.result && evG.result.alphaMax != null ? evG.result.alphaMax.toFixed(3) : '–') + ' ' + Math.round(msG) + 'ms');
 
-    // H: missing stone -> incomplete, no solver
-    var evH = evaluateArch(stonesOf(['gelb', 'gelb']), null); // 240° = zu viel -> not closed
-    chk('H: open arch stays incomplete', evH.state === 'incomplete', evH.state);
-    var evH2 = evaluateArch(stonesOf(['gelb']), null);        // 120°, 60° missing
-    chk('H2: 60° gap stays incomplete', evH2.state === 'incomplete', 'missing=' + evH2.missing);
+    // H (adapted on Kai's request): open structures are testable - the solver
+    // judges loose legs and branches instead of a closure gate blocking them
+    var evH = evaluateArch(stonesOf(['gelb', 'gelb']), null);
+    chk('H: open arch is testable', evH.state !== 'incomplete' && evH.state !== 'error', evH.state);
+    var evH2 = evaluateArch(stonesOf(['gelb']), null);
+    chk('H2: single open pair is testable', evH2.state !== 'incomplete' && evH2.state !== 'error',
+      evH2.state + ' missing=' + evH2.missing);
+    chk('H3: empty stage stays incomplete', evaluateArch([], null).state === 'incomplete');
 
     // I: low ground friction -> sliding diagnosis
     var muSave = calibration.stoneGroundMu;
@@ -2563,7 +2644,7 @@
     var sInv2 = [{ type: 'gelb', inverted: false, born: 0 }, { type: 'orange', inverted: true, born: 0 },
                  { type: 'orange', inverted: false, born: 0 }, { type: 'gelb', inverted: false, born: 0 }];
     var evX = evaluateArch(sInv2, null);   // per side 60-30+30+60 = 120 -> missing -60
-    chk('X: open combo stays incomplete', evX.state === 'incomplete', evX.state);
+    chk('X: open combo evaluates honestly', evX.state !== 'incomplete' && evX.state !== 'error', evX.state);
 
     // Weichensteine: mirrored-twin union, one entry, two exits
     var swI = makeSwitchItem({ Pin: [0, 0], u: [1, 0] }, 'wgelb', false).item;
@@ -2650,6 +2731,37 @@
     chk('three-switch structure reaches the solver',
       evTri.state === 'stable' || evTri.state === 'critical' || evTri.state === 'unstable',
       evTri.state + (evTri.result && evTri.result.alphaMax != null ? ' a=' + evTri.result.alphaMax.toFixed(3) : ''));
+    chk('tri-switch: structurally all closed', mTri.allClosed === true, 'allClosed=' + mTri.allClosed);
+
+    // plain stone as on-axis bridge: a synthetic 120deg front pair fits a gelb exactly
+    var sFront = { pin: [-1, 4], pout: [-1 + 2 * Math.cos(rad(120)), 4 + 2 * Math.sin(rad(120))] };
+    var pb = fitBridge(sFront, 'gelb');
+    chk('plain stone fits as on-axis bridge', !!pb && pb.gap < 0.01, pb ? 'gap=' + pb.gap.toFixed(4) : 'null');
+
+    // Kai's cloverleaf: springer switch, arms converging, closed by a rotated
+    // switch - must be recognized as closed (front joint) and be testable
+    var clover = [
+      { type: 'worange', inverted: false, rot: 0, born: 0,
+        side: [{ type: 'orange', inverted: false, born: 0 }, { type: 'orange', inverted: false, born: 0 }] },
+      { type: 'orange', inverted: true, born: 0 },
+      { type: 'orange', inverted: true, born: 0 },
+      { type: 'worange', inverted: false, rot: 2, born: 0, side: [] }
+    ];
+    var mClover = archModel(clover, null);
+    var evClover = evaluateArch(clover, null);
+    chk('cloverleaf: loop closure via rotated switch is detected',
+      mClover.valid && mClover.closed, 'closed=' + mClover.closed + ' errs=' + mClover.errors.join(','));
+    chk('cloverleaf: testable despite the open stub',
+      evClover.state === 'stable' || evClover.state === 'critical' || evClover.state === 'unstable', evClover.state);
+
+    // half-built portal: main bow closed, side branch mid-air -> still testable
+    var evOpenPortal = evaluateArch([
+      { type: 'worange', inverted: false, born: 0, side: [{ type: 'orange', inverted: true, born: 0 }] },
+      { type: 'orange', inverted: false, born: 0 },
+      { type: 'orange', inverted: false, born: 0 }
+    ], null);
+    chk('open branch does not block the test', evOpenPortal.state !== 'incomplete' && evOpenPortal.state !== 'error',
+      evOpenPortal.state);
 
     // dynamics determinism (spec 16.3)
     var mE = archModel(stonesOf(['gelb']), 'gelb');
@@ -2728,11 +2840,13 @@
         phase: state.phase, offer: state.offer, key: state.key,
         stones: state.stones.map(function (s) { return { type: s.type, inverted: s.inverted }; }),
         closed: model ? model.closed : false, valid: model ? model.valid : false,
+        allClosed: model ? model.allClosed : false,
         missing: model ? model.missing : null,
         camera: { z: cam.z, ox: cam.ox, gy: GY },
         activeFront: state.activeFront,
         fronts: model && model.fronts ? model.fronts.map(function (f) {
-          return { chain: f.chain, main: f.main, mid: mul(add(f.face.pin, f.face.pout), 0.5) };
+          return { chain: f.chain, main: f.main, mid: mul(add(f.face.pin, f.face.pout), 0.5),
+                   grounded: !!f.grounded, joined: !!f.joined, bridged: !!f.bridged };
         }) : [],
         ghosts: ghostHits.map(function (g) { return { x: g.x, y: g.y, chain: g.chain }; }),
         centroids: model ? model.left.map(function (it) { return it.centroid; }) : [],
