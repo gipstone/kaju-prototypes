@@ -68,7 +68,7 @@
     orange:  { angle: 30, Ri: 6,  Ra: 8,  color: '#f39200', label: '30°' },
     gruen:   { angle: 15, Ri: 14, Ra: 16, color: '#6cac53', label: '15°' },
     wuerfel: { angle: 90, Ri: null, Ra: null, color: '#a93015', label: '90°' },
-    wgelb:   { angle: 60, Ri: 2,  Ra: 4,  color: '#f1c953', label: '±60°', sw: true, base: 'gelb' },
+    wgelb:   { angle: 60, Ri: 2,  Ra: 4,  color: '#f1c953', label: '±60°', sw: true, base: 'gelb', tri: true },
     worange: { angle: 30, Ri: 6,  Ra: 8,  color: '#f39200', label: '±30°', sw: true, base: 'orange' }
   };
   var PAL_ORDER = ['gelb', 'orange', 'gruen', 'wuerfel', 'wgelb', 'worange'];
@@ -305,17 +305,42 @@
     var X1 = add(midC, mul(perp(dirC), h));
     var X = dot(sub(X1, faceMid), T) > 0 ? X1 : add(midC, mul(perp(dirC), -h));
 
-    var pts = [Pin.slice()];
-    arcAppend(pts, CN, t.Ri, Pin, N.item.endFace.pin);
-    pts.push(N.item.endFace.pout.slice());
-    arcAppend(pts, CN, Ra, N.item.endFace.pout, X);
-    arcAppend(pts, CI, Ra, X, I.item.endFace.pin);
-    pts.push(I.item.endFace.pout.slice());
-    arcAppend(pts, CI, t.Ri, I.item.endFace.pout, Pout);
-
-    var slices = N.item.slices.concat(I.item.slices);   // overlap is fine for SAT
     var E = { pin: Pin.slice(), pout: Pout.slice() };
     var armN = N.item.endFace, armI = I.item.endFace;
+    var pts, slices;
+    if (t.tri) {
+      // Kai: the yellow switch is three overlaid segments - fully symmetric.
+      // The third segment spans the two arms; its centre CC sits Ri from both
+      // gap corners (outer solution), its extrados passes the far corners
+      // exactly (raster property of the 60deg stone).
+      var q1 = armN.pout, q2 = armI.pin;
+      var dq = sub(q2, q1), dl = len(dq), duq = mul(dq, 1 / dl);
+      var hh = Math.sqrt(Math.max(0, t.Ri * t.Ri - dl * dl / 4));
+      var mq = mul(add(q1, q2), 0.5);
+      var cA = add(mq, mul(perp(duq), hh)), cB2 = add(mq, mul(perp(duq), -hh));
+      var CC = dot(sub(cA, faceMid), T) > dot(sub(cB2, faceMid), T) ? cA : cB2;
+      pts = [Pin.slice()];
+      arcAppend(pts, CN, t.Ri, Pin, armN.pin);
+      pts.push(armN.pout.slice());
+      arcAppend(pts, CC, t.Ri, armN.pout, armI.pin);
+      pts.push(armI.pout.slice());
+      arcAppend(pts, CI, t.Ri, armI.pout, Pout);
+      var a1 = Math.atan2(q1[1] - CC[1], q1[0] - CC[0]);
+      var a2 = Math.atan2(q2[1] - CC[1], q2[0] - CC[0]);
+      var dd2 = a2 - a1;
+      while (dd2 > Math.PI) dd2 -= 2 * Math.PI;
+      while (dd2 < -Math.PI) dd2 += 2 * Math.PI;
+      slices = N.item.slices.concat(I.item.slices, sectorSlices(CC, t.Ri, Ra, a1, a1 + dd2));
+    } else {
+      pts = [Pin.slice()];
+      arcAppend(pts, CN, t.Ri, Pin, armN.pin);
+      pts.push(armN.pout.slice());
+      arcAppend(pts, CN, Ra, armN.pout, X);
+      arcAppend(pts, CI, Ra, X, armI.pin);
+      pts.push(armI.pout.slice());
+      arcAppend(pts, CI, t.Ri, armI.pout, Pout);
+      slices = N.item.slices.concat(I.item.slices);   // overlap is fine for SAT
+    }
     var centroid = polyCentroid(pts);
     var mainFace, sideFace;
 
@@ -453,7 +478,9 @@
       item.slices = sectorSlices(Ck, t.Ri, t.Ra, phL, ph1);
       item.centroid = add(Ck, mul(edir((phL + ph1) / 2), stoneCentroidRadius(type)));
       item.startFace = { pin: add(Ck, mul(edir(phL), t.Ri)), pout: add(Ck, mul(edir(phL), t.Ra)) };
-      item.endFace = mirFace(item.startFace);
+      // the REAL second radial face - it coincides with the mirrored start
+      // face only when the stone actually fills the gap symmetrically
+      item.endFace = { pin: add(Ck, mul(edir(ph1), t.Ri)), pout: add(Ck, mul(edir(ph1), t.Ra)) };
     }
     return item;
   }
@@ -473,6 +500,7 @@
   function fitBridge(frontFace, type) {
     if (!STONES[type]) return null;
     if (STONES[type].sw) {
+      // pose 1: entry face up on the axis, both arms reach down onto the pair
       var probe = makeSwitchItem({ Pin: [-1, 0], u: [1, 0] }, type, false).item;
       var arms = [probe.endFace, probe.exitSideFace];
       var li = (arms[0].pin[0] + arms[0].pout[0]) < (arms[1].pin[0] + arms[1].pout[0]) ? 0 : 1;
@@ -484,14 +512,28 @@
       var gap = Math.min(faceGap(arm, frontFace),
         Math.max(dist(arm.pin, frontFace.pout), dist(arm.pout, frontFace.pin)));
       item.isBridge = true;
+      // pose 2 (classic keystone seat): entry on the left front, the arm lands
+      // on the mirrored front - axis-symmetric for the fully symmetric wgelb
+      if (STONES[type].tri) {
+        var curF3 = { Pin: frontFace.pin.slice(), u: norm(sub(frontFace.pout, frontFace.pin)) };
+        var it3 = makeSwitchItem(curF3, type, 0).item;
+        var mf3 = mirFace(frontFace);
+        var g3 = Math.min(faceGap(it3.endFace, mf3),
+          Math.max(dist(it3.endFace.pin, mf3.pout), dist(it3.endFace.pout, mf3.pin)));
+        if (g3 < gap) { it3.isBridge = true; return { item: it3, gap: g3 }; }
+      }
       return { item: item, gap: gap };
     }
     // plain stone as a single on-axis piece capping the mirrored front pair
     // (Kai: when two arms meet, ONE stone should do the job, not a nested pair)
     var curF = { Pin: frontFace.pin.slice(), u: norm(sub(frontFace.pout, frontFace.pin)) };
     var item2 = makeKeystone(curF, type);
-    var gap2 = Math.min(faceGap(item2.startFace, frontFace),
-      Math.max(dist(item2.startFace.pin, frontFace.pout), dist(item2.startFace.pout, frontFace.pin)));
+    var mfF = mirFace(frontFace);
+    var gap2 = Math.max(
+      Math.min(faceGap(item2.startFace, frontFace),
+        Math.max(dist(item2.startFace.pin, frontFace.pout), dist(item2.startFace.pout, frontFace.pin))),
+      Math.min(faceGap(item2.endFace, mfF),
+        Math.max(dist(item2.endFace.pin, mfF.pout), dist(item2.endFace.pout, mfF.pin))));
     item2.isBridge = true;
     return { item: item2, gap: gap2 };
   }
@@ -501,7 +543,7 @@
     for (var key in bridges) {
       var spec = bridges[key], found = null;
       for (var i = 0; i < m.fronts.length; i++) {
-        if (!m.fronts[i].main && keyStr(m.fronts[i].chain) === key) { found = m.fronts[i]; break; }
+        if (keyStr(m.fronts[i].chain) === key) { found = m.fronts[i]; break; }
       }
       var fit = found ? fitBridge(found.face, spec.type) : null;
       if (fit && fit.gap <= JOIN_TOL_CM) {
@@ -543,7 +585,11 @@
     }
     if (keyType) {
       m.key = makeKeystone(half.front, keyType);
-      m.joinGap = faceGap(m.key.startFace, faceOfCur(half.front));
+      var ffm = faceOfCur(half.front);
+      // BOTH keystone ends must sit on the front pair (same-type stones always
+      // match the start face - only the end face reveals a non-fitting gap)
+      m.joinGap = Math.max(faceGap(m.key.startFace, ffm),
+                           faceGap(m.key.endFace, mirFace(ffm)));
     } else {
       var last = faceOfCur(half.front);
       m.joinGap = faceGap(last, mirFace(last));
@@ -597,6 +643,8 @@
       specs.push({ a: e, b: R(e), face: mainFrontFace, kind: 'stone-stone' });
       m.closed = true;
       if (mainF) mainF.joined = true;
+    } else if (mainF && mainF.bridged) {
+      m.closed = true;                    // a switch closes the bow as a bridge
     }
     // every unconsumed front (including an unjoined main front): ground support
     // when the face lies on the floor, otherwise candidate for front joints
@@ -1557,22 +1605,43 @@
     var arr = resolveChain(state.activeFront);
     if (!arr) { state.activeFront = []; arr = state.stones; }
     clearResult();
-    // a stone that caps the active front pair goes in ONCE as an on-axis bridge
-    if (state.activeFront.length > 0 && model.fronts) {
-      var afKey = keyStr(state.activeFront);
+    // Kai: the algorithm decides whether ONE stone or the mirrored pair is
+    // needed - so try the single fit first, on whichever front is active
+    var afKey = keyStr(state.activeFront);
+    var frontObj = null;
+    if (model.fronts) {
       for (var fi = 0; fi < model.fronts.length; fi++) {
-        var fr = model.fronts[fi];
-        if (fr.main || fr.bridged || keyStr(fr.chain) !== afKey) continue;
-        var fitB = fitBridge(fr.face, typeKey);
-        if (fitB && fitB.gap <= JOIN_TOL_CM && !state.bridges[afKey]) {
-          state.bridges[afKey] = { type: typeKey, born: NOW() };
-          tok(320, .07, .07);
-          setTimeout(function () { tok(430, .12, .08); }, 120);
-          state.sel = null;
-          refresh();
-          return;
+        if (keyStr(model.fronts[fi].chain) === afKey) { frontObj = model.fronts[fi]; break; }
+      }
+    }
+    if (frontObj && !frontObj.bridged && !frontObj.joined && !state.bridges[afKey]) {
+      var single = null;
+      if (frontObj.main) {
+        if (!state.key && !model.closed) {
+          if (STONES[typeKey].sw) {
+            var fitM = fitBridge(frontObj.face, typeKey);
+            if (fitM && fitM.gap <= JOIN_TOL_CM) single = 'bridge';
+          } else {
+            var kTry = archModel(state.stones, typeKey, state.bridges);
+            if (kTry.key && kTry.joinGap <= JOIN_TOL_CM) single = 'key';
+          }
         }
-        break;
+      } else {
+        var fitS = fitBridge(frontObj.face, typeKey);
+        if (fitS && fitS.gap <= JOIN_TOL_CM) single = 'bridge';
+      }
+      if (single === 'key') {
+        state.keyBorn = NOW();
+        placeKeystone(typeKey);
+        return;
+      }
+      if (single === 'bridge') {
+        state.bridges[afKey] = { type: typeKey, born: NOW() };
+        tok(320, .07, .07);
+        setTimeout(function () { tok(430, .12, .08); }, 120);
+        state.sel = null;
+        refresh();
+        return;
       }
     }
     if (state.activeFront.length === 0) dropKeyOnEdit();
@@ -1598,18 +1667,10 @@
       var deep = -1;
       for (var bj2 = 0; bj2 < probe2.chain.length; bj2++) {
         if (bj2 === L) continue;
-        if (bodiesOverlap(probe2.chain[L], probe2.chain[bj2], 1.0)) { deep = bj2; break; }
+        if (bodiesOverlap(probe2.chain[L], probe2.chain[bj2], 0.6)) { deep = bj2; break; }
       }
       if (deep >= 0) {
         arr.pop();
-        if (deep === twinIdx && state.activeFront.length === 0 && !state.key) {
-          var kTry = archModel(state.stones, typeKey, state.bridges);
-          if (kTry.key && kTry.joinGap <= JOIN_TOL_CM) {
-            state.keyBorn = NOW();
-            placeKeystone(typeKey);
-            return;
-          }
-        }
         refresh();
         setTask('Da ist kein Platz mehr &ndash; der Stein l&auml;ge in einem anderen Stein.');
         return;
@@ -1651,7 +1712,20 @@
     if (state.sel.kind === 'key') {
       if (state.key === typeKey) return;
       if (STONES[typeKey].sw) {
-        setTask('Eine Weiche kann kein Schlussstein sein &ndash; ihr zweiter Ausgang h&auml;tte keinen Anschluss.');
+        // swap the plain keystone for a switch bridge closing the bow
+        var km = archModel(state.stones, null, state.bridges);
+        var mf0 = null;
+        for (var f0 = 0; f0 < km.fronts.length; f0++) if (km.fronts[f0].main) mf0 = km.fronts[f0];
+        var fitK = mf0 ? fitBridge(mf0.face, typeKey) : null;
+        if (fitK && fitK.gap <= JOIN_TOL_CM && !state.bridges['']) {
+          state.key = null;
+          state.sel = null;
+          state.bridges[''] = { type: typeKey, born: NOW() };
+          tok(230, .07, .07);
+          refresh();
+        } else {
+          setTask('Diese Weiche passt hier nicht als Schluss.');
+        }
         return;
       }
       var probe = archModel(state.stones, typeKey);
@@ -2361,19 +2435,6 @@
       if (p[0] >= r[0] && p[0] <= r[0] + r[2] && p[1] >= r[1] && p[1] <= r[1] + r[3]) {
         var k = palItems[i].key;
         if (state.sel) { swapSel(k); return; }
-        // Kai req 3: a stone that exactly closes the gap goes in ONCE (keystone);
-        // only on the main front, and a switch can never be the closing stone
-        if (!state.key && state.stones.length && state.activeFront.length === 0 && !STONES[k].sw &&
-            Math.abs(STONES[k].angle - model.missing) <= CLOSURE_TOL_DEG) {
-          var probe = archModel(state.stones, k);
-          if (probe.closed && probe.joinGap <= CONTACT_TOL_CM) {
-            state.keyBorn = NOW();
-            placeKeystone(k);
-            return;
-          }
-          setTask('Der Winkel passt, aber die Fugen treffen sich nicht &ndash; die Form klafft.');
-          return;
-        }
         if (state.phase === 'result') { state.phase = 'build'; clearResult(); }
         addStone(k);
         return;
@@ -2650,9 +2711,18 @@
     var swI = makeSwitchItem({ Pin: [0, 0], u: [1, 0] }, 'wgelb', false).item;
     chk('switch: exit faces are 2cm', Math.abs(dist(swI.endFace.pin, swI.endFace.pout) - 2) < 1e-9 &&
       Math.abs(dist(swI.exitSideFace.pin, swI.exitSideFace.pout) - 2) < 1e-9);
-    chk('switch: union area between 1x and 2x segment',
-      swI.area > stoneArea('gelb') && swI.area < 2 * stoneArea('gelb'), swI.area.toFixed(3));
+    chk('wgelb: tri union area between 1x and 3x segment',
+      swI.area > stoneArea('gelb') && swI.area < 3 * stoneArea('gelb'), swI.area.toFixed(3));
+    var swO = makeSwitchItem({ Pin: [0, 0], u: [1, 0] }, 'worange', 0).item;
+    chk('worange: fan union area between 1x and 2x segment',
+      swO.area > stoneArea('orange') && swO.area < 2 * stoneArea('orange'), swO.area.toFixed(3));
     chk('switch: centroid on the symmetry axis', Math.abs(swI.centroid[0] - 1) < 1e-6, swI.centroid[0].toFixed(5));
+    // Kai: the yellow switch is fully symmetric (three overlaid segments) -
+    // every rotation seat is congruent, so turning it changes nothing visibly
+    var ygr = makeSwitchItem({ Pin: [0, 0], u: [1, 0] }, 'wgelb', 1).item;
+    chk('wgelb: all three seats are congruent',
+      dist(swI.centroid, ygr.centroid) < 1e-6 && Math.abs(swI.area - ygr.area) < 1e-6,
+      'dc=' + dist(swI.centroid, ygr.centroid).toExponential(1));
     // real rotation: the stone re-seats by one of its arms on the parent joint
     var so1 = makeSwitchItem({ Pin: [0, 0], u: [1, 0] }, 'worange', 1).item;
     var so2 = makeSwitchItem({ Pin: [0, 0], u: [1, 0] }, 'worange', 2).item;
@@ -2737,6 +2807,25 @@
     var sFront = { pin: [-1, 4], pout: [-1 + 2 * Math.cos(rad(120)), 4 + 2 * Math.sin(rad(120))] };
     var pb = fitBridge(sFront, 'gelb');
     chk('plain stone fits as on-axis bridge', !!pb && pb.gap < 0.01, pb ? 'gap=' + pb.gap.toFixed(4) : 'null');
+
+    // switch as Schlussstein: a single wgelb closes yellow legs, its third
+    // face stays free; the bow counts as closed via the main-front bridge
+    var mSwKey = archModel(stonesOf(['gelb']), null, { '': { type: 'wgelb', born: 0 } });
+    chk('switch keystone closes the bow', mSwKey.closed && mSwKey.valid && mSwKey.bridgeItems.length === 1,
+      'closed=' + mSwKey.closed + ' bridges=' + mSwKey.bridgeItems.length + ' errs=' + mSwKey.errors.join(','));
+    var evSwKey = evaluateArch(stonesOf(['gelb']), null, { '': { type: 'wgelb', born: 0 } });
+    chk('switch keystone structure is solvable',
+      evSwKey.state === 'stable' || evSwKey.state === 'critical' || evSwKey.state === 'unstable', evSwKey.state);
+
+    // 1-vs-2 decision: when ONE stone closes the gap, the single fit wins
+    // (this is the exact probe addStone runs before placing a mirrored pair)
+    var kTry = archModel(stonesOf(['orange', 'orange']), 'gelb');
+    chk('single-fit probe recognizes the one-stone gap',
+      !!kTry.key && kTry.joinGap <= JOIN_TOL_CM, 'gap=' + kTry.joinGap.toFixed(4));
+    // regression: a same-type stone always touches ONE front - both keystone
+    // ends must be checked, otherwise a 90deg gap gets a fake single stone
+    var kBad = archModel(stonesOf(['orange']), 'orange');
+    chk('single-fit rejects a non-fitting gap', kBad.joinGap > JOIN_TOL_CM, 'gap=' + kBad.joinGap.toFixed(2));
 
     // Kai's cloverleaf: springer switch, arms converging, closed by a rotated
     // switch - must be recognized as closed (front joint) and be testable
