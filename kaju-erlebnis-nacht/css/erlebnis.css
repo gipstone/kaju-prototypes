@@ -259,6 +259,25 @@ html.no-js .blk,html[data-reduced] .blk{opacity:1;transform:none}
 .bauprobe__tip b{color:#fff}
 
 /* ==========================================================================
+   CH 3b · BAUPROBE 2  (one-sided build + movable mirror axis)
+   ========================================================================== */
+.bauprobe2{background:#2c1a15;padding:clamp(44px,9vw,88px) clamp(18px,5vw,56px)}
+.bauprobe2__inner{max-width:640px;margin:0 auto}
+.bauprobe2 h2{font-size:clamp(30px,8vw,52px);color:#f5ece2}
+.bauprobe2__controls{margin-top:16px}
+.bp2-btn{
+  background:rgba(245,236,226,.1);color:#f5ece2;font-weight:600;font-size:16px;
+  padding:12px 17px;border:1.5px solid rgba(245,236,226,.3);cursor:pointer;
+  user-select:none;-webkit-user-select:none;touch-action:manipulation;
+  transition:background .15s,transform .1s;
+}
+.bp2-btn:active{transform:translateY(1px)}
+.bp2-btn:disabled{opacity:.35;cursor:default}
+.bp2-btn--wide{min-width:104px}
+.bp2-btn--go{background:var(--gelb);color:var(--braun);border-color:var(--gelb);font-weight:700}
+.bp2-btn--reset{background:none;border:none;border-bottom:2px solid currentColor;padding:6px 2px;opacity:.75;font-size:14px}
+
+/* ==========================================================================
    CH 4 · KRAFT  (why it stands - scrubbed force flow)
    ========================================================================== */
 .kraft h2{font-size:clamp(32px,8.8vw,56px);font-weight:700;letter-spacing:-.02em;line-height:1.02;max-width:24ch}

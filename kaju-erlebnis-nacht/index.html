@@ -99,6 +99,28 @@
   </div>
 </section>
 
+<!-- ============ CH 3b · BAUPROBE 2 · one-sided build + movable mirror axis ============ -->
+<section class="bauprobe bauprobe2 ch--dunkel" id="k3b">
+  <div class="bauprobe2__inner">
+    <div class="bauprobe__head">
+      <h2 class="savu">Eine Seite. Dann spiegeln.</h2>
+      <p class="bauprobe__task" id="bp2-task">Zieh Steine aus dem Vorrat und bau eine Bogenh&auml;lfte.</p>
+    </div>
+    <div class="bauprobe__stage" id="bp2-stage">
+      <canvas class="bauprobe__canvas" id="bp2-canvas" width="820" height="700" aria-label="Bauprobe Variante 2: eine H&auml;lfte bauen, Spiegelachse verschieben, spiegeln"></canvas>
+      <div class="bauprobe__verdict"><span id="bp2-verdict"></span></div>
+    </div>
+    <div class="bauprobe__controls bauprobe2__controls">
+      <button class="bp2-btn" id="bp2-axis-left" aria-label="Spiegelachse nach links">&#9664;</button>
+      <button class="bp2-btn bp2-btn--wide" id="bp2-mirror">Spiegeln</button>
+      <button class="bp2-btn" id="bp2-axis-right" aria-label="Spiegelachse nach rechts">&#9654;</button>
+      <button class="bp2-btn bp2-btn--go" id="bp2-test">Bogen testen</button>
+      <button class="bp2-btn bp2-btn--reset" id="bp2-reset">Nochmal</button>
+    </div>
+    <div class="bauprobe__tip" id="bp2-tip"></div>
+  </div>
+</section>
+
 <!-- ============ CH 4 · DIE KRAFT · scrubbed force flow ============ -->
 <section class="chapter kraft ch--tuerkis cutr" id="k4" data-bar="light" data-title="Die Kraft">
   <div class="chapter__inner kraft__grid">
@@ -224,6 +246,7 @@
 <script src="vendor/ScrollTrigger.min.js"></script>
 <script src="js/sequencer.js"></script>
 <script src="js/bauprobe.js"></script>
+<script src="js/bauprobe2.js"></script>
 <script src="js/kraft.js"></script>
 <script src="js/erlebnis.js"></script>
 </body>
