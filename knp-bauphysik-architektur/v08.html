@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KNP Bauphysik – KI-Systemarchitektur v0.8</title>
+<style>
+:root{--bg:#f4f6f8;--surface:#fff;--ink:#17212b;--muted:#607080;--line:#d8e0e6;--blue:#1f5f99;--blue2:#eaf3fb;--green:#24744a;--green2:#edf8f1;--orange:#9a5a16;--orange2:#fff5e7;--red:#9c3030;--red2:#fff0f0;--purple:#624b9b;--purple2:#f3effb;--shadow:0 10px 28px rgba(28,42,55,.08)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}.wrap{max-width:1240px;margin:auto}
+header{background:linear-gradient(120deg,#17324b,#214f73 60%,#2e648b);color:#fff;padding:48px 20px 36px}.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.8;font-weight:700}h1{font-size:clamp(30px,5vw,54px);line-height:1.05;margin:8px 0 14px;max-width:1040px}.lead{font-size:18px;max-width:1080px;color:#eaf2f8}.stamp{display:inline-block;margin-top:18px;padding:7px 11px;border:1px solid rgba(255,255,255,.26);border-radius:999px;font-size:13px;background:rgba(255,255,255,.08)}
+nav{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);overflow:auto;white-space:nowrap}nav .wrap{display:flex;gap:7px;padding:9px 14px}nav a{text-decoration:none;color:#334454;padding:6px 9px;border-radius:8px;font-size:13px}nav a:hover{background:#eef3f7}
+main{padding:28px 20px 72px}section{margin:0 0 36px}.section-title{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:14px}.section-title h2{margin:0;font-size:25px}.section-title p{margin:0;color:var(--muted);max-width:760px}.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:960px){.g4,.g3{grid-template-columns:repeat(2,1fr)}}@media(max-width:680px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.card,.diagram,details{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.card{padding:17px}.card h3{margin:0 0 7px;font-size:17px}.card p{margin:0;color:var(--muted)}.tag{display:inline-flex;font-size:12px;font-weight:700;border-radius:999px;padding:4px 8px;margin-bottom:10px}.trusted{background:var(--green2);color:var(--green)}.boundary{background:var(--red2);color:var(--red)}.compute{background:var(--purple2);color:var(--purple)}.service{background:var(--blue2);color:var(--blue)}.pending{background:var(--orange2);color:var(--orange)}
+.diagram{padding:18px;overflow:auto}.diagram svg{display:block;width:100%;min-width:1050px;height:auto}.diagram-note{margin:13px 4px 0;color:var(--muted);font-size:13px}.flow{display:flex;align-items:stretch;gap:8px;overflow:auto;padding:7px 0}.node{min-width:170px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:#fff}.node b{display:block;font-size:13px}.node small{display:block;color:var(--muted);margin-top:2px}.arrow{display:flex;align-items:center;font-size:22px;color:#7a8794}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}th,td{text-align:left;padding:10px 11px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#eef3f7;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#4b5b69}tr:last-child td{border-bottom:0}.yes{color:var(--green);font-weight:700}.no{color:var(--red);font-weight:700}.limited{color:var(--orange);font-weight:700}
+.callout{border-left:4px solid var(--blue);background:#edf5fb;padding:13px 15px;border-radius:8px;margin:12px 0}.warn{border-left-color:var(--red);background:#fff0f0}.decision{border-left-color:var(--green);background:#eef8f2}.license{border-left-color:var(--orange);background:#fff7e9}.code{background:#15202b;color:#dfe8ef;border-radius:12px;padding:15px;overflow:auto;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre}.pillrow{display:flex;gap:7px;flex-wrap:wrap}.pill{font-size:12px;border:1px solid var(--line);background:#fff;padding:4px 8px;border-radius:999px}.muted{color:var(--muted)}.footer{margin-top:42px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+details{margin:10px 0;box-shadow:none}summary{cursor:pointer;font-weight:700;padding:14px 16px;list-style:none}summary::-webkit-details-marker{display:none}summary:after{content:"＋";float:right;color:var(--muted)}details[open] summary:after{content:"−"}.detail-body{border-top:1px solid var(--line);padding:14px 16px;color:#33414e}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="eyebrow">KNP Bauphysik · Zielbild</div><h1>KI-Systemarchitektur: intern vertraulich, extern leistungsfähig</h1><p class="lead">KNP-interne Daten, Normen, E-Mails und Projektidentitäten bleiben im Büro. Hetzner stellt Web-App, Agenten und Rechenleistung bereit. Ein kleiner KNP-Connector tauscht ausschließlich pseudonymisierte Jobs, Rechercheanfragen und Ergebnisse per ausgehendem HTTPS aus.</p><span class="stamp">Stand: 17. September 2026 · Architektur v0.8</span></div></header>
+<nav><div class="wrap"><a href="#overview">Zielarchitektur</a><a href="#kommunikation">Kommunikation</a><a href="#mcp">MCP</a><a href="#research">Recherche</a><a href="#office">Dokumente</a><a href="#mail">E-Mail & Access</a><a href="#core">Rechenkern</a><a href="#security">Sicherheit</a><a href="#mvp">MVP</a><a href="#roadmap">Roadmap</a></div></nav>
+<main class="wrap">
+
+<section><div class="grid g4">
+<div class="card"><span class="tag trusted">KNP-intern</span><h3>Vertrauliches bleibt lokal</h3><p>Projektordner, Access, E-Mail, Kundendaten, KNP-Wiki, Normen, Fachbücher und interne Vorlagen verlassen die sichere Zone nicht.</p></div>
+<div class="card"><span class="tag boundary">Harte Grenze</span><h3>Kein eingehender Weg ins Büro</h3><p>Hetzner und Cloud-Agenten können keine Verbindung zum KNP-Netz initiieren. Der KNP-Connector verbindet sich ausschließlich selbst nach außen.</p></div>
+<div class="card"><span class="tag compute">Hetzner</span><h3>Web-App + Agent + Compute</h3><p>Next.js, API, Job Queue, PostgreSQL, Agenten, Python/FEM und Reporting laufen in der externen Compute-Zone.</p></div>
+<div class="card"><span class="tag service">Kontrolliert</span><h3>MCP innen, Connector dazwischen</h3><p>MCP standardisiert Werkzeuge innerhalb einer Zone. Die Sicherheitsgrenze zwischen KNP und Hetzner bleibt ein streng definierter Connector.</p></div>
+</div></section>
+
+<section id="overview"><div class="section-title"><h2>1. Zielarchitektur</h2><p>Bewusst nur zwei operative Welten. Kein separater Relay-Server: Hetzner ist gleichzeitig Control Plane, Job Broker und Compute-Umgebung.</p></div>
+<div class="diagram"><svg viewBox="0 0 1280 880" role="img" aria-label="KNP Zielarchitektur v0.8">
+<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#607382"/></marker><filter id="shadow"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-opacity=".10"/></filter></defs>
+<rect x="35" y="30" width="1210" height="340" rx="28" fill="#f1faf5" stroke="#79ad8d" stroke-width="2"/>
+<text x="65" y="68" font-size="22" font-weight="800" fill="#24744a">KNP-BÜRO · TRUSTED ZONE</text><text x="65" y="94" font-size="14" fill="#537062">Echte Identitäten, Originaldaten, geschütztes Fachwissen und produktive Schreibrechte.</text>
+<rect x="75" y="130" width="285" height="125" rx="18" fill="#fff" stroke="#ccd8d1" filter="url(#shadow)"/><text x="98" y="160" font-size="17" font-weight="800">KNP-Daten</text><text x="98" y="186" font-size="13" fill="#607080">Projektordner · Access · E-Mail</text><text x="98" y="209" font-size="13" fill="#607080">Original-PDFs · Kunden · Projektnummern</text><text x="98" y="232" font-size="12" fill="#9c3030">niemals direkt für Cloud-Agenten</text>
+<rect x="402" y="130" width="285" height="125" rx="18" fill="#eaf3fb" stroke="#7ea9ca" filter="url(#shadow)"/><text x="545" y="160" text-anchor="middle" font-size="17" font-weight="800" fill="#1f5f99">Lokales LLM</text><text x="545" y="186" text-anchor="middle" font-size="13" fill="#4d6374">Projektkontext · Klassifikation</text><text x="545" y="209" text-anchor="middle" font-size="13" fill="#4d6374">Recherche · Pseudonymisierung</text><text x="545" y="232" text-anchor="middle" font-size="12" fill="#24744a">kennt reale Zuordnung</text>
+<rect x="729" y="130" width="285" height="125" rx="18" fill="#fff8e9" stroke="#dab87b" filter="url(#shadow)"/><text x="752" y="160" font-size="17" font-weight="800">KNP-Wissensbasis</text><text x="752" y="186" font-size="13" fill="#6d6250">Wiki · DIN/Normen · Fachliteratur</text><text x="752" y="209" font-size="13" fill="#6d6250">Vorlagen · Richtlinien · Erfahrungen</text><text x="752" y="232" font-size="12" fill="#9a5a16">Rechte-/Lizenz-Gate</text>
+<rect x="1045" y="130" width="160" height="125" rx="18" fill="#edf8f1" stroke="#79ad8d" filter="url(#shadow)"/><text x="1125" y="160" text-anchor="middle" font-size="15" font-weight="800" fill="#24744a">Human Gates</text><text x="1125" y="187" text-anchor="middle" font-size="12" fill="#557162">Freigabe</text><text x="1125" y="208" text-anchor="middle" font-size="12" fill="#557162">Write Worker</text><text x="1125" y="229" text-anchor="middle" font-size="12" fill="#557162">Audit/Backup</text>
+<path d="M360 193 H395" stroke="#607382" stroke-width="2.4" marker-end="url(#arr)"/><path d="M729 193 H694" stroke="#607382" stroke-width="2.4" marker-end="url(#arr)"/><path d="M687 193 H1037" stroke="#607382" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="435" y="290" width="410" height="55" rx="14" fill="#fff" stroke="#9c3030" stroke-width="2"/><text x="640" y="313" text-anchor="middle" font-size="15" font-weight="800" fill="#9c3030">KNP CONNECTOR</text><text x="640" y="333" text-anchor="middle" font-size="12" fill="#607080">nur ausgehendes HTTPS · Schema-Validierung · keine freie Remote-Steuerung</text>
+
+<rect x="35" y="430" width="1210" height="395" rx="28" fill="#f6f3fc" stroke="#a793cf" stroke-width="2"/>
+<text x="65" y="468" font-size="22" font-weight="800" fill="#624b9b">HETZNER · CONTROL PLANE + COMPUTE ZONE</text><text x="65" y="494" font-size="14" fill="#685d7c">Nur pseudonymisierte Tickets und freigegebene technische Daten. Diese Zone wird sicherheitlich als potenziell kompromittierbar behandelt.</text>
+<rect x="75" y="535" width="280" height="130" rx="18" fill="#fff" stroke="#c9bddf" filter="url(#shadow)"/><text x="215" y="565" text-anchor="middle" font-size="17" font-weight="800">Next.js / API</text><text x="215" y="590" text-anchor="middle" font-size="13" fill="#607080">Task-UI · API · Auth</text><text x="215" y="612" text-anchor="middle" font-size="13" fill="#607080">PostgreSQL · Job Queue</text><text x="215" y="634" text-anchor="middle" font-size="13" fill="#607080">Object Storage</text>
+<rect x="405" y="535" width="280" height="130" rx="18" fill="#fff" stroke="#c9bddf" filter="url(#shadow)"/><text x="545" y="565" text-anchor="middle" font-size="17" font-weight="800">Agent Orchestrator</text><text x="545" y="590" text-anchor="middle" font-size="13" fill="#607080">Codex / Claude Code</text><text x="545" y="612" text-anchor="middle" font-size="13" fill="#607080">Planung · Toolwahl · Entwicklung</text><text x="545" y="634" text-anchor="middle" font-size="13" fill="#607080">pro Ticket isolierte Sandbox</text>
+<rect x="735" y="535" width="280" height="130" rx="18" fill="#fff" stroke="#c9bddf" filter="url(#shadow)"/><text x="875" y="565" text-anchor="middle" font-size="17" font-weight="800">Compute + MCP Tools</text><text x="875" y="590" text-anchor="middle" font-size="13" fill="#607080">Python · Geometrie · U-Wert</text><text x="875" y="612" text-anchor="middle" font-size="13" fill="#607080">FEM · Wärmebrücken · Reports</text><text x="875" y="634" text-anchor="middle" font-size="13" fill="#607080">Tool Registry + Validation Gate</text>
+<rect x="1045" y="535" width="160" height="130" rx="18" fill="#fff0f0" stroke="#d49393" filter="url(#shadow)"/><text x="1125" y="565" text-anchor="middle" font-size="15" font-weight="800" fill="#9c3030">Cloud APIs</text><text x="1125" y="592" text-anchor="middle" font-size="12" fill="#755">OpenAI</text><text x="1125" y="613" text-anchor="middle" font-size="12" fill="#755">Anthropic</text><text x="1125" y="634" text-anchor="middle" font-size="12" fill="#755">GitHub</text>
+<path d="M355 600 H397" stroke="#607382" stroke-width="2.4" marker-end="url(#arr)"/><path d="M685 600 H727" stroke="#607382" stroke-width="2.4" marker-end="url(#arr)"/><path d="M1015 600 H1037" stroke="#607382" stroke-width="2.4" marker-end="url(#arr)"/>
+<rect x="385" y="716" width="510" height="70" rx="15" fill="#fff" stroke="#7ea9ca"/><text x="640" y="743" text-anchor="middle" font-size="14" font-weight="800" fill="#1f5f99">Pseudonymisierte Austauschobjekte</text><text x="640" y="766" text-anchor="middle" font-size="12" fill="#607080">Task Package · Research Request · Evidence Packet · Result Package · Status</text>
+<path d="M640 345 V423" stroke="#9c3030" stroke-width="3" fill="none" stroke-dasharray="8 6" marker-end="url(#arr)"/><text x="658" y="390" font-size="12" font-weight="700" fill="#9c3030">HTTPS :443 · vom Büro initiiert</text>
+</svg><p class="diagram-note"><b>Merksatz:</b> Hetzner kennt nur Tickets. Die Zuordnung „Ticket ↔ echtes Projekt/Kunde“ existiert ausschließlich in der KNP-Zone.</p></div></section>
+
+<section id="kommunikation"><div class="section-title"><h2>2. Kommunikation zwischen Büro und Hetzner</h2><p>„Empfangen“ im Büro erfolgt ohne offenen Port. Der KNP-Connector hält selbst eine ausgehende Verbindung oder fragt regelmäßig nach neuen Nachrichten.</p></div>
+<div class="grid g3">
+<div class="card"><span class="tag service">Outbound</span><h3>1 · Büro verbindet sich</h3><p>Der Connector öffnet HTTPS zu einer einzigen Hetzner-API. Möglich sind Long Polling, WebSocket oder einfaches Polling, z. B. alle 5–15 Sekunden.</p></div>
+<div class="card"><span class="tag compute">Beidseitiger Datenaustausch</span><h3>2 · Senden und Empfangen</h3><p>Über die vom Büro initiierte Verbindung lädt KNP Jobs/Recherchefragen herunter und lädt neue Aufgaben, Evidence und Freigaben hoch.</p></div>
+<div class="card"><span class="tag boundary">Kein Rückkanal</span><h3>3 · Hetzner ruft KNP nie direkt</h3><p>Keine Portfreigabe, kein Site-to-Site-VPN, kein SMB, kein SSH und keine API, die aus dem Internet direkt auf das KNP-LAN zeigt.</p></div>
+</div>
+<div class="code">KNP Connector  ───── HTTPS :443 ─────► Hetzner API
+      │                                  │
+      ├─ GET /messages?after=...          ├─ Job Queue
+      ├─ POST /tasks                      ├─ Research Requests
+      ├─ POST /research-results           ├─ Results
+      └─ GET /results                     └─ Status
+
+Die Verbindung wird immer auf der KNP-Seite eröffnet.</div>
+<div class="callout decision"><b>Pragmatische Entscheidung:</b> Kein eigener „Relay-Server“. Die Hetzner-Anwendung selbst stellt die minimale Broker-API bereit. Das spart Infrastruktur, ohne die wesentliche Netzgrenze aufzugeben.</div></section>
+
+<section id="mcp"><div class="section-title"><h2>3. Rolle von MCP</h2><p>MCP ist die standardisierte Tool-Schnittstelle innerhalb einer Vertrauenszone – nicht der Tunnel zwischen den Zonen.</p></div>
+<table><thead><tr><th>Zone</th><th>Beispiel-Tools</th><th>Wofür</th></tr></thead><tbody>
+<tr><td><b>KNP intern</b></td><td><code>search_knp_wiki</code>, <code>search_norms</code>, <code>classify_email</code>, <code>prepare_document</code></td><td>Lokales LLM nutzt interne Quellen und Dienste kontrolliert.</td></tr>
+<tr><td><b>Hetzner</b></td><td><code>calculate_u_value</code>, <code>run_fem</code>, <code>thermal_bridge</code>, <code>generate_plot</code>, <code>generate_report</code></td><td>Agenten benutzen klar definierte Rechentools statt beliebiger Skriptlogik.</td></tr>
+<tr><td><b>Zwischen KNP und Hetzner</b></td><td>kein direktes MCP</td><td>Nur Connector-API mit eng definierten Nachrichtenformaten.</td></tr>
+</tbody></table></section>
+
+<section id="research"><div class="section-title"><h2>4. Research Proxy: Normen + KNP-Wissen</h2><p>Cloud-Agenten dürfen Fachfragen stellen, aber niemals die geschützten Quellen selbst durchsuchen.</p></div>
+<div class="flow"><div class="node"><b>Codex/Claude</b><small>„Welche DIN-Fundstelle gilt hier?“</small></div><div class="arrow">→</div><div class="node"><b>Hetzner</b><small>Research Request R-102</small></div><div class="arrow">→</div><div class="node"><b>KNP Connector</b><small>holt Anfrage ab</small></div><div class="arrow">→</div><div class="node"><b>Lokaler Research Agent</b><small>Wiki + DIN + Literatur</small></div><div class="arrow">→</div><div class="node"><b>Evidence Packet</b><small>pseudonymisiert zurück</small></div></div>
+<div class="grid g2"><div class="card"><span class="tag trusted">Interne Quellen</span><h3>KNP-Wiki als Wissensschicht</h3><p>Eigene Arbeitsweisen, Erfahrungen, Checklisten, Modellierungsregeln und Links auf konkrete Normausgaben/Fundstellen. DIN-Volltexte bleiben geschützt und werden nach Rechtepolitik verarbeitet.</p></div><div class="card"><span class="tag service">Antwort nach außen</span><h3>Beleg statt Dokument</h3><p>Zurückgegeben werden z. B. Aussage, DIN-Ausgabe, Abschnitt/Seite, Wiki-Revision, Quellenstatus und ggf. Hinweis „fachliche Prüfung erforderlich“ – nicht das Normenarchiv.</p></div></div>
+<div class="code">{
+  "ticket_id": "C-8F31A7",
+  "research_request_id": "R-102",
+  "status": "VERIFIED",
+  "summary": "...",
+  "sources": [
+    {"document":"DIN …", "edition":"…", "section":"6.3.2", "page":42},
+    {"wiki":"Wärmebrücken / Randbedingungen", "revision":12}
+  ]
+}</div></section>
+
+<section id="office"><div class="section-title"><h2>5. KNP Document Factory</h2><p>Schriftstücke und Präsentationen werden fachlich vorbereitet, aber erst intern mit echten Projektdaten und KNP-Layouts finalisiert.</p></div>
+<table><thead><tr><th>Schritt</th><th>Ort</th><th>Beispiel</th></tr></thead><tbody>
+<tr><td>Inhalt / Gliederung</td><td>Hetzner möglich</td><td>pseudonymisierte technische Stellungnahme, Bericht, Folienstruktur</td></tr>
+<tr><td>Diagramme / Rechenergebnisse</td><td>Hetzner</td><td>Temperaturfeld, ψ-Wert-Tabelle, Variantenvergleich</td></tr>
+<tr><td>KNP-Layout</td><td>KNP intern</td><td>Briefkopf, Word-/PowerPoint-Master, Farben, Schriften, Fußzeilen</td></tr>
+<tr><td>Personalisierung</td><td>KNP intern</td><td>Kunde, Adresse, Projektname, Projektnummer, Bearbeiter</td></tr>
+<tr><td>Finale Ablage / Versand</td><td>Human Gate</td><td>DOCX/PPTX/PDF erzeugen und im Projekt ablegen</td></tr>
+</tbody></table></section>
+
+<section id="mail"><div class="section-title"><h2>6. E-Mail- und Access-Automation</h2><p>Das LLM macht Vorschläge; produktive Änderungen führt nur ein deterministischer Worker nach expliziter Freigabe aus.</p></div>
+<div class="grid g3"><div class="card"><span class="tag service">Vorschlag</span><h3>LLM erkennt Projekt</h3><p>„Diese Mail gehört wahrscheinlich zu Projekt 241 / Bauphysik – 96 %.“ Mitarbeiter kann Projekt, Kategorie und Ablage korrigieren.</p></div><div class="card"><span class="tag trusted">Human Gate</span><h3>Mitarbeiter bestätigt</h3><p>Konkrete Aktion wird sichtbar bestätigt, z. B. Zielordner, Dateiname und gewünschte Access-Verknüpfung.</p></div><div class="card"><span class="tag boundary">Deterministisch</span><h3>Write Worker führt aus</h3><p>Beispiel: Mail in <code>Projekt 241/05_Korrespondenz/</code> verschieben, Hash prüfen, Pfad in Access eintragen, Audit-Datensatz schreiben.</p></div></div>
+<div class="callout"><b>Kein freies Schreiben:</b> Der Worker akzeptiert nur bekannte Aktionen mit validierten Parametern – keine Shell-Befehle, kein beliebiges SQL und keine vom LLM erfundenen Dateipfade.</div>
+<div class="callout decision"><b>Wiederherstellbarkeit:</b> Access-Transaktion für den einzelnen DB-Schritt plus Audit-Journal und regelmäßige unabhängige Snapshots/Backups. Jede Änderung erhält eine Transaction-ID.</div></section>
+
+<section id="core"><div class="section-title"><h2>7. Rechenkern: was heute schon da ist</h2><p>Der bestehende Code liefert bereits relevante Plattformbausteine. Vollständige Fach-Calculation-Engines und ein produktiv validierter universeller FEM-/Wärmebrücken-Solver bleiben ein separater Ausbaupfad.</p></div>
+<div class="grid g4"><div class="card"><span class="tag trusted">Vorhanden</span><h3>Dokument & Geometrie</h3><p>PDF-Inventar, Vektor/Raster-Routing, Planansichten, Projekt-/Geschossregistrierung, Raum-/Hüllenlogik und Cross-View-Zuordnung.</p></div><div class="card"><span class="tag trusted">Vorhanden</span><h3>Evidence & Review</h3><p>Provenienz, Review-Objekte, Readiness-Gates, Projektgrenzen, Flächen-/Geometrieprüfungen und HTML-Viewer.</p></div><div class="card"><span class="tag trusted">Vorhanden</span><h3>Bauteile & U-Werte</h3><p>Schichten, Material/Lambda, Hüllflächenzuweisung, Öffnungen, Flächenabzug und U-Werte bei vollständigen Eingaben.</p></div><div class="card"><span class="tag pending">Ausbau</span><h3>Fach-Engines</h3><p>GEG/18599, Wärmebrücken/FEM, Akustik, LCA und weitere Rechenmodule werden als deterministische, versionierte Engines ergänzt und validiert.</p></div></div>
+<div class="callout"><b>Zielprinzip:</b> Ein normneutrales Canonical Building Model wird von versionierten Calculation Engines gelesen. KI-Ergebnisse sind Evidence, nicht Rechenwahrheit.</div></section>
+
+<section id="security"><div class="section-title"><h2>8. Sicherheitsmodell</h2><p>Nicht auf „die KI wird schon nichts Böses tun“ vertrauen, sondern die technischen Möglichkeiten von vornherein begrenzen.</p></div>
+<table><thead><tr><th>Bedrohung</th><th>Schutz</th></tr></thead><tbody>
+<tr><td>Cloud-Agent versucht KNP-Server zu erreichen</td><td>Keine Route, kein VPN, kein internes DNS, keine KNP-Credentials, kein eingehender Port.</td></tr>
+<tr><td>Prompt Injection in Resultat/Research Request</td><td>Alle Hetzner-Daten gelten intern als <b>untrusted</b>; strikte JSON-Schemas, Größenlimits, MIME-Allowlist, keine automatische Ausführung.</td></tr>
+<tr><td>Maliziöse Datei</td><td>Quarantäne/Scanner, definierte Dateitypen, Content-Disposition, keine Makros/Skripte, Rendering isoliert.</td></tr>
+<tr><td>Agent erzeugt Schreibbefehl</td><td>Cloud kann nur Nachrichtentypen erzeugen. Produktives Schreiben läuft ausschließlich über interne, deterministische Worker + Human Gate.</td></tr>
+<tr><td>Agent liest anderes Projekt</td><td>Pro Ticket eigener Workspace/Sandbox; keine freie Sicht auf Task-DB oder Nachbartickets.</td></tr>
+<tr><td>Tool liefert falsche Fachrechnung</td><td>Tool Registry + versionierte Validation Gates + abgeleitete Ergebnis-Sicherheit.</td></tr>
+</tbody></table>
+<div class="callout warn"><b>Wichtig:</b> Ein Datenpaket ist nicht automatisch sicher vor Prompt Injection. Sobald Freitext/HTML/Markdown einem lokalen LLM gegeben wird, kann es Anweisungen enthalten. Deshalb niemals fremden Text als Systeminstruktion behandeln und das lokale LLM nie mit privilegierten Schreibrechten koppeln.</div></section>
+
+<section><div class="section-title"><h2>9. Tool Registry und fachliche Freigabe</h2><p>Der Agent darf Werkzeuge entwickeln, aber nicht selbst zum produktiven Fachtool erklären.</p></div>
+<table><thead><tr><th>Status</th><th>Bedeutung</th><th>Produktive Nutzung</th></tr></thead><tbody>
+<tr><td><b>EXPERIMENTAL</b></td><td>Prototyp / neue Methode</td><td class="no">Nein</td></tr>
+<tr><td><b>BENCHMARKED</b></td><td>Automatische Referenztests erfolgreich</td><td class="no">Nein</td></tr>
+<tr><td><b>KNP_VALIDATED</b></td><td>Konkrete Version fachlich gegen Referenzsoftware/Analytik geprüft und Scope freigegeben</td><td class="yes">Ja, innerhalb Scope</td></tr>
+<tr><td><b>DEPRECATED</b></td><td>Altversion, nur reproduzierbar vorhalten</td><td class="no">Nein für neue Jobs</td></tr>
+</tbody></table>
+<div class="callout decision"><b>Harte Regel:</b> Ein Ergebnis darf nur als „validiert“ gelten, wenn jeder resultatrelevante Schritt eine KNP-validierte Toolversion innerhalb ihres freigegebenen Anwendungsbereichs nutzt.</div></section>
+
+<section id="mvp"><div class="section-title"><h2>10. Minimal Viable Product</h2><p>Der MVP soll zuerst die komplette Sicherheits- und Kommunikationskette beweisen – nicht sofort jede Bauphysikaufgabe automatisieren.</p></div>
+<div class="flow"><div class="node"><b>1 · Interner Task</b><small>echte Projektdaten</small></div><div class="arrow">→</div><div class="node"><b>2 · Pseudonymisieren</b><small>Ticket + technisches Paket</small></div><div class="arrow">→</div><div class="node"><b>3 · Hetzner-Agent</b><small>plant Job</small></div><div class="arrow">→</div><div class="node"><b>4 · Tool</b><small>z. B. U-Wert/Hülle</small></div><div class="arrow">→</div><div class="node"><b>5 · Research</b><small>optional DIN/Wiki</small></div><div class="arrow">→</div><div class="node"><b>6 · Report</b><small>Ergebnis zurück zu KNP</small></div></div>
+<div class="grid g2"><div class="card"><span class="tag trusted">MVP enthalten</span><h3>End-to-End</h3><p>Interne Task-DB, Pseudonymisierung, Connector, Hetzner-API/Queue, Agent-Sandbox, ein validiertes Rechentool, Research Request/Evidence, Result-Import und einfacher Report.</p></div><div class="card"><span class="tag pending">Noch nicht MVP</span><h3>Später</h3><p>Vollautomatische Mail-Ablage, komplexe Planinterpretation, universeller FEM-Core, komplette GEG/18599-Nachweise, Office-Vollautomatisierung und breite Tool-Selbstentwicklung.</p></div></div></section>
+
+<section id="roadmap"><div class="section-title"><h2>11. Umsetzungs-Roadmap</h2><p>Trennung danach, was zwingend vor Ort in der sicheren Zone eingerichtet werden muss und was weitgehend in der externen Entwicklungsumgebung entstehen kann.</p></div>
+<table><thead><tr><th>Phase</th><th>KNP sicher / vor Ort</th><th>Hetzner / öffentlich entwickelbar</th><th>Ziel</th></tr></thead><tbody>
+<tr><td><b>0 · Bestandsaufnahme</b></td><td>Server, Access-Struktur, Projektordner, Mailablage, Nutzer/Rollen, Backupzustand, Vorlagen, Normlizenzen erfassen.</td><td>Daten-/API-Schemas vorbereiten.</td><td>Keine falschen Annahmen.</td></tr>
+<tr><td><b>1 · Security Foundation</b></td><td>LLM-PC/Server, Connector, Firewall-Egress, interne Task-ID ↔ Ticket-Mapping, Secrets.</td><td>Hetzner-Host, TLS, API, Auth, Queue, DB, Object Store, Sandbox.</td><td>Harte Vertrauensgrenze.</td></tr>
+<tr><td><b>2 · MVP-Jobloop</b></td><td>Interne Mini-UI, Pseudonymisierung, Result-Import.</td><td>Task-API, Worker, Agent Orchestrator, ein freigegebenes Tool, Reporting.</td><td>Erster echter End-to-End-Job.</td></tr>
+<tr><td><b>3 · Research Proxy</b></td><td>Wiki/Normen-Ingestion, Rechte-Gate, lokale Suche, Evidence-Erzeugung.</td><td>Research-Request-Workflow und Agent-Integration.</td><td>Belegte Fachantworten ohne Quelltransfer.</td></tr>
+<tr><td><b>4 · Office & Mail</b></td><td>KNP-Vorlagen, Access-/Datei-Worker, Human Gate, Audit/Backup.</td><td>Inhaltsentwürfe, strukturierte Dokument-/Präsentationsdaten.</td><td>Alltagsautomation.</td></tr>
+<tr><td><b>5 · Fachtools</b></td><td>Referenzsoftware, fachliche Freigaben, Golden Cases.</td><td>FEM/Wärmebrücke/weitere Engines, Benchmarks, Regressionen.</td><td>Schrittweise Erweiterung der produktiven Bauphysik.</td></tr>
+</tbody></table></section>
+
+<section><div class="section-title"><h2>12. Verantwortungsgrenze</h2><p>Die wichtigste organisatorische Vereinfachung: Alles, was Identität oder Schreibrechte braucht, bleibt intern. Alles Rechenintensive und agentische wird nach außen verlagert.</p></div>
+<div class="grid g2"><div class="card"><span class="tag trusted">KNP-Zone</span><h3>Muss intern bleiben</h3><p>Reale Projekt-/Kundenzuordnung, Original-E-Mails, Projektdateien, Access, geschützte Wissensquellen, KNP-Layouts mit Projektdaten, Human Gates, produktive Schreibworker, finale fachliche Freigabe.</p></div><div class="card"><span class="tag compute">Hetzner-Zone</span><h3>Kann extern entstehen</h3><p>Next.js/API, Task-/Queue-Logik, Agent Orchestrator, Sandboxen, MCP-Rechentools, Tool Registry, Benchmarks, Berechnungen auf pseudonymisierten Paketen, Grafiken und technische Reports.</p></div></div></section>
+
+<div class="footer">KNP Bauphysik · Systemarchitektur v0.8 · Öffentliche Architekturdokumentation. Keine Kundendaten, Zugangsdaten, internen IP-Adressen oder geschützten Norminhalte in dieser Seite hinterlegen.</div>
+</main>
+</body></html>
