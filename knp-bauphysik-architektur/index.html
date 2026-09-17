@@ -7,96 +7,177 @@
 <style>
 :root{--bg:#f4f6f8;--surface:#fff;--ink:#18202a;--muted:#5d6977;--line:#d9e0e7;--blue:#1f5f99;--blue2:#eaf3fb;--green:#24744a;--green2:#eaf7ef;--orange:#a15b12;--orange2:#fff2df;--red:#9c3030;--red2:#fdecec;--purple:#624b9b;--purple2:#f1edfb;--shadow:0 10px 30px rgba(26,42,58,.08)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}
-header{background:linear-gradient(120deg,#17324b,#214f73 60%,#2e648b);color:#fff;padding:48px 20px 36px}.wrap{max-width:1180px;margin:auto}.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.78;font-weight:700}h1{font-size:clamp(30px,5vw,54px);line-height:1.05;margin:8px 0 14px;max-width:940px}.lead{font-size:18px;max-width:970px;color:#e9f1f7}.stamp{display:inline-block;margin-top:18px;padding:7px 11px;border:1px solid rgba(255,255,255,.25);border-radius:999px;font-size:13px;background:rgba(255,255,255,.08)}
+header{background:linear-gradient(120deg,#17324b,#214f73 60%,#2e648b);color:#fff;padding:48px 20px 36px}.wrap{max-width:1220px;margin:auto}.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.78;font-weight:700}h1{font-size:clamp(30px,5vw,54px);line-height:1.05;margin:8px 0 14px;max-width:950px}.lead{font-size:18px;max-width:980px;color:#e9f1f7}.stamp{display:inline-block;margin-top:18px;padding:7px 11px;border:1px solid rgba(255,255,255,.25);border-radius:999px;font-size:13px;background:rgba(255,255,255,.08)}
 nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);overflow:auto;white-space:nowrap}nav .wrap{display:flex;gap:7px;padding:9px 14px}nav a{text-decoration:none;color:#334454;padding:6px 9px;border-radius:8px;font-size:13px}nav a:hover{background:#eef3f7}
-main{padding:28px 20px 70px}section{margin:0 0 30px}.section-title{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:14px}.section-title h2{margin:0;font-size:25px}.section-title p{margin:0;color:var(--muted);max-width:700px}.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:900px){.g4,.g3{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.g2,.g3,.g4{grid-template-columns:1fr}}
+main{padding:28px 20px 70px}section{margin:0 0 32px}.section-title{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:14px}.section-title h2{margin:0;font-size:25px}.section-title p{margin:0;color:var(--muted);max-width:710px}.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:900px){.g4,.g3{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.g2,.g3,.g4{grid-template-columns:1fr}}
 .card,.diagram,details{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.card{padding:17px}.card h3{margin:0 0 7px;font-size:17px}.card p{margin:0;color:var(--muted)}.tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;border-radius:999px;padding:4px 8px;margin-bottom:10px}.trusted{background:var(--green2);color:var(--green)}.boundary{background:var(--red2);color:var(--red)}.compute{background:var(--purple2);color:var(--purple)}.service{background:var(--blue2);color:var(--blue)}.pending{background:var(--orange2);color:var(--orange)}
-.diagram{padding:16px;overflow:auto}.diagram svg{display:block;width:100%;min-width:940px;height:auto}.flow{display:flex;align-items:stretch;gap:8px;overflow:auto;padding:7px 0}.node{min-width:155px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:#fff}.arrow{display:flex;align-items:center;font-size:22px;color:#7a8794}.node b{display:block;font-size:13px}.node small{display:block;color:var(--muted);margin-top:2px}
+.diagram{padding:18px;overflow:auto}.diagram svg{display:block;width:100%;min-width:1000px;height:auto}.diagram-note{margin:14px 4px 2px;color:var(--muted);font-size:13px}.flow{display:flex;align-items:stretch;gap:8px;overflow:auto;padding:7px 0}.node{min-width:155px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:#fff}.arrow{display:flex;align-items:center;font-size:22px;color:#7a8794}.node b{display:block;font-size:13px}.node small{display:block;color:var(--muted);margin-top:2px}
 table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}th,td{text-align:left;padding:10px 11px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#eef3f7;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#4b5b69}tr:last-child td{border-bottom:0}.yes{color:var(--green);font-weight:700}.no{color:var(--red);font-weight:700}.limited{color:var(--orange);font-weight:700}
 details{margin:10px 0;box-shadow:none}summary{cursor:pointer;font-weight:700;padding:14px 16px;list-style:none}summary::-webkit-details-marker{display:none}summary:after{content:"＋";float:right;color:var(--muted)}details[open] summary:after{content:"−"}.detail-body{border-top:1px solid var(--line);padding:14px 16px;color:#33414e}.detail-body p:first-child{margin-top:0}.detail-body p:last-child{margin-bottom:0}code{background:#eef2f5;padding:2px 5px;border-radius:5px;font-size:.92em}.code{background:#15202b;color:#dfe8ef;border-radius:12px;padding:15px;overflow:auto;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre}.callout{border-left:4px solid var(--blue);background:#edf5fb;padding:13px 15px;border-radius:8px;margin:12px 0}.warn{border-left-color:var(--red);background:#fff0f0}.decision{border-left-color:var(--green);background:#eef8f2}.license{border-left-color:var(--orange);background:#fff7e9}.pillrow{display:flex;gap:7px;flex-wrap:wrap}.pill{font-size:12px;border:1px solid var(--line);background:#fff;padding:4px 8px;border-radius:999px}.num{font-size:27px;font-weight:800;line-height:1;margin-bottom:6px}.muted{color:var(--muted)}.footer{margin-top:42px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}.status{font-weight:800;font-size:12px;text-transform:uppercase}.s-exp{color:#9c3030}.s-bench{color:#a15b12}.s-val{color:#24744a}.s-dep{color:#6b7280}
 </style>
 </head>
 <body>
-<header><div class="wrap"><div class="eyebrow">KNP Bauphysik · Planungsstand</div><h1>Systemarchitektur für die Integration einer Bauphysik-KI</h1><p class="lead">Lokale Verarbeitung vertraulicher Projekt- und Fachinformationen, Human-Gated Schreibprozesse, pseudonymisierte Compute-Tickets, Cloud-Agenten, adaptiver Bauphysik-Rechenkern, validierte Werkzeugketten und nachvollziehbares Reporting.</p><span class="stamp">Stand: 17. September 2026 · Architektur v0.4</span></div></header>
-<nav><div class="wrap"><a href="#prinzipien">Prinzipien</a><a href="#architektur">Architektur</a><a href="#mail">E-Mail & Access</a><a href="#wissen">Normen & Wissen</a><a href="#ingestion">PDF-Ingestion</a><a href="#tasks">Tasks</a><a href="#adaptive">Adaptiver Compute</a><a href="#validation">Validierung</a><a href="#reporting">Reporting/UI</a><a href="#zugriff">Zugriff</a><a href="#offen">Offen</a></div></nav>
+<header><div class="wrap"><div class="eyebrow">KNP Bauphysik · Planungsstand</div><h1>Systemarchitektur für die Integration einer Bauphysik-KI</h1><p class="lead">Lokale Verarbeitung vertraulicher Projekt- und Fachinformationen, Human-Gated Schreibprozesse, pseudonymisierte Compute-Tickets, Cloud-Agenten, adaptiver Bauphysik-Rechenkern, validierte Werkzeugketten und nachvollziehbares Reporting.</p><span class="stamp">Stand: 17. September 2026 · Architektur v0.5</span></div></header>
+<nav><div class="wrap"><a href="#prinzipien">Prinzipien</a><a href="#architektur">Architektur</a><a href="#mail">E-Mail & Access</a><a href="#wissen">Normen & Wissen</a><a href="#ingestion">PDF-Ingestion</a><a href="#tasks">Tasks</a><a href="#adaptive">Adaptiver Compute</a><a href="#validation">Validierung</a><a href="#reporting">Reporting/UI</a><a href="#zugriff">Zugriff</a><a href="#backup">Backup & Audit</a><a href="#offen">Offen</a></div></nav>
 <main class="wrap">
 
 <section id="prinzipien"><div class="section-title"><h2>Leitprinzipien</h2><p>Cloud-Fähigkeit, Automation und kontinuierliche Werkzeugentwicklung werden mit harten Datenschutz-, Schreib- und Qualitätsgrenzen kombiniert.</p></div><div class="grid g4">
 <div class="card"><span class="tag trusted">01 · Intern</span><h3>Rohdaten bleiben intern</h3><p>Kunden-, Projekt-, E-Mail-, Originalplan- und geschützte Fachinformationen verbleiben in der vertrauenswürdigen KNP-Zone.</p></div>
-<div class="card"><span class="tag boundary">02 · Schreibgrenze</span><h3>LLM schreibt nie direkt</h3><p>Das lokale LLM darf lesen, analysieren und Vorschläge erzeugen. Produktive Änderungen an Projektablage oder Access erfolgen ausschließlich über freigegebene Dienste.</p></div>
+<div class="card"><span class="tag boundary">02 · Schreibgrenze</span><h3>LLM schreibt nie direkt</h3><p>Das lokale LLM darf lesen, analysieren und Vorschläge erzeugen. Produktive Änderungen erfolgen nur über fest programmierte Dienste.</p></div>
 <div class="card"><span class="tag compute">03 · Adaptiv</span><h3>System verbessert seine Werkzeuge</h3><p>Der Agent erkennt Lücken und entwickelt neue Methoden und Tools – zunächst ausschließlich experimentell.</p></div>
 <div class="card"><span class="tag service">04 · Freigabe</span><h3>Produktiv nur validiert</h3><p>Belastbare Ergebnisse dürfen ausschließlich auf KNP-validierten Versionen und freigegebenen Berechnungsschritten beruhen.</p></div></div>
 <div class="callout warn"><b>Selbstlernend ≠ selbstfreigebend:</b> Das System darf aus Aufgaben lernen und neue Tools entwickeln, aber weder neue Rechenlogik noch produktive Schreibaktionen selbstständig freigeben.</div></section>
 
-<section id="architektur"><div class="section-title"><h2>Zielarchitektur</h2><p>Intern gibt es zwei getrennte kontrollierte Übergänge: einen <b>Sanitization Gateway</b> Richtung Compute/Cloud und einen <b>privilegierten Write Broker</b> für echte KNP-Daten.</p></div><div class="diagram"><svg viewBox="0 0 1180 790" role="img" aria-label="KNP KI Systemarchitektur">
-<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#526372"/></marker></defs>
-<rect x="20" y="25" width="1140" height="335" rx="18" fill="#f0faf4" stroke="#82ba98" stroke-width="2"/><text x="42" y="58" font-size="18" font-weight="700" fill="#24744a">VERTRAUENSWÜRDIGE KNP-ZONE</text>
-<rect x="45" y="90" width="200" height="115" rx="13" fill="white" stroke="#b7c5cf"/><text x="65" y="120" font-weight="700">Datenserver</text><text x="65" y="145" font-size="13" fill="#5d6977">Projektordner · Archive</text><text x="65" y="169" font-size="13" fill="#9c3030">kein direkter Agent-Write</text>
-<rect x="275" y="90" width="210" height="115" rx="13" fill="white" stroke="#b7c5cf"/><text x="295" y="120" font-weight="700">Access-Projektdatenbank</text><text x="295" y="145" font-size="13" fill="#5d6977">Projekte · Mail-Verweise</text><text x="295" y="169" font-size="13" fill="#9c3030">nur Write Broker schreibt</text>
-<rect x="515" y="90" width="205" height="115" rx="13" fill="white" stroke="#b7c5cf"/><text x="535" y="120" font-weight="700">LLM-PC lokal</text><text x="535" y="145" font-size="13" fill="#5d6977">Mailanalyse · Task-DB</text><text x="535" y="169" font-size="13" fill="#24744a">Projekt-/Kontextwissen</text>
-<rect x="750" y="90" width="190" height="115" rx="13" fill="#fff8ec" stroke="#d6aa70"/><text x="770" y="120" font-weight="700">Knowledge Vault</text><text x="770" y="145" font-size="13" fill="#5d6977">Normen · Bücher · Artikel</text><text x="770" y="169" font-size="13" fill="#a15b12">rechtegesteuert</text>
-<rect x="970" y="90" width="160" height="115" rx="13" fill="white" stroke="#b7c5cf"/><text x="990" y="120" font-weight="700">Gateway</text><text x="990" y="145" font-size="13" fill="#5d6977">sanitizen</text><text x="990" y="169" font-size="13" fill="#1f5f99">Compute-Übergang</text>
-<rect x="365" y="235" width="240" height="90" rx="13" fill="#eaf3fb" stroke="#82a9c9"/><text x="385" y="265" font-weight="700">Human-Gate UI</text><text x="385" y="289" font-size="13" fill="#5d6977">Mail lesen · Vorschlag prüfen</text><text x="385" y="310" font-size="13" fill="#1f5f99">Projekt wählen · Ablage bestätigen</text>
-<rect x="650" y="235" width="240" height="90" rx="13" fill="#eef8f2" stroke="#82ba98"/><text x="670" y="265" font-weight="700">Privileged Write Broker</text><text x="670" y="289" font-size="13" fill="#5d6977">feste Operationen · kein LLM</text><text x="670" y="310" font-size="13" fill="#24744a">Transaktion + Audit + Rollback-Meta</text>
-<line x1="605" y1="280" x2="645" y2="280" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><line x1="770" y1="235" x2="770" y2="210" stroke="#526372" stroke-width="2"/><line x1="770" y1="210" x2="380" y2="210" stroke="#526372" stroke-width="2"/><line x1="380" y1="210" x2="380" y2="205" stroke="#526372" stroke-width="2"/>
-<line x1="650" y1="270" x2="490" y2="170" stroke="#526372" stroke-width="2"/><line x1="650" y1="290" x2="240" y2="170" stroke="#526372" stroke-width="2"/>
-<line x1="20" y1="405" x2="1160" y2="405" stroke="#c33f3f" stroke-width="4" stroke-dasharray="10 8"/><text x="36" y="390" font-size="15" font-weight="700" fill="#9c3030">HARTE SECURITY BOUNDARY · keine Originalprojekte / keine geschützten Quelldokumente</text>
-<rect x="20" y="450" width="1140" height="290" rx="18" fill="#f6f2fc" stroke="#9d86cb" stroke-width="2"/><text x="42" y="483" font-size="18" font-weight="700" fill="#624b9b">COMPUTE- / AGENT-ZONE</text>
-<rect x="55" y="525" width="205" height="145" rx="13" fill="white" stroke="#b7c5cf"/><text x="75" y="555" font-weight="700">Compute-Task-DB</text><text x="75" y="580" font-size="13" fill="#5d6977">Tickets · technische Inputs</text><text x="75" y="604" font-size="13" fill="#5d6977">Status · Resultate</text><text x="75" y="628" font-size="13" fill="#9c3030">keine Projektzuordnung</text>
-<rect x="300" y="525" width="220" height="145" rx="13" fill="white" stroke="#b7c5cf"/><text x="320" y="555" font-weight="700">Agent Orchestrator</text><text x="320" y="580" font-size="13" fill="#5d6977">Codex / Claude Code</text><text x="320" y="604" font-size="13" fill="#5d6977">Planung · Toolwahl</text><text x="320" y="628" font-size="13" fill="#624b9b">isolierter Workspace</text>
-<rect x="560" y="525" width="220" height="145" rx="13" fill="white" stroke="#b7c5cf"/><text x="580" y="555" font-weight="700">Tool Registry</text><text x="580" y="580" font-size="13" fill="#5d6977">FEM · Wärmebrücken</text><text x="580" y="604" font-size="13" fill="#5d6977">Parser · Solver · Utilities</text><text x="580" y="628" font-size="13" fill="#24744a">Version + Freigabestatus</text>
-<rect x="820" y="525" width="285" height="145" rx="13" fill="#fff6e9" stroke="#d6aa70"/><text x="840" y="555" font-weight="700">Cloud-KI / Entwicklung</text><text x="840" y="580" font-size="13" fill="#5d6977">Analyse · Codeentwicklung</text><text x="840" y="604" font-size="13" fill="#5d6977">nur Tickets / Evidence</text><text x="840" y="628" font-size="13" fill="#9c3030">keine automatische Freigabe</text>
-<line x1="260" y1="597" x2="295" y2="597" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><line x1="520" y1="597" x2="555" y2="597" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><line x1="780" y1="597" x2="815" y2="597" stroke="#526372" stroke-width="2" marker-end="url(#a)"/>
-</svg></div></section>
+<section id="architektur"><div class="section-title"><h2>Zielarchitektur</h2><p>Die Übersicht zeigt bewusst nur die wichtigsten Stationen. Grün bleibt vollständig intern; unterhalb der roten Grenze arbeitet die Compute-/Cloud-Welt nur mit pseudonymisierten Tickets und freigegebenem Fachwissen.</p></div>
+<div class="diagram">
+<svg viewBox="0 0 1240 1110" role="img" aria-label="KNP Zielarchitektur – verständliche Übersicht">
+<defs>
+<marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#607382"/></marker>
+<filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#1b2a38" flood-opacity=".10"/></filter>
+</defs>
+
+<!-- INTERNAL ZONE -->
+<rect x="30" y="25" width="1180" height="560" rx="28" fill="#f3fbf6" stroke="#79ad8d" stroke-width="2"/>
+<text x="62" y="67" font-size="22" font-weight="800" fill="#24744a">1 · KNP-INTERN</text>
+<text x="62" y="93" font-size="14" fill="#537062">Vertrauliche Daten, echtes Projektwissen und lizenzierte Fachquellen bleiben hier.</text>
+
+<!-- source groups -->
+<rect x="75" y="135" width="480" height="150" rx="20" fill="#fff" stroke="#cfd9d3" filter="url(#shadow)"/>
+<text x="105" y="172" font-size="18" font-weight="750" fill="#18202a">Interne Unternehmensdaten</text>
+<rect x="105" y="194" width="132" height="55" rx="11" fill="#eef7f1"/><text x="121" y="218" font-size="13" font-weight="700">Projektordner</text><text x="121" y="238" font-size="11" fill="#5d6977">Pläne · Dateien</text>
+<rect x="250" y="194" width="132" height="55" rx="11" fill="#eef7f1"/><text x="266" y="218" font-size="13" font-weight="700">Access</text><text x="266" y="238" font-size="11" fill="#5d6977">Projekte · Verweise</text>
+<rect x="395" y="194" width="132" height="55" rx="11" fill="#eef7f1"/><text x="411" y="218" font-size="13" font-weight="700">E-Mail</text><text x="411" y="238" font-size="11" fill="#5d6977">Postfach · Anhänge</text>
+
+<rect x="685" y="135" width="480" height="150" rx="20" fill="#fffaf0" stroke="#e0c28e" filter="url(#shadow)"/>
+<text x="715" y="172" font-size="18" font-weight="750" fill="#18202a">Geschütztes Fachwissen</text>
+<rect x="715" y="194" width="132" height="55" rx="11" fill="#fff3dc"/><text x="731" y="218" font-size="13" font-weight="700">DIN / Normen</text><text x="731" y="238" font-size="11" fill="#6d6250">rechtegesteuert</text>
+<rect x="860" y="194" width="132" height="55" rx="11" fill="#fff3dc"/><text x="876" y="218" font-size="13" font-weight="700">Fachbücher</text><text x="876" y="238" font-size="11" fill="#6d6250">lokal indexiert</text>
+<rect x="1005" y="194" width="132" height="55" rx="11" fill="#fff3dc"/><text x="1021" y="218" font-size="13" font-weight="700">Fachartikel</text><text x="1021" y="238" font-size="11" fill="#6d6250">mit Fundstelle</text>
+
+<!-- arrows to local AI -->
+<path d="M315 285 V322 H575" fill="none" stroke="#607382" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M925 285 V322 H665" fill="none" stroke="#607382" stroke-width="2.4" marker-end="url(#arrow)"/>
+<rect x="502" y="301" width="236" height="27" rx="13" fill="#f3fbf6"/><text x="620" y="319" text-anchor="middle" font-size="12" fill="#526372">liest und versteht den internen Kontext</text>
+
+<!-- local AI -->
+<rect x="440" y="345" width="360" height="115" rx="21" fill="#eaf3fb" stroke="#76a3c7" stroke-width="2" filter="url(#shadow)"/>
+<text x="620" y="380" text-anchor="middle" font-size="20" font-weight="800" fill="#1f5f99">Lokale KI / LLM-PC</text>
+<text x="620" y="405" text-anchor="middle" font-size="13" fill="#465a6a">E-Mails verstehen · Projekte zuordnen · Tasks erzeugen</text>
+<text x="620" y="428" text-anchor="middle" font-size="13" fill="#465a6a">Fachwissen recherchieren · Vorschläge vorbereiten</text>
+<rect x="535" y="439" width="170" height="27" rx="13" fill="#fff" stroke="#cddde9"/><text x="620" y="457" text-anchor="middle" font-size="11" font-weight="700" fill="#1f5f99">KEIN DIREKTER SCHREIBZUGRIFF</text>
+
+<!-- branches -->
+<path d="M555 460 V495 H325 V515" fill="none" stroke="#607382" stroke-width="2.4" marker-end="url(#arrow)"/>
+<path d="M685 460 V495 H925 V515" fill="none" stroke="#607382" stroke-width="2.4" marker-end="url(#arrow)"/>
+<rect x="348" y="478" width="184" height="26" rx="13" fill="#f3fbf6"/><text x="440" y="496" text-anchor="middle" font-size="12" fill="#526372">Änderung vorgeschlagen</text>
+<rect x="742" y="478" width="224" height="26" rx="13" fill="#f3fbf6"/><text x="854" y="496" text-anchor="middle" font-size="12" fill="#526372">technische Aufgabe vorbereiten</text>
+
+<!-- human gate -->
+<rect x="110" y="515" width="270" height="95" rx="18" fill="#fff" stroke="#7fa8c7" stroke-width="2" filter="url(#shadow)"/>
+<text x="245" y="548" text-anchor="middle" font-size="17" font-weight="800">Human Gate</text>
+<text x="245" y="572" text-anchor="middle" font-size="12" fill="#5d6977">Mitarbeiter prüft Projekt, Zielordner</text>
+<text x="245" y="592" text-anchor="middle" font-size="12" fill="#5d6977">und bestätigt den konkreten Schreibvorgang</text>
+
+<path d="M380 562 H415" fill="none" stroke="#607382" stroke-width="2.4" marker-end="url(#arrow)"/>
+<text x="397" y="550" text-anchor="middle" font-size="11" fill="#526372">bestätigt</text>
+
+<rect x="415" y="515" width="270" height="95" rx="18" fill="#eef8f2" stroke="#79ad8d" stroke-width="2" filter="url(#shadow)"/>
+<text x="550" y="548" text-anchor="middle" font-size="17" font-weight="800" fill="#24744a">Write Broker</text>
+<text x="550" y="572" text-anchor="middle" font-size="12" fill="#5d6977">führt nur fest definierte Aktionen aus</text>
+<text x="550" y="592" text-anchor="middle" font-size="12" fill="#5d6977">Dateiablage · Access · Audit · Backup-Meta</text>
+
+<!-- sanitization gateway -->
+<rect x="785" y="515" width="325" height="95" rx="18" fill="#fff" stroke="#7fa8c7" stroke-width="2" filter="url(#shadow)"/>
+<text x="947" y="548" text-anchor="middle" font-size="17" font-weight="800" fill="#1f5f99">Sanitization & Research Gateway</text>
+<text x="947" y="572" text-anchor="middle" font-size="12" fill="#5d6977">entfernt Projektidentität und sensible Daten</text>
+<text x="947" y="592" text-anchor="middle" font-size="12" fill="#5d6977">liefert Ticket + belegte fachliche Evidence</text>
+
+<!-- SECURITY BAND -->
+<rect x="30" y="635" width="1180" height="78" rx="18" fill="#fff2f2" stroke="#cf6d6d" stroke-width="2"/>
+<text x="620" y="668" text-anchor="middle" font-size="17" font-weight="800" fill="#9c3030">HARTE SECURITY BOUNDARY</text>
+<text x="620" y="692" text-anchor="middle" font-size="13" fill="#775050">Keine Kundennamen · keine Adressen · keine Original-E-Mails · keine Originalpläne · keine geschützten Volltexte</text>
+
+<path d="M947 610 V755" fill="none" stroke="#607382" stroke-width="2.8" marker-end="url(#arrow)"/>
+<rect x="836" y="716" width="222" height="28" rx="14" fill="#fff" stroke="#d9e0e7"/><text x="947" y="735" text-anchor="middle" font-size="12" fill="#526372">nur pseudonymisiertes Paket</text>
+
+<!-- COMPUTE ZONE -->
+<rect x="30" y="750" width="1180" height="325" rx="28" fill="#f7f3fd" stroke="#9d86cb" stroke-width="2"/>
+<text x="62" y="792" font-size="22" font-weight="800" fill="#624b9b">2 · COMPUTE- & AGENT-ZONE</text>
+<text x="62" y="818" font-size="14" fill="#665c7c">Hier wird gerechnet, entwickelt und reportet – ohne Kenntnis der realen Projektidentität.</text>
+
+<rect x="85" y="855" width="245" height="125" rx="19" fill="#fff" stroke="#b9acd5" filter="url(#shadow)"/>
+<text x="207" y="889" text-anchor="middle" font-size="17" font-weight="800" fill="#624b9b">Task & Workspace</text>
+<text x="207" y="914" text-anchor="middle" font-size="12" fill="#5d6977">Ticket-ID · Geometrie · Material</text>
+<text x="207" y="934" text-anchor="middle" font-size="12" fill="#5d6977">Randbedingungen · Evidence</text>
+<rect x="142" y="951" width="130" height="24" rx="12" fill="#f1edfb"/><text x="207" y="968" text-anchor="middle" font-size="11" font-weight="700" fill="#624b9b">isolierter Kontext</text>
+
+<path d="M330 917 H375" fill="none" stroke="#607382" stroke-width="2.4" marker-end="url(#arrow)"/>
+<text x="352" y="904" text-anchor="middle" font-size="11" fill="#526372">bearbeiten</text>
+
+<rect x="375" y="855" width="245" height="125" rx="19" fill="#fff" stroke="#b9acd5" filter="url(#shadow)"/>
+<text x="497" y="889" text-anchor="middle" font-size="17" font-weight="800" fill="#624b9b">Agent Orchestrator</text>
+<text x="497" y="914" text-anchor="middle" font-size="12" fill="#5d6977">Codex / Claude Code</text>
+<text x="497" y="934" text-anchor="middle" font-size="12" fill="#5d6977">plant Methode · wählt Tools</text>
+<text x="497" y="954" text-anchor="middle" font-size="12" fill="#5d6977">erkennt fehlende Fähigkeiten</text>
+
+<path d="M620 917 H665" fill="none" stroke="#607382" stroke-width="2.4" marker-end="url(#arrow)"/>
+<text x="642" y="904" text-anchor="middle" font-size="11" fill="#526372">nutzt</text>
+
+<rect x="665" y="855" width="245" height="125" rx="19" fill="#eef8f2" stroke="#79ad8d" filter="url(#shadow)"/>
+<text x="787" y="889" text-anchor="middle" font-size="17" font-weight="800" fill="#24744a">Validierte Rechentools</text>
+<text x="787" y="914" text-anchor="middle" font-size="12" fill="#5d6977">FEM · Wärmebrücken · Solver</text>
+<text x="787" y="934" text-anchor="middle" font-size="12" fill="#5d6977">Parser · Bauphysik-Module</text>
+<rect x="721" y="951" width="132" height="24" rx="12" fill="#dff2e6"/><text x="787" y="968" text-anchor="middle" font-size="11" font-weight="800" fill="#24744a">KNP-FREIGEGEBEN</text>
+
+<path d="M910 917 H955" fill="none" stroke="#607382" stroke-width="2.4" marker-end="url(#arrow)"/>
+<text x="932" y="904" text-anchor="middle" font-size="11" fill="#526372">erzeugt</text>
+
+<rect x="955" y="855" width="205" height="125" rx="19" fill="#eaf3fb" stroke="#7fa8c7" filter="url(#shadow)"/>
+<text x="1057" y="889" text-anchor="middle" font-size="17" font-weight="800" fill="#1f5f99">Report & Viewer</text>
+<text x="1057" y="914" text-anchor="middle" font-size="12" fill="#5d6977">Feldplots · Kennwerte</text>
+<text x="1057" y="934" text-anchor="middle" font-size="12" fill="#5d6977">HTML / PDF / SVG / CSV</text>
+<text x="1057" y="954" text-anchor="middle" font-size="12" fill="#5d6977">Validierungsstatus sichtbar</text>
+
+<!-- development branch -->
+<path d="M497 980 V1019 H685" fill="none" stroke="#b06a22" stroke-width="2.2" marker-end="url(#arrow)"/>
+<rect x="685" y="995" width="300" height="55" rx="15" fill="#fff5e7" stroke="#d9a466"/>
+<text x="835" y="1018" text-anchor="middle" font-size="14" font-weight="800" fill="#a15b12">Cloud-KI / Tool-Entwicklung</text>
+<text x="835" y="1039" text-anchor="middle" font-size="11" fill="#6d6250">entwickelt Prototypen – darf sie nicht selbst freigeben</text>
+<rect x="438" y="1000" width="210" height="27" rx="13" fill="#f7f3fd"/><text x="543" y="1018" text-anchor="middle" font-size="11" fill="#8c5a29">wenn validierte Fähigkeit fehlt</text>
+
+<!-- result return -->
+<path d="M1057 855 V805 H1168 V562 H1110" fill="none" stroke="#607382" stroke-width="2.3" marker-end="url(#arrow)"/>
+<rect x="1014" y="785" width="186" height="28" rx="14" fill="#fff" stroke="#d9e0e7"/><text x="1107" y="804" text-anchor="middle" font-size="11" fill="#526372">Ergebnis + Ticket-ID zurück</text>
+</svg>
+<div class="diagram-note"><b>Leserichtung:</b> oben beginnt die echte KNP-Welt. Links liegt der kontrollierte Schreibpfad mit Human Gate; rechts verlässt ausschließlich ein reduziertes Ticket die interne Zone. Unten arbeitet der Compute-Agent mit freigegebenen Rechentools und liefert Report und Ergebnisse wieder zurück.</div>
+</div>
+</section>
 
 <section id="mail"><div class="section-title"><h2>E-Mail-Sortierung, Projektablage und Access</h2><p>Die KI darf die Ablage vorbereiten, aber nicht selbstständig produktive Projekt- oder Datenbankänderungen durchführen.</p></div>
-<div class="flow"><div class="node"><b>1 · Mail lesen</b><small>lokal, inkl. Anhänge</small></div><div class="arrow">→</div><div class="node"><b>2 · LLM-Vorschlag</b><small>Projekt, Kategorie, Dateiname</small></div><div class="arrow">→</div><div class="node"><b>3 · Human Gate</b><small>Mitarbeiter prüft / ändert</small></div><div class="arrow">→</div><div class="node"><b>4 · Write Broker</b><small>deterministische Aktion</small></div><div class="arrow">→</div><div class="node"><b>5 · Projekt + Access</b><small>Datei + Verknüpfung atomar verwalten</small></div></div>
-<div class="grid g3" style="margin-top:14px">
-<div class="card"><span class="tag service">Mail UI</span><h3>Eigene interne Oberfläche</h3><p>Inbox mit KI-Vorschlag, Trefferwahrscheinlichkeit, vorgeschlagenem Projekt, Zielordner, Dokumenttyp und Dateiname. Ein Klick bestätigt oder korrigiert die Ablage.</p></div>
-<div class="card"><span class="tag trusted">Human Gate</span><h3>Schreiben erst nach Bestätigung</h3><p>Der Mensch bestätigt den konkreten Zielzustand. Erst danach erhält der Write Broker einen eng definierten Auftrag; das LLM besitzt selbst keine Schreibcredentials.</p></div>
-<div class="card"><span class="tag boundary">Write Broker</span><h3>Minimal privilegierter Dienst</h3><p>Darf nur freigegebene Operationen: Maildatei kopieren/verschieben, Metadaten schreiben, Access-Datensatz anlegen/ändern und Audit-Eintrag erzeugen.</p></div></div>
-<details open><summary>Beispiel einer bestätigten Ablageaktion</summary><div class="detail-body"><pre class="code">transaction_id: TX-2026-0917-004182
+<div class="flow"><div class="node"><b>1 · Mail lesen</b><small>lokal, inkl. Anhänge</small></div><div class="arrow">→</div><div class="node"><b>2 · LLM-Vorschlag</b><small>Projekt, Kategorie, Dateiname</small></div><div class="arrow">→</div><div class="node"><b>3 · Human Gate</b><small>Mitarbeiter prüft / ändert</small></div><div class="arrow">→</div><div class="node"><b>4 · Write Broker</b><small>deterministische Aktion</small></div><div class="arrow">→</div><div class="node"><b>5 · Projekt + Access</b><small>Datei + Verknüpfung</small></div></div>
+<div class="grid g3" style="margin-top:14px"><div class="card"><span class="tag service">Mail UI</span><h3>Eigene interne Oberfläche</h3><p>Inbox mit KI-Vorschlag, vorgeschlagenem Projekt, Zielordner, Dokumenttyp und Dateiname. Ein Klick bestätigt oder korrigiert die Ablage.</p></div><div class="card"><span class="tag trusted">Human Gate</span><h3>Schreiben erst nach Bestätigung</h3><p>Der Mensch bestätigt den konkreten Zielzustand. Erst danach erhält der Write Broker einen eng definierten Auftrag.</p></div><div class="card"><span class="tag boundary">Write Broker</span><h3>Minimal privilegierter Dienst</h3><p>Darf nur freigegebene Operationen: Maildatei kopieren/verschieben, Metadaten schreiben, Access-Datensatz anlegen/ändern und Audit-Eintrag erzeugen.</p></div></div>
+<details><summary>Beispiel einer bestätigten Ablageaktion</summary><div class="detail-body"><pre class="code">transaction_id: TX-2026-0917-004182
 actor: user:kai
 source_message_id: &lt;mail-id&gt;
 approved_project_id: P-0241
 actions:
-  - store_email:
-      target: /projekte/P-0241/05_Korrespondenz/2026-09-17_mail.eml
+  - store_email: /projekte/P-0241/05_Korrespondenz/...
   - store_attachments: true
-  - access_link:
-      project_id: P-0241
-      document_type: email
-      path: ...
+  - access_link: P-0241
   - write_audit_record: true</pre><p>Der Write Broker akzeptiert keine freien Shell-Befehle oder LLM-Prompts, sondern nur ein festes, validiertes Aktionsschema.</p></div></details>
-<div class="callout decision"><b>Wichtige Trennung:</b> Das lokale LLM kann einen sehr guten Ablagevorschlag machen. Der eigentliche Schreibvorgang ist jedoch klassische Software mit festen Regeln, Berechtigungen, Transaktionen und Protokollierung.</div>
-
-<details><summary>Schutz der Access-Datenbank</summary><div class="detail-body"><table><thead><tr><th>Schutzebene</th><th>Vorgabe</th></tr></thead><tbody>
-<tr><td>Frontend / Backend</td><td>Bestehende Access-Lösung nach Möglichkeit in Benutzer-Frontend und zentrale Backend-Datendatei trennen.</td></tr>
-<tr><td>Transaktion</td><td>Zusammengehörige Tabellenänderungen über DAO/ADO-Transaktion ausführen: Begin → Änderungen → Commit oder Rollback.</td></tr>
-<tr><td>Audit Journal</td><td>Jede KI-initiierte produktive Änderung zusätzlich in einer append-only Audit-Datenbank protokollieren.</td></tr>
-<tr><td>Vorher/Nachher</td><td>Primärschlüssel, betroffene Felder und Werte vor/nach Änderung dokumentieren; keine Passwörter oder unnötigen personenbezogenen Inhalte duplizieren.</td></tr>
-<tr><td>Snapshots</td><td>Regelmäßige konsistente Backups der Access-Backend-Datei; zusätzlich Snapshot vor riskanten Batch-Änderungen.</td></tr>
-<tr><td>Restore-Test</td><td>Backups gelten erst als belastbar, wenn Wiederherstellung automatisiert und regelmäßig getestet wird.</td></tr>
-<tr><td>Dateien</td><td>Mail-/Anhangsdateien mit Hash protokollieren; Verschieben möglichst als Copy → Verify Hash → DB-Link → Commit → optional Source Cleanup.</td></tr>
-</tbody></table></div></details>
-
-<details><summary>Audit-Datensatz pro Änderung</summary><div class="detail-body"><div class="pillrow"><span class="pill">transaction_id</span><span class="pill">timestamp</span><span class="pill">user_id</span><span class="pill">source_message_id</span><span class="pill">project_id</span><span class="pill">operation</span><span class="pill">record_pk</span><span class="pill">before</span><span class="pill">after</span><span class="pill">target_path</span><span class="pill">file_hash</span><span class="pill">result</span><span class="pill">software_version</span></div><p>Damit lässt sich eine Änderung fachlich nachvollziehen und in vielen Fällen durch eine definierte Gegenoperation zurücknehmen. Für vollständige Wiederherstellung bleiben unabhängige Backups erforderlich.</p></div></details>
 </section>
 
-<section id="wissen"><div class="section-title"><h2>Normen, Fachbücher und Fachartikel</h2><p>Lizenzierte oder urheberrechtlich geschützte Quellen werden nicht in die Cloud kopiert. Die lokale Wissensschicht beantwortet konkrete Fachfragen mit Provenienz.</p></div><div class="grid g3">
-<div class="card"><span class="tag trusted">Knowledge Vault</span><h3>Geschützter Bestand</h3><p>Originale und abgeleitete Markdown-/Bilddaten liegen ausschließlich intern und werden mit Quelle, Ausgabe, Rechten und zulässiger KI-Nutzung katalogisiert.</p></div>
-<div class="card"><span class="tag service">Research Agent</span><h3>Lokale Recherche</h3><p>Das lokale LLM erhält konkrete Fachfragen, recherchiert in zulässigen Quellen und liefert eine belegte Antwort.</p></div>
-<div class="card"><span class="tag compute">Evidence Packet</span><h3>Cloud erhält nur Fachwissen</h3><p>Weitergegeben werden konkrete Aussagen, Parameter und Fundstellen – nicht die vollständigen geschützten Dokumente.</p></div></div>
-<div class="callout license"><b>Lizenz-Gate:</b> Ob ein Dokument automatisiert extrahiert, indexiert oder von einem lokalen LLM verarbeitet werden darf, wird pro Quelle als Rechte-Metadatum hinterlegt.</div></section>
+<section id="wissen"><div class="section-title"><h2>Normen, Fachbücher und Fachartikel</h2><p>Lizenzierte oder urheberrechtlich geschützte Quellen werden nicht in die Cloud kopiert. Die lokale Wissensschicht beantwortet konkrete Fachfragen mit Provenienz.</p></div><div class="grid g3"><div class="card"><span class="tag trusted">Knowledge Vault</span><h3>Geschützter Bestand</h3><p>Originale und abgeleitete Markdown-/Bilddaten liegen intern und werden mit Quelle, Ausgabe, Rechten und zulässiger KI-Nutzung katalogisiert.</p></div><div class="card"><span class="tag service">Research Agent</span><h3>Lokale Recherche</h3><p>Das lokale LLM recherchiert konkrete Fachfragen in zulässigen Quellen und liefert eine belegte Antwort.</p></div><div class="card"><span class="tag compute">Evidence Packet</span><h3>Cloud erhält nur Fachwissen</h3><p>Weitergegeben werden konkrete Aussagen, Parameter und Fundstellen – nicht die vollständigen geschützten Dokumente.</p></div></div><div class="callout license"><b>Lizenz-Gate:</b> Ob ein Dokument automatisiert extrahiert, indexiert oder von einem lokalen LLM verarbeitet werden darf, wird pro Quelle als Rechte-Metadatum hinterlegt.</div></section>
 
-<section id="ingestion"><div class="section-title"><h2>Lokale PDF-Ingestion</h2><p>Normen, Bücher und Artikel werden – soweit rechtlich zulässig – lokal in ein maschinenlesbares und zitierfähiges Format überführt.</p></div><div class="flow"><div class="node"><b>PDF</b><small>Original unverändert</small></div><div class="arrow">→</div><div class="node"><b>Text/Layout Parser</b><small>Seiten, Überschriften, Tabellen</small></div><div class="arrow">→</div><div class="node"><b>Markdown</b><small>Seiten-/Abschnittsanker</small></div><div class="arrow">→</div><div class="node"><b>Bilder</b><small>deterministisch benannt</small></div><div class="arrow">→</div><div class="node"><b>Index</b><small>Metadaten + Retrieval</small></div></div>
-<details><summary>Ablagestruktur</summary><div class="detail-body"><pre class="code">knowledge/NORM-0041/
+<section id="ingestion"><div class="section-title"><h2>Lokale PDF-Ingestion</h2><p>Normen, Bücher und Artikel werden – soweit rechtlich zulässig – lokal in ein maschinenlesbares, zitierfähiges Format überführt.</p></div><div class="flow"><div class="node"><b>PDF</b><small>Original unverändert</small></div><div class="arrow">→</div><div class="node"><b>Text/Layout Parser</b><small>Seiten, Tabellen, Bilder</small></div><div class="arrow">→</div><div class="node"><b>Markdown</b><small>Seiten-/Abschnittsanker</small></div><div class="arrow">→</div><div class="node"><b>Bilder</b><small>deterministisch benannt</small></div><div class="arrow">→</div><div class="node"><b>Index</b><small>Metadaten + Retrieval</small></div></div>
+<details><summary>Vorgeschlagene Ablagestruktur</summary><div class="detail-body"><pre class="code">knowledge/NORM-0041/
 ├── source.meta.json
 ├── document.md
 ├── pages.json
 ├── tables/
 └── images/
     ├── p003_img01.png
+    ├── p011_img01.png
     └── p011_img02.png
 
 # document.md
@@ -104,17 +185,15 @@ actions:
 ...
 ![Abbildung](images/p011_img02.png)</pre></div></details></section>
 
-<section id="tasks"><div class="section-title"><h2>Task-, Ticket- und Workspace-Modell</h2><p>Die interne Projektwahrheit und die Compute-Aufgabe bleiben getrennt.</p></div><div class="grid g2"><div class="card"><span class="tag trusted">LLM-PC</span><h3>Interner Task</h3><p>Reale Projektzuordnung, Kunde, Quellen, Bearbeiter, Originaldokumente, Rechte und Mapping zur neutralen Compute-Ticket-ID.</p></div><div class="card"><span class="tag compute">Compute-PC</span><h3>Compute-Ticket</h3><p>Nur Ticket-ID, technische Inputs, Aufgabenbeschreibung, ACLs, Rechenstatus, Evidence Packets, Logs und Ergebnisse.</p></div></div>
-<details><summary>Compute-API</summary><div class="detail-body"><pre class="code">POST /tasks
+<section id="tasks"><div class="section-title"><h2>Task-, Ticket- und Workspace-Modell</h2><p>Die interne Projektwahrheit und die Compute-Aufgabe bleiben getrennt.</p></div><div class="grid g2"><div class="card"><span class="tag trusted">LLM-PC</span><h3>Interner Task</h3><p>Reale Projektzuordnung, Kunde, Quellen, Bearbeiter, Originaldokumente, Rechte und Mapping zur neutralen Compute-Ticket-ID.</p></div><div class="card"><span class="tag compute">Compute-PC</span><h3>Compute-Ticket</h3><p>Nur Ticket-ID, technische Inputs, Aufgabenbeschreibung, ACLs, Rechenstatus, Evidence Packets, Logs und Ergebnisse.</p></div></div><details><summary>Compute-API</summary><div class="detail-body"><pre class="code">POST /tasks
 POST /tasks/{ticket}/files
 GET  /tasks/{ticket}/status
 GET  /tasks/{ticket}/results
 POST /research-requests
 GET  /research-results/{request}</pre></div></details></section>
 
-<section id="adaptive"><div class="section-title"><h2>Adaptiver / „selbstlernender“ Compute-Agent</h2><p>Der Compute-Agent wählt für jede Aufgabe die geeignetste vorhandene Werkzeugkette und erkennt systematisch, wann neue Fähigkeiten erforderlich sind.</p></div>
-<div class="flow"><div class="node"><b>1 · Aufgabe verstehen</b><small>Physik, Zielgrößen, Genauigkeit</small></div><div class="arrow">→</div><div class="node"><b>2 · Tool Registry prüfen</b><small>welche Module passen?</small></div><div class="arrow">→</div><div class="node"><b>3 · Rechenplan</b><small>Methoden + Randbedingungen</small></div><div class="arrow">→</div><div class="node"><b>4 · Capability Gate</b><small>alles validiert?</small></div><div class="arrow">→</div><div class="node"><b>5 · Berechnung</b><small>oder Entwicklungs-Task</small></div></div>
-<div class="grid g3" style="margin-top:14px"><div class="card"><span class="tag service">Capability Memory</span><h3>Erfahrungen wiederverwenden</h3><p>Problemklassen, geeignete Tools, Benchmarks, Fehlerbilder, Laufzeiten und Modellierungsstrategien werden strukturiert gespeichert.</p></div><div class="card"><span class="tag compute">Gap Detection</span><h3>Fehlende Fähigkeit erkennen</h3><p>Reicht kein freigegebenes Werkzeug aus, erzeugt der Agent einen Tool-Development-/Validation-Task statt still zu improvisieren.</p></div><div class="card"><span class="tag boundary">No Auto-Promotion</span><h3>Keine Selbstfreigabe</h3><p>Ein vom Agenten entwickeltes Tool darf sich niemals selbst auf produktiv setzen.</p></div></div>
+<section id="adaptive"><div class="section-title"><h2>Adaptiver / „selbstlernender“ Compute-Agent</h2><p>Der Agent wählt für jede Aufgabe die geeignetste vorhandene Werkzeugkette und erkennt systematisch, wann neue Fähigkeiten erforderlich sind.</p></div><div class="flow"><div class="node"><b>1 · Aufgabe verstehen</b><small>Physik, Zielgrößen</small></div><div class="arrow">→</div><div class="node"><b>2 · Tool Registry</b><small>was ist freigegeben?</small></div><div class="arrow">→</div><div class="node"><b>3 · Rechenplan</b><small>Methoden + Randbedingungen</small></div><div class="arrow">→</div><div class="node"><b>4 · Capability Gate</b><small>alles validiert?</small></div><div class="arrow">→</div><div class="node"><b>5 · Berechnung</b><small>oder Entwicklungs-Task</small></div></div>
+<div class="grid g3" style="margin-top:14px"><div class="card"><span class="tag service">Capability Memory</span><h3>Erfahrungen wiederverwenden</h3><p>Geeignete Tools, Modellierungsstrategien, typische Fehlerbilder, Benchmarks und Laufzeiten werden strukturiert gespeichert.</p></div><div class="card"><span class="tag compute">Gap Detection</span><h3>Fehlende Fähigkeit erkennen</h3><p>Reicht kein freigegebenes Werkzeug aus, wird ein Tool-Development-/Validation-Task erzeugt.</p></div><div class="card"><span class="tag boundary">No Auto-Promotion</span><h3>Keine Selbstfreigabe</h3><p>Ein vom Agenten entwickeltes Tool darf sich niemals selbst auf produktiv setzen.</p></div></div>
 <details open><summary>Entscheidungslogik</summary><div class="detail-body"><pre class="code">if all_required_steps.status == KNP_VALIDATED:
     run_production_calculation()
     assurance = "validated"
@@ -127,61 +206,21 @@ else:
     assurance = "UNVERIFIED"
     block_final_engineering_release()</pre></div></details></section>
 
-<section id="validation"><div class="section-title"><h2>Tool Registry, Validierung und Freigabegates</h2><p>Jeder Rechenkern, jedes Skript und jeder fachlich relevante Berechnungsschritt hat Version, Status, Gültigkeitsbereich und dokumentierte Validierungsbasis.</p></div>
-<table><thead><tr><th>Status</th><th>Bedeutung</th><th>Produktiver Nachweis</th></tr></thead><tbody>
-<tr><td><span class="status s-exp">Experimental</span></td><td>Prototyp oder neu entwickelte Methode.</td><td class="no">Nein</td></tr>
-<tr><td><span class="status s-bench">Benchmarked</span></td><td>Automatische Referenzfälle bestanden, aber noch keine formale KNP-Freigabe.</td><td class="no">Nein</td></tr>
-<tr><td><span class="status s-val">KNP-validiert</span></td><td>Gegen Referenzsoftware, analytische Fälle und/oder belastbare Vergleichsdaten geprüft; Version und Anwendungsbereich freigegeben.</td><td class="yes">Ja</td></tr>
-<tr><td><span class="status s-dep">Deprecated</span></td><td>Alte Version; reproduzierbar archiviert und für neue Berechnungen gesperrt.</td><td class="no">Nein</td></tr>
-</tbody></table>
-<div class="grid g3" style="margin-top:14px"><div class="card"><span class="tag service">Referenzsoftware</span><h3>Cross-Validation</h3><p>Neue Rechenkerne werden mit identischen Geometrien, Materialien und Randbedingungen gegen etablierte Software gerechnet.</p></div><div class="card"><span class="tag service">Regression Suite</span><h3>Freigabe bleibt reproduzierbar</h3><p>Jede Änderung muss definierte Referenzfälle innerhalb expliziter Toleranzen erneut bestehen.</p></div><div class="card"><span class="tag trusted">Human Gate</span><h3>KNP gibt Version frei</h3><p>Erst nach menschlicher Prüfung von Validierungsreport, Grenzen und Abweichungen wird eine konkrete Version produktiv.</p></div></div>
-<div class="callout decision"><b>Grundregel:</b> Ein Bericht darf „validiertes Ergebnis“ nur tragen, wenn jeder ergebnisrelevante Schritt auf einer freigegebenen Version innerhalb ihres Gültigkeitsbereichs beruht.</div></section>
+<section id="validation"><div class="section-title"><h2>Tool Registry, Validierung und Freigabegates</h2><p>Jeder Rechenkern, jedes Skript und jeder fachlich relevante Berechnungsschritt hat Version, Status, Gültigkeitsbereich und dokumentierte Validierungsbasis.</p></div><table><thead><tr><th>Status</th><th>Bedeutung</th><th>Produktiver Nachweis</th></tr></thead><tbody><tr><td><span class="status s-exp">Experimental</span></td><td>Prototyp oder neue Methode; fachlich noch nicht ausreichend geprüft.</td><td class="no">Nein</td></tr><tr><td><span class="status s-bench">Benchmarked</span></td><td>Automatische Referenzfälle bestanden, aber noch keine formale KNP-Freigabe.</td><td class="no">Nein</td></tr><tr><td><span class="status s-val">KNP-validiert</span></td><td>Gegen Referenzsoftware, analytische Fälle und/oder belastbare Vergleichsdaten geprüft.</td><td class="yes">Ja</td></tr><tr><td><span class="status s-dep">Deprecated</span></td><td>Alte Version; reproduzierbar archiviert und für neue Berechnungen gesperrt.</td><td class="no">Nein</td></tr></tbody></table>
+<div class="grid g3" style="margin-top:14px"><div class="card"><span class="tag service">Referenzsoftware</span><h3>Cross-Validation</h3><p>Neue Kerne werden mit identischen Geometrien, Materialien und Randbedingungen gegen etablierte Software gerechnet.</p></div><div class="card"><span class="tag service">Regression Suite</span><h3>Freigabe bleibt reproduzierbar</h3><p>Jede Änderung muss den gesamten Bestand definierter Referenzfälle innerhalb festgelegter Toleranzen bestehen.</p></div><div class="card"><span class="tag trusted">Human Gate</span><h3>KNP gibt Version frei</h3><p>Erst ein menschlicher Review setzt die konkrete Tool-Version auf KNP-validiert.</p></div></div><div class="callout decision"><b>Grundregel:</b> Ein Bericht darf die Kennzeichnung „validiertes Ergebnis“ nur erhalten, wenn jeder fachlich ergebnisrelevante Schritt auf einer freigegebenen Version innerhalb ihres dokumentierten Gültigkeitsbereichs beruht.</div></section>
 
-<section id="reporting"><div class="section-title"><h2>Reporting und Benutzeroberfläche</h2><p>Der Rechenjob endet nicht bei einer Zahl. Das System erzeugt prüfbare technische Dokumentation und interaktive Visualisierung.</p></div><div class="grid g4">
-<div class="card"><div class="num">2D/3D</div><p>Geometrie, Netz, Materialien und Randbedingungen kontrollierbar visualisieren.</p></div><div class="card"><div class="num">Felder</div><p>Temperaturfelder, Wärmestrom, Isothermen und weitere Ergebnisfelder anzeigen.</p></div><div class="card"><div class="num">Kennwerte</div><p>z. B. ψ-Werte, Oberflächentemperaturen, fRsi und Wärmeströme.</p></div><div class="card"><div class="num">Export</div><p>SVG/PNG, CSV/JSON sowie HTML/PDF-Berichte herunterladen.</p></div></div>
-<details open><summary>Technischer Report</summary><div class="detail-body"><table><thead><tr><th>Block</th><th>Inhalt</th></tr></thead><tbody><tr><td>Aufgabe</td><td>Ziel, Ticket-ID, untersuchte Situation</td></tr><tr><td>Modell</td><td>Geometrie, Materialien, Randbedingungen, Vereinfachungen</td></tr><tr><td>Methode</td><td>Tools/Versionen, Solver, Netz, Konvergenz</td></tr><tr><td>Fachgrundlagen</td><td>belegte Norm-/Literaturaussagen</td></tr><tr><td>Ergebnisse</td><td>Kennwerte, Tabellen, Feldplots</td></tr><tr><td>Qualität</td><td>Validierungsstatus jedes relevanten Schritts</td></tr><tr><td>Provenienz</td><td>Inputs, Tool-Commits, Zeitpunkte, Bearbeiter, Logs</td></tr></tbody></table></div></details>
-<div class="callout warn"><b>Ungesicherte Ergebnisse:</b> Experimentelle Berechnungen müssen in UI, Export und Bericht unübersehbar als <b>NICHT VALIDIERTE / NICHT FÜR FACHLICHE FREIGABE GEEIGNETE ERGEBNISSE</b> gekennzeichnet sein.</div></section>
+<section id="reporting"><div class="section-title"><h2>Reporting und Benutzeroberfläche</h2><p>Der Rechenjob endet nicht bei einer Zahl. Das System erzeugt prüfbare technische Dokumentation und interaktive Visualisierung.</p></div><div class="grid g4"><div class="card"><div class="num">2D/3D</div><p>Geometrie, Netz, Materialien und Randbedingungen kontrollierbar visualisieren.</p></div><div class="card"><div class="num">Felder</div><p>Temperaturfelder, Wärmestrom, Isothermen und weitere physikalische Ergebnisfelder.</p></div><div class="card"><div class="num">Kennwerte</div><p>ψ-Werte, Oberflächentemperaturen, fRsi, Wärmeströme und projektspezifische Zielgrößen.</p></div><div class="card"><div class="num">Export</div><p>Grafiken als SVG/PNG, Daten als CSV/JSON und Bericht als HTML/PDF.</p></div></div>
+<details open><summary>Inhalt eines technischen Reports</summary><div class="detail-body"><table><thead><tr><th>Block</th><th>Inhalt</th></tr></thead><tbody><tr><td>Aufgabe</td><td>Ziel, Ticket-ID, Situation, Fragestellung</td></tr><tr><td>Modell</td><td>Geometrie, Materialien, Randbedingungen, Vereinfachungen</td></tr><tr><td>Methode</td><td>Tools und Versionen, Solver, Netz, Konvergenz</td></tr><tr><td>Fachgrundlagen</td><td>belegte Norm-/Literaturaussagen aus Evidence Packets</td></tr><tr><td>Ergebnisse</td><td>Kennwerte, Tabellen, Feldplots, kritische Stellen</td></tr><tr><td>Qualität</td><td>Validierungsstatus jedes relevanten Berechnungsschritts</td></tr><tr><td>Grenzen</td><td>Annahmen, Unsicherheiten, nicht validierte Teilaspekte</td></tr><tr><td>Provenienz</td><td>Input-Versionen, Tool-Commits, Zeitpunkte, Bearbeiter, Logs</td></tr></tbody></table></div></details><div class="callout warn"><b>Ungesicherte Ergebnisse:</b> Experimentelle Berechnungen dürfen visualisiert und zur Entwicklung verwendet werden, müssen aber in UI, Export und Bericht unübersehbar als <b>NICHT VALIDIERTE / NICHT FÜR FACHLICHE FREIGABE GEEIGNETE ERGEBNISSE</b> gekennzeichnet sein.</div></section>
 
-<section id="zugriff"><div class="section-title"><h2>Benutzer-, Projekt- und Agentenzugriff</h2><p>Sichtbarkeit und Schreibrechte werden getrennt behandelt.</p></div><table><thead><tr><th>Rolle</th><th>Sicht</th><th>Schreibrecht</th></tr></thead><tbody>
-<tr><td>Mitarbeiter</td><td>eigene Tasks + zugeordnete Projekte</td><td>über UI/Human Gate</td></tr>
-<tr><td>Projektleiter</td><td>zugeordnete Projekte/Tasks</td><td>über UI/Human Gate</td></tr>
-<tr><td>Administrator</td><td>alle Tasks, Tool Registry, Audit</td><td>administrative Freigaben</td></tr>
-<tr><td>Lokales LLM</td><td>interne Lesedaten gemäß Berechtigung</td><td class="no">kein direkter produktiver Write</td></tr>
-<tr><td>Write Broker</td><td>nur für Auftrag notwendige Daten</td><td class="limited">eng definierte privilegierte Aktionen</td></tr>
-<tr><td>Codex / Claude Code</td><td>freigegebener Ticket-Workspace</td><td class="no">kein Zugriff auf echte Projektablage</td></tr>
-</tbody></table></section>
+<section id="zugriff"><div class="section-title"><h2>Benutzer-, Projekt- und Codex-Zugriff</h2><p>Sichtbarkeit wird auf Identitäts-, Betriebssystem-, ACL- und Workspace-Ebene durchgesetzt.</p></div><table><thead><tr><th>Rolle</th><th>Sicht</th><th>Durchsetzung</th></tr></thead><tbody><tr><td>Mitarbeiter</td><td>eigene Tasks + freigegebene Projektgruppen</td><td>persönlicher Account, SSH-Key, ACLs, isolierte Workspaces</td></tr><tr><td>Projektleiter</td><td>Tasks zugeordneter Projekte</td><td>Projektgruppen / ACL</td></tr><tr><td>Administrator</td><td>alle Tasks, Tool Registry, Audit</td><td>separate administrative Rolle</td></tr><tr><td>Codex / Claude Code</td><td>aktuell freigegebener Ticket-Workspace</td><td>Container-/Dateisystemisolation; keine Projektablage</td></tr></tbody></table></section>
 
-<section><div class="section-title"><h2>Netzwerk- und Schreibregeln</h2><p>Unerlaubte Kommunikationspfade sollen technisch nicht existieren.</p></div><table><thead><tr><th>Quelle</th><th>Ziel</th><th>Regel</th></tr></thead><tbody>
-<tr><td>LLM-PC</td><td>KNP-Datenserver / Mail / Access</td><td class="limited">lesen nach Berechtigung; kein direkter Write</td></tr>
-<tr><td>Human-Gate UI</td><td>Write Broker</td><td class="yes">bestätigte strukturierte Aktion</td></tr>
-<tr><td>Write Broker</td><td>Projektablage / Access</td><td class="limited">minimal erforderlicher privilegierter Write + Audit</td></tr>
-<tr><td>LLM-PC / Gateway</td><td>Compute API</td><td class="yes">definierte Endpunkte</td></tr>
-<tr><td>Compute-PC</td><td>KNP-Datenserver</td><td class="no">keine direkte Route</td></tr>
-<tr><td>Cloud-Agent</td><td>Knowledge Vault</td><td class="no">kein Zugriff; nur Evidence Packet</td></tr>
-</tbody></table></section>
+<section id="backup"><div class="section-title"><h2>Backup, Audit und Wiederherstellung</h2><p>Automatisierung darf bestehende KNP-Daten nur verändern, wenn jede Änderung nachvollziehbar und die Daten unabhängig wiederherstellbar sind.</p></div><div class="grid g3"><div class="card"><span class="tag trusted">Audit Journal</span><h3>Jede Änderung protokollieren</h3><p>Transaktions-ID, Benutzer, Zeitpunkt, Projekt, Operation, betroffene Datensätze, Vorher-/Nachher-Werte, Zielpfad und Datei-Hash.</p></div><div class="card"><span class="tag service">Snapshots</span><h3>Regelmäßige Sicherungen</h3><p>Access-Backend und relevante Projektmetadaten werden versioniert bzw. in ausreichend kurzen Intervallen gesichert.</p></div><div class="card"><span class="tag boundary">Restore-Test</span><h3>Backups müssen funktionieren</h3><p>Wiederherstellung wird regelmäßig getestet; ein Backup gilt erst dann als belastbar, wenn ein Restore nachgewiesen wurde.</p></div></div><details><summary>Access-Schutz</summary><div class="detail-body"><table><thead><tr><th>Schutzebene</th><th>Vorgabe</th></tr></thead><tbody><tr><td>Frontend / Backend</td><td>Gemeinsam genutzte Access-Lösung nach Möglichkeit in Benutzer-Frontend und zentrale Backend-Datendatei trennen.</td></tr><tr><td>Transaktion</td><td>Zusammengehörige Tabellenänderungen über DAO/ADO-Transaktion ausführen: Begin → Änderungen → Commit oder Rollback.</td></tr><tr><td>Audit</td><td>Zusätzlich jede fachliche Änderung in einem unabhängigen Journal protokollieren.</td></tr><tr><td>Backup</td><td>Automatische Snapshots/Versionen mit Aufbewahrungsregeln und regelmäßigen Restore-Tests.</td></tr></tbody></table></div></details></section>
 
-<section id="offen"><div class="section-title"><h2>Noch zu entscheiden / zu implementieren</h2><p>Einige konkrete Technologien und Migrationsschritte bleiben offen.</p></div><div class="grid g2">
-<div class="card"><span class="tag pending">Zu prüfen</span><h3>Bestehende Access-Struktur</h3><p>Ist die Datenbank bereits Frontend/Backend-getrennt? Welche Tabellen verlinken E-Mails und Projekte? Welche Primärschlüssel und APIs stehen zur Verfügung?</p></div>
-<div class="card"><span class="tag pending">Offen</span><h3>Backup-Technik</h3><p>Snapshot-Intervall, Aufbewahrung, Offline/immutable Kopien und automatisierte Restore-Tests definieren.</p></div>
-<div class="card"><span class="tag pending">Offen</span><h3>Write-Broker-Host</h3><p>Voraussichtlich interner Windows-Dienst nahe Access/Office-Komponenten; keine Cloud-Abhängigkeit und keine Agenten-Shell.</p></div>
-<div class="card"><span class="tag pending">Offen</span><h3>E-Mail-Integration</h3><p>Mailbox-Quelle, Dateiformat (.eml/.msg), Anhänge, Dublettenprüfung, bestehende Ordnerlogik und UI-Workflow aufnehmen.</p></div>
-<div class="card"><span class="tag pending">Offen</span><h3>Tool Registry</h3><p>Datenbankschema, Versionierung, Signierung und Freigabe-Workflow konkretisieren.</p></div>
-<div class="card"><span class="tag pending">Offen</span><h3>Web-Frontend</h3><p>Mail-Inbox, Projektzuordnung, Taskstatus, Wärmebrückenviewer, Reports und Auditansicht in einer internen Oberfläche zusammenführen.</p></div>
-</div></section>
+<section id="offen"><div class="section-title"><h2>Noch zu entscheiden / zu implementieren</h2><p>Die Architektur definiert Sicherheits- und Qualitätslogik; konkrete Technologien bleiben teilweise offen.</p></div><div class="grid g2"><div class="card"><span class="tag pending">Offen</span><h3>Bestandsaufnahme Access</h3><p>Tabellen, Beziehungen, Frontend-/Backend-Aufteilung, Pfadkonventionen und heutige E-Mail-Verknüpfung dokumentieren.</p></div><div class="card"><span class="tag pending">Offen</span><h3>Tool-Registry-Technologie</h3><p>Datenbankschema, Paketformat, Versionierung, Freigabe-Workflow und Signierung freigegebener Releases festlegen.</p></div><div class="card"><span class="tag pending">Offen</span><h3>Validierungsstandard</h3><p>Pro Problemklasse Referenzfälle, Vergleichssoftware, Toleranzen und erforderliche menschliche Review-Schritte definieren.</p></div><div class="card"><span class="tag pending">Offen</span><h3>Web-Frontend</h3><p>Viewer für Wärmebrücken, Feldplots, Parameter, Modellkontrolle, Reports, E-Mail-Human-Gate und Grafik-/Datenexport konkretisieren.</p></div></div></section>
 
-<section><div class="section-title"><h2>Aktueller Soll-Workflow</h2><p>Vom E-Mail-Eingang oder einer technischen Aufgabe bis zur nachvollziehbaren Ablage bzw. Berechnung.</p></div><div class="card"><ol>
-<li>Das lokale LLM liest interne Quellen und erkennt Projektbezug, Aufgabe und erforderliche Aktion.</li>
-<li>Bei E-Mails erzeugt es ausschließlich einen Ablagevorschlag.</li>
-<li>Ein Mitarbeiter prüft Projekt, Kategorie, Dateiname und Zielordner im Human-Gate UI.</li>
-<li>Der Write Broker führt die bestätigte Datei-/Access-Änderung transaktional aus und protokolliert sie im Audit-Journal.</li>
-<li>Für Berechnungen erzeugt das Gateway ein pseudonymisiertes Compute-Ticket.</li>
-<li>Der Compute-Agent prüft Tool Registry, Capability Memory und erforderliche Evidence Packets.</li>
-<li>Nur KNP-validierte Werkzeugketten dürfen fachlich freigabefähige Ergebnisse erzeugen; andernfalls wird Entwicklung/Validierung angestoßen.</li>
-<li>Ergebnisse, Visualisierungen und Provenienz werden im internen Web-Frontend bereitgestellt.</li>
-<li>Backups, Audit-Logs und Restore-Tests sichern die produktiven Datenänderungen unabhängig vom KI-System ab.</li>
-</ol></div></section>
+<section><div class="section-title"><h2>Aktueller Soll-Workflow</h2><p>Vom Eingang einer Aufgabe bis zum fachlich freigabefähigen Ergebnis.</p></div><div class="card"><ol><li>Das lokale LLM analysiert interne Quellen und erzeugt einen internen Task.</li><li>Produktive Schreibvorgänge werden als Vorschlag im Human-Gate UI angezeigt und erst nach Bestätigung durch den Write Broker ausgeführt.</li><li>Für Berechnungen erzeugt das Sanitization Gateway ein pseudonymisiertes Compute-Ticket.</li><li>Der Compute-Agent analysiert die physikalische Problemklasse und prüft Tool Registry und Capability Memory.</li><li>Fehlende normative/fachliche Informationen werden als Research Request lokal beantwortet und als Evidence Packet zurückgegeben.</li><li>Der Agent erstellt einen Rechenplan und prüft Status und Gültigkeitsbereich jedes vorgesehenen Tools.</li><li>Sind alle ergebnisrelevanten Schritte KNP-validiert, wird produktiv gerechnet.</li><li>Fehlt eine validierte Fähigkeit, wird ein Tool-Development-/Validation-Task erzeugt; optionale Ergebnisse bleiben ausdrücklich ungesichert.</li><li>Neue oder geänderte Tools werden gegen Referenzsoftware, analytische Fälle und Regressionstests geprüft.</li><li>Erst nach menschlicher KNP-Freigabe wird eine konkrete Version produktiv nutzbar.</li><li>Der Rechenjob erzeugt Ergebnisdaten, Visualisierungen und einen reproduzierbaren technischen Report.</li><li>Das interne System ordnet Ticket und Resultate wieder dem realen Projekt zu.</li></ol></div></section>
 
-<div class="footer"><b>KNP Bauphysik – KI-Systemarchitektur v0.4.</b> Planungsstand, keine bereits vollständig implementierte Sicherheits- oder Fachfreigabe. Vor Produktivbetrieb sind insbesondere Bestandsaufnahme der Access-/Mail-Struktur, Netzwerksegmentierung, Authentifizierung, Lizenzrechte, DSGVO/AVV, Write-Broker-Berechtigungen, Audit/Backup/Restore, Toolvalidierung, Patch-Management und technische Security-Tests verbindlich auszuarbeiten.</div>
+<div class="footer"><b>KNP Bauphysik – KI-Systemarchitektur v0.5.</b> Planungsstand, keine bereits vollständig implementierte Sicherheits- oder Fachfreigabe. Vor Produktivbetrieb sind insbesondere Netzwerksegmentierung, Authentifizierung, Lizenzrechte, DSGVO/AVV, Toolvalidierung, Schreibgates, Logging, Backup, Restore-Tests, Patch-Management und technische Security-Tests verbindlich auszuarbeiten.</div>
 </main>
 </body>
 </html>
