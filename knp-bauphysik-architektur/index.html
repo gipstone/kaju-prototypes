@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>KNP Bauphysik – KI-Systemarchitektur</title>
+<style>
+:root{
+  --bg:#f4f6f8;--surface:#fff;--ink:#18202a;--muted:#5d6977;--line:#d9e0e7;
+  --blue:#1f5f99;--blue2:#eaf3fb;--green:#24744a;--green2:#eaf7ef;--orange:#a15b12;--orange2:#fff2df;
+  --red:#9c3030;--red2:#fdecec;--purple:#624b9b;--purple2:#f1edfb;--shadow:0 10px 30px rgba(26,42,58,.08);
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{color:var(--blue)}
+header{background:linear-gradient(120deg,#17324b,#214f73 60%,#2e648b);color:#fff;padding:48px 20px 36px}
+.wrap{max-width:1180px;margin:auto}.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.78;font-weight:700}
+h1{font-size:clamp(30px,5vw,54px);line-height:1.05;margin:8px 0 14px;max-width:850px}.lead{font-size:18px;max-width:900px;color:#e9f1f7}.stamp{display:inline-block;margin-top:18px;padding:7px 11px;border:1px solid rgba(255,255,255,.25);border-radius:999px;font-size:13px;background:rgba(255,255,255,.08)}
+nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);overflow:auto;white-space:nowrap}nav .wrap{display:flex;gap:8px;padding:9px 14px}nav a{text-decoration:none;color:#334454;padding:6px 10px;border-radius:8px;font-size:13px}nav a:hover{background:#eef3f7}
+main{padding:28px 20px 70px}section{margin:0 0 28px}.section-title{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:14px}.section-title h2{margin:0;font-size:25px}.section-title p{margin:0;color:var(--muted);max-width:640px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:900px){.g4,.g3{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.card,.diagram,details{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.card{padding:17px}.card h3{margin:0 0 7px;font-size:17px}.card p{margin:0;color:var(--muted)}.tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;border-radius:999px;padding:4px 8px;margin-bottom:10px}.trusted{background:var(--green2);color:var(--green)}.boundary{background:var(--red2);color:var(--red)}.compute{background:var(--purple2);color:var(--purple)}.service{background:var(--blue2);color:var(--blue)}.pending{background:var(--orange2);color:var(--orange)}
+.diagram{padding:16px;overflow:auto}.diagram svg{display:block;width:100%;min-width:820px;height:auto}.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;color:var(--muted);font-size:12px}.legend span:before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}.l-green:before{background:#d9f0e2}.l-red:before{background:#f7d7d7}.l-purple:before{background:#e6def7}.l-blue:before{background:#dcecf8}
+.flow{display:grid;grid-template-columns:repeat(7,auto);gap:8px;align-items:center;justify-content:start;overflow:auto;padding:8px 0}.node{min-width:150px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:#fff}.arrow{font-size:22px;color:#7a8794}.node b{display:block;font-size:13px}.node small{display:block;color:var(--muted);margin-top:2px}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}th,td{text-align:left;padding:10px 11px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#eef3f7;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#4b5b69}tr:last-child td{border-bottom:0}.yes{color:var(--green);font-weight:700}.no{color:var(--red);font-weight:700}.limited{color:var(--orange);font-weight:700}
+details{margin:10px 0;box-shadow:none}summary{cursor:pointer;font-weight:700;padding:14px 16px;list-style:none}summary::-webkit-details-marker{display:none}summary:after{content:"＋";float:right;color:var(--muted)}details[open] summary:after{content:"−"}.detail-body{border-top:1px solid var(--line);padding:14px 16px;color:#33414e}.detail-body p:first-child{margin-top:0}.detail-body p:last-child{margin-bottom:0}
+code{background:#eef2f5;padding:2px 5px;border-radius:5px;font-size:.92em}.code{background:#15202b;color:#dfe8ef;border-radius:12px;padding:15px;overflow:auto;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre}.callout{border-left:4px solid var(--blue);background:#edf5fb;padding:13px 15px;border-radius:8px;margin:12px 0}.warn{border-left-color:var(--red);background:#fff0f0}.decision{border-left-color:var(--green);background:#eef8f2}.footer{margin-top:42px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+.pillrow{display:flex;gap:7px;flex-wrap:wrap}.pill{font-size:12px;border:1px solid var(--line);background:#fff;padding:4px 8px;border-radius:999px}.num{font-size:28px;font-weight:800;line-height:1;margin-bottom:6px}.muted{color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="eyebrow">KNP Bauphysik · Planungsstand</div>
+    <h1>Systemarchitektur für die Integration einer Bauphysik-KI</h1>
+    <p class="lead">Zielbild für eine lokale, datenschutzorientierte KI- und Recheninfrastruktur mit internem LLM, pseudonymisierten Compute-Tickets, FEM-/Bauphysik-Rechenkern, Cloud-Agenten und nachvollziehbaren Benutzer- und Projektgrenzen.</p>
+    <span class="stamp">Stand: 17. September 2026 · Architektur v0.1</span>
+  </div>
+</header>
+<nav><div class="wrap">
+  <a href="#prinzipien">Prinzipien</a><a href="#architektur">Architektur</a><a href="#datenfluss">Datenfluss</a><a href="#tasks">Tasks & Tickets</a><a href="#zugriff">Benutzerzugriff</a><a href="#ergebnisse">Ergebnisse</a><a href="#offen">Offene Punkte</a>
+</div></nav>
+<main class="wrap">
+
+<section id="prinzipien">
+  <div class="section-title"><h2>Leitprinzipien</h2><p>Die Architektur trennt vertrauliche Unternehmensdaten konsequent von Agenten und Cloud-Systemen.</p></div>
+  <div class="grid g4">
+    <div class="card"><span class="tag trusted">01 · Intern</span><h3>Rohdaten bleiben intern</h3><p>Kunden-, Projekt-, E-Mail- und Originalplandaten werden nur in der vertrauenswürdigen KNP-Zone verarbeitet.</p></div>
+    <div class="card"><span class="tag boundary">02 · Kein Direktzugriff</span><h3>Agenten schreiben nicht auf den Datenserver</h3><p>Weder lokales LLM noch Compute-/Cloud-Agenten erhalten freien Schreibzugriff auf den zentralen Projektbestand.</p></div>
+    <div class="card"><span class="tag compute">03 · Ticket statt Projekt</span><h3>Pseudonymisierte Compute-Aufträge</h3><p>Die Compute-Zone sieht Ticket-ID, Geometrie, Materialien, Randbedingungen und Rechenziel – nicht die reale Projektidentität.</p></div>
+    <div class="card"><span class="tag service">04 · Nachvollziehbar</span><h3>Jede Verarbeitung ist ein Job</h3><p>Inputs, Core-Version, Annahmen, Bearbeiter, Status, Logs und Ergebnisse werden einem eindeutig identifizierbaren Job zugeordnet.</p></div>
+  </div>
+  <div class="callout warn"><b>Begrifflich wichtig:</b> Solange intern eine Zuordnung <code>Ticket-ID ↔ Projekt</code> existiert, handelt es sich um <b>Pseudonymisierung</b>, nicht um vollständige Anonymisierung.</div>
+</section>
+
+<section id="architektur">
+  <div class="section-title"><h2>Zielarchitektur</h2><p>Vier Vertrauensbereiche mit einer besonders harten Grenze vor der Compute-/Cloud-Zone.</p></div>
+  <div class="diagram">
+    <svg viewBox="0 0 1120 650" role="img" aria-label="KNP Systemarchitektur">
+      <defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#526372"/></marker></defs>
+      <rect x="20" y="35" width="1080" height="230" rx="18" fill="#f0faf4" stroke="#82ba98" stroke-width="2"/>
+      <text x="42" y="67" font-size="18" font-weight="700" fill="#24744a">VERTRAUENSWÜRDIGE KNP-ZONE</text>
+      <rect x="55" y="100" width="230" height="120" rx="13" fill="white" stroke="#b7c5cf"/><text x="75" y="130" font-weight="700">Linux-Datenserver</text><text x="75" y="155" font-size="13" fill="#5d6977">Originalprojekte · Pläne</text><text x="75" y="176" font-size="13" fill="#5d6977">Dokumente · Archive</text><text x="75" y="197" font-size="13" fill="#9c3030">kein Agent-Schreibzugriff</text>
+      <rect x="330" y="100" width="235" height="120" rx="13" fill="white" stroke="#b7c5cf"/><text x="350" y="130" font-weight="700">LLM-PC (lokal)</text><text x="350" y="155" font-size="13" fill="#5d6977">lokales LLM · E-Mail-/</text><text x="350" y="176" font-size="13" fill="#5d6977">Dokumentanalyse · Task-DB</text><text x="350" y="197" font-size="13" fill="#24744a">interne Projektkenntnis</text>
+      <rect x="610" y="100" width="250" height="120" rx="13" fill="white" stroke="#b7c5cf"/><text x="630" y="130" font-weight="700">Sanitization / Gateway</text><text x="630" y="155" font-size="13" fill="#5d6977">prüfen · reduzieren · freigeben</text><text x="630" y="176" font-size="13" fill="#5d6977">Ticket erzeugen · Mapping halten</text><text x="630" y="197" font-size="13" fill="#1f5f99">einziger definierter Übergang</text>
+      <rect x="900" y="100" width="165" height="120" rx="13" fill="white" stroke="#b7c5cf"/><text x="920" y="130" font-weight="700">Internes Web</text><text x="920" y="155" font-size="13" fill="#5d6977">Resultate · Review</text><text x="920" y="176" font-size="13" fill="#5d6977">Downloads · Status</text>
+      <line x1="285" y1="160" x2="325" y2="160" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><text x="292" y="147" font-size="11" fill="#5d6977">RO</text>
+      <line x1="565" y1="160" x2="605" y2="160" stroke="#526372" stroke-width="2" marker-end="url(#a)"/>
+      <line x1="860" y1="160" x2="895" y2="160" stroke="#526372" stroke-width="2" marker-end="url(#a)"/>
+
+      <line x1="20" y1="315" x2="1100" y2="315" stroke="#c33f3f" stroke-width="4" stroke-dasharray="10 8"/><text x="36" y="300" font-size="15" font-weight="700" fill="#9c3030">HARTE SECURITY BOUNDARY · nur freigegebene technische Ticket-Pakete passieren</text>
+
+      <rect x="20" y="360" width="1080" height="245" rx="18" fill="#f6f2fc" stroke="#9d86cb" stroke-width="2"/>
+      <text x="42" y="392" font-size="18" font-weight="700" fill="#624b9b">COMPUTE- / AGENT-ZONE</text>
+      <rect x="65" y="430" width="245" height="130" rx="13" fill="white" stroke="#b7c5cf"/><text x="85" y="460" font-weight="700">Compute-Task-DB</text><text x="85" y="485" font-size="13" fill="#5d6977">Ticket-ID · technische Inputs</text><text x="85" y="506" font-size="13" fill="#5d6977">ACLs · Status · Ergebnisse</text><text x="85" y="527" font-size="13" fill="#9c3030">keine Projektzuordnung</text>
+      <rect x="355" y="430" width="260" height="130" rx="13" fill="white" stroke="#b7c5cf"/><text x="375" y="460" font-weight="700">Compute Runtime</text><text x="375" y="485" font-size="13" fill="#5d6977">Python · FEM · Meshing</text><text x="375" y="506" font-size="13" fill="#5d6977">Bauphysik-Core · Parser</text><text x="375" y="527" font-size="13" fill="#624b9b">isolierte Task-Workspaces</text>
+      <rect x="660" y="430" width="190" height="130" rx="13" fill="white" stroke="#b7c5cf"/><text x="680" y="460" font-weight="700">Agent Runtime</text><text x="680" y="485" font-size="13" fill="#5d6977">Codex</text><text x="680" y="506" font-size="13" fill="#5d6977">Claude Code</text><text x="680" y="527" font-size="13" fill="#624b9b">nur Ticket-Workspace</text>
+      <rect x="895" y="430" width="165" height="130" rx="13" fill="#fff6e9" stroke="#d6aa70"/><text x="915" y="460" font-weight="700">Cloud-KI</text><text x="915" y="485" font-size="13" fill="#5d6977">OpenAI / Anthropic</text><text x="915" y="506" font-size="13" fill="#5d6977">nur freigegebene</text><text x="915" y="527" font-size="13" fill="#5d6977">technische Daten</text>
+      <line x1="310" y1="495" x2="350" y2="495" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><line x1="615" y1="495" x2="655" y2="495" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><line x1="850" y1="495" x2="890" y2="495" stroke="#526372" stroke-width="2" marker-end="url(#a)"/>
+      <line x1="735" y1="220" x2="180" y2="425" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><text x="425" y="325" font-size="12" fill="#5d6977">HTTPS/API Push: pseudonymisiertes Ticket</text>
+      <line x1="210" y1="425" x2="900" y2="220" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><text x="540" y="350" font-size="12" fill="#5d6977">Ergebnis-Rückgabe / Status</text>
+    </svg>
+    <div class="legend"><span class="l-green">KNP-intern</span><span class="l-red">Security Boundary</span><span class="l-purple">Compute/Agent</span><span class="l-blue">kontrollierter Service</span></div>
+  </div>
+</section>
+
+<section id="datenfluss">
+  <div class="section-title"><h2>Datenfluss</h2><p>Der zentrale Grundsatz lautet: Daten werden nicht „freigegeben“, sondern für einen konkreten Zweck in ein minimales technisches Paket transformiert.</p></div>
+  <div class="flow">
+    <div class="node"><b>1 · Originalquelle</b><small>E-Mail, PDF, Plan, Projektdaten</small></div><div class="arrow">→</div>
+    <div class="node"><b>2 · lokales LLM</b><small>verstehen, extrahieren, Task anlegen</small></div><div class="arrow">→</div>
+    <div class="node"><b>3 · Sanitization</b><small>Identifikatoren entfernen, technische Relevanz prüfen</small></div><div class="arrow">→</div>
+    <div class="node"><b>4 · Compute-Ticket</b><small>Ticket-ID + freigegebene Inputs</small></div>
+  </div>
+  <div class="flow">
+    <div class="node"><b>5 · Workspace</b><small>isolierter Task-Kontext</small></div><div class="arrow">→</div>
+    <div class="node"><b>6 · Agent / Solver</b><small>Codex, FEM, Python, Simulation</small></div><div class="arrow">→</div>
+    <div class="node"><b>7 · Ergebnis</b><small>JSON, HTML, PDF, Plots, Logs</small></div><div class="arrow">→</div>
+    <div class="node"><b>8 · interne Zuordnung</b><small>Gateway ordnet Ticket wieder Projekt/Task zu</small></div>
+  </div>
+
+  <details open><summary>Welche Daten dürfen die Security Boundary passieren?</summary><div class="detail-body">
+    <table><thead><tr><th>Datenart</th><th>Compute/Cloud</th><th>Begründung</th></tr></thead><tbody>
+      <tr><td>Ticket-ID</td><td class="yes">Ja</td><td>technische Referenz ohne reale Projektidentität</td></tr>
+      <tr><td>Abmessungen / Geometrie</td><td class="yes">Ja</td><td>für Berechnungen erforderlich</td></tr>
+      <tr><td>Materialien / Kennwerte</td><td class="yes">Ja</td><td>fachlicher Input</td></tr>
+      <tr><td>Randbedingungen / Rechenziel</td><td class="yes">Ja</td><td>fachlicher Input</td></tr>
+      <tr><td>Kundenname / Adresse</td><td class="no">Nein</td><td>für Berechnung nicht erforderlich</td></tr>
+      <tr><td>interne Projektnummer</td><td class="no">Nein</td><td>Zuordnung bleibt intern</td></tr>
+      <tr><td>Original-E-Mails</td><td class="no">Nein</td><td>enthalten regelmäßig personenbezogene / organisatorische Daten</td></tr>
+      <tr><td>komplette Originalpläne</td><td class="limited">Nur Sonderfall</td><td>nur in rein interner Parser-Laufzeit; nicht für Cloud-Agenten freigeben</td></tr>
+    </tbody></table>
+  </div></details>
+</section>
+
+<section id="tasks">
+  <div class="section-title"><h2>Task-, Ticket- und Workspace-Modell</h2><p>Zwei Datenbanken statt einer gemeinsamen Wahrheit über beide Sicherheitszonen hinweg.</p></div>
+  <div class="grid g2">
+    <div class="card"><span class="tag trusted">LLM-PC · interne Task-DB</span><h3>Interner Task</h3><p>Enthält reale Projektzuordnung, Kunde, interne Quellen, Bearbeiter, Originaldokumente, Rechte, Status und die Zuordnung zum Compute-Ticket.</p></div>
+    <div class="card"><span class="tag compute">Compute-PC · Compute-Task-DB</span><h3>Compute-Ticket</h3><p>Enthält nur Ticket-ID, technische Aufgabenbeschreibung, freigegebene Dateien, ACLs, Rechenstatus, Logs und Ergebnisse.</p></div>
+  </div>
+  <div class="callout decision"><b>Entscheidung:</b> Die beiden Datenbanken werden nicht gespiegelt. Die Compute-Datenbank erhält bewusst nur eine reduzierte Repräsentation.</div>
+  <details><summary>Beispiel eines Compute-Pakets</summary><div class="detail-body">
+<pre class="code">ticket_id: C-8F31A7
+object: WALL-017
+geometry:
+  length_m: 12.40
+  height_m: 6.80
+layers:
+  - steel: 0.0006 m
+  - insulation: 0.150 m
+  - steel: 0.0006 m
+boundary_conditions:
+  side_a_C: -24
+  side_b_C: -4
+task: "Temperatur- und Feuchteanalyse"
+
+# Nicht enthalten:
+# Kunde, Adresse, Projektname, interne Projektnummer,
+# E-Mail-Verkehr oder interne Serverpfade</pre>
+  </div></details>
+  <details><summary>Vorgesehene API zwischen LLM-PC und Compute-PC</summary><div class="detail-body">
+<pre class="code">POST /tasks
+POST /tasks/{ticket}/files
+GET  /tasks/{ticket}/status
+GET  /tasks/{ticket}/results</pre>
+    <p>Der LLM-PC <b>pusht</b> freigegebene Aufgaben in die Compute-Zone. Der Compute-PC benötigt keinen Dateisystem- oder Datenbankzugriff zurück auf den LLM-PC oder den zentralen Datenserver.</p>
+  </div></details>
+</section>
+
+<section id="zugriff">
+  <div class="section-title"><h2>Benutzer-, Projekt- und Codex-Zugriff</h2><p>Die Sichtbarkeit wird nicht nur in der Oberfläche, sondern auf Identitäts-, Betriebssystem- und Workspace-Ebene durchgesetzt.</p></div>
+  <table><thead><tr><th>Rolle</th><th>Sicht</th><th>Technische Durchsetzung</th></tr></thead><tbody>
+    <tr><td>Mitarbeiter</td><td>eigene Tasks + freigegebene Projektgruppen</td><td>persönlicher Account, eigener SSH-Key, ACLs, isolierte Workspaces</td></tr>
+    <tr><td>Projektleiter</td><td>Tasks der zugeordneten Projekte</td><td>Projektgruppe / ACL</td></tr>
+    <tr><td>Administrator</td><td>alle Tasks / Audit-Informationen</td><td>separate administrative Rolle</td></tr>
+    <tr><td>Codex / Claude Code</td><td>nur aktuell geöffneter Ticket-Workspace</td><td>Dateisystem-/Container-Isolation; keine freie Task-DB-Sicht</td></tr>
+  </tbody></table>
+  <div class="grid g3" style="margin-top:14px">
+    <div class="card"><span class="tag service">Remote-Zugriff</span><h3>VPN + SSH</h3><p>Mitarbeiter verbinden sich aus dem Firmennetz bzw. über VPN. Der Compute-PC wird nicht mit offenem SSH-Port öffentlich ins Internet gestellt.</p></div>
+    <div class="card"><span class="tag service">Persönliche Identität</span><h3>Kein Shared Login</h3><p>Eigene Linux-User/Schlüssel und nachvollziehbare Benutzeridentitäten verhindern, dass alle Mitarbeiter automatisch dieselben Sessions sehen.</p></div>
+    <div class="card"><span class="tag compute">Task Launcher</span><h3><code>knp-task open …</code></h3><p>Ein kleiner interner Dienst prüft die Berechtigung, erzeugt den Workspace und startet die Agenten-Session ausschließlich in diesem Kontext.</p></div>
+  </div>
+  <details><summary>Beispiel: Mitarbeiter startet eine Aufgabe</summary><div class="detail-body">
+<pre class="code">$ knp-task open C-8F31A7
+
+✓ Benutzer autorisiert
+✓ Ticket geladen
+✓ isolierter Workspace erzeugt
+✓ freigegebene Inputs eingebunden
+✓ Codex-Session gestartet
+
+/workspaces/C-8F31A7/
+├── TASK.md
+├── input/
+├── model/
+├── scripts/
+└── output/</pre>
+    <p>Andere Ticket-Verzeichnisse und die Compute-Datenbank werden der Agenten-Session nicht pauschal zugänglich gemacht.</p>
+  </div></details>
+</section>
+
+<section id="ergebnisse">
+  <div class="section-title"><h2>Berechnung und Ergebnisbereitstellung</h2><p>Maschinenlesbare Daten bilden die Grundlage; daraus werden menschlich nutzbare Darstellungen erzeugt.</p></div>
+  <div class="grid g4">
+    <div class="card"><div class="num">JSON</div><p>strukturierte Ergebnis- und Provenienzdaten als maschinenlesbare Basis</p></div>
+    <div class="card"><div class="num">HTML</div><p>interaktive Darstellung, Review, Diagramme und Ergebnisnavigation</p></div>
+    <div class="card"><div class="num">PDF</div><p>statischer Bericht für Ablage, Weitergabe und Nachweisführung</p></div>
+    <div class="card"><div class="num">+ Daten</div><p>CSV, SVG/PNG, Mesh-/FEM-Dateien, Logs und ggf. Simulationsartefakte</p></div>
+  </div>
+  <details><summary>Was muss zu jedem Rechenjob protokolliert werden?</summary><div class="detail-body">
+    <div class="pillrow"><span class="pill">Ticket-ID</span><span class="pill">Bearbeiter</span><span class="pill">Zeitpunkt</span><span class="pill">Input-Version</span><span class="pill">Core-Version</span><span class="pill">Solver</span><span class="pill">Annahmen</span><span class="pill">Randbedingungen</span><span class="pill">Logs</span><span class="pill">Ergebnisversion</span></div>
+    <p class="muted">Ziel ist technische Reproduzierbarkeit: Es muss später nachvollziehbar sein, mit welchen Daten, Annahmen und Softwareständen ein Ergebnis entstanden ist.</p>
+  </div></details>
+</section>
+
+<section>
+  <div class="section-title"><h2>Netzwerkregeln</h2><p>Die stärkste Schutzmaßnahme ist, unerlaubte Kommunikationspfade technisch gar nicht erst bereitzustellen.</p></div>
+  <table><thead><tr><th>Quelle</th><th>Ziel</th><th>Regel</th></tr></thead><tbody>
+    <tr><td>LLM-PC</td><td>KNP-Datenserver</td><td><span class="limited">read-only / definierte Lesepfade</span></td></tr>
+    <tr><td>LLM-PC / Gateway</td><td>Compute API</td><td><span class="yes">erlaubt</span> · nur definierte Endpunkte und freigegebene Pakete</td></tr>
+    <tr><td>Compute-PC</td><td>KNP-Datenserver</td><td><span class="no">keine direkte Route</span></td></tr>
+    <tr><td>Compute-/Agent-PC</td><td>Internet</td><td><span class="limited">ausgehend eingeschränkt</span> · nur erforderliche Dienste</td></tr>
+    <tr><td>Internet</td><td>Compute-PC</td><td><span class="no">kein offener Direktzugriff</span> · Remote-Zugriff über KNP-Netz/VPN</td></tr>
+    <tr><td>Mitarbeiter-PC</td><td>Compute-PC</td><td><span class="yes">VPN/LAN + SSH</span> · persönliche Identität</td></tr>
+  </tbody></table>
+</section>
+
+<section id="offen">
+  <div class="section-title"><h2>Noch zu entscheiden / zu verifizieren</h2><p>Diese Punkte sind im aktuellen Planungsstand bewusst noch nicht abschließend festgelegt.</p></div>
+  <div class="grid g2">
+    <div class="card"><span class="tag pending">Offen</span><h3>Original-PDF-Verarbeitung</h3><p>Entweder eigener interner Parser-Dienst vor der Security Boundary oder strikt isolierte lokale Parser-Laufzeit. Cloud-Agenten dürfen Originalpläne nicht automatisch sehen.</p></div>
+    <div class="card"><span class="tag pending">Offen</span><h3>Compute-Hardware</h3><p>Start ggf. auf einem gemeinsamen Rechner möglich; langfristig spricht die Ressourcentrennung für einen dedizierten Compute-Node neben dem LLM-PC.</p></div>
+    <div class="card"><span class="tag pending">Zu verifizieren</span><h3>Codex-Session-Sichtbarkeit</h3><p>Die Architektur verlässt sich nicht auf eine mögliche native Thread-ACL von Codex. Berechtigungen sollen zusätzlich durch Benutzerkonten und isolierte Workspaces technisch erzwungen werden.</p></div>
+    <div class="card"><span class="tag pending">Offen</span><h3>Produktivspeicher für Resultate</h3><p>Festzulegen ist, ob Ergebnisse nur im internen Web-Result-Store verbleiben oder über einen privilegierten, nicht agentengesteuerten Integrationsdienst in die Projektablage übernommen werden.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="section-title"><h2>Aktueller Soll-Workflow</h2><p>Vom Eingang einer fachlichen Aufgabe bis zum Ergebnis.</p></div>
+  <div class="card">
+    <ol>
+      <li>Interne Quelle wird vom lokalen LLM analysiert; ein interner Task wird erzeugt.</li>
+      <li>Fachlich relevante Informationen werden extrahiert und vor der Übergabe geprüft/reduziert.</li>
+      <li>Das Gateway erzeugt eine neutrale Compute-Ticket-ID und hält intern die Zuordnung zum realen Projekt.</li>
+      <li>Das freigegebene Task-Paket wird per API auf den Compute-PC übertragen und dort in der Compute-Task-DB registriert.</li>
+      <li>Ein berechtigter Mitarbeiter startet die Aufgabe über einen isolierten Workspace; Codex/Claude Code sieht nur diesen Kontext.</li>
+      <li>Agenten steuern Skripte, FEM-/Bauphysik-Core, Meshing oder andere Rechenwerkzeuge innerhalb des Workspaces.</li>
+      <li>Ergebnisse werden mit Provenienz gespeichert und im internen Web-Interface angezeigt.</li>
+      <li>Der interne Bereich ordnet das Resultat anhand der Ticket-ID wieder dem realen Projekt zu.</li>
+    </ol>
+  </div>
+</section>
+
+<div class="footer">
+  <b>KNP Bauphysik – KI-Systemarchitektur v0.1.</b> Diese Seite dokumentiert den aktuellen Planungsstand, keine bereits vollständig implementierte Sicherheitsfreigabe. Vor Produktivbetrieb sind insbesondere Netzwerksegmentierung, Authentifizierung, DSGVO-/AVV-Fragen, Logging, Backup, Patch-Management und ein technischer Security-Test verbindlich auszuarbeiten.
+</div>
+</main>
+</body>
+</html>
