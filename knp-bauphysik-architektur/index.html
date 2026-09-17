@@ -2,178 +2,148 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>KNP Bauphysik – KI-Systemarchitektur</title>
 <style>
 :root{--bg:#f4f6f8;--surface:#fff;--ink:#18202a;--muted:#5d6977;--line:#d9e0e7;--blue:#1f5f99;--blue2:#eaf3fb;--green:#24744a;--green2:#eaf7ef;--orange:#a15b12;--orange2:#fff2df;--red:#9c3030;--red2:#fdecec;--purple:#624b9b;--purple2:#f1edfb;--shadow:0 10px 30px rgba(26,42,58,.08)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}
-header{background:linear-gradient(120deg,#17324b,#214f73 60%,#2e648b);color:#fff;padding:48px 20px 36px}.wrap{max-width:1180px;margin:auto}.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.78;font-weight:700}h1{font-size:clamp(30px,5vw,54px);line-height:1.05;margin:8px 0 14px;max-width:900px}.lead{font-size:18px;max-width:940px;color:#e9f1f7}.stamp{display:inline-block;margin-top:18px;padding:7px 11px;border:1px solid rgba(255,255,255,.25);border-radius:999px;font-size:13px;background:rgba(255,255,255,.08)}
-nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);overflow:auto;white-space:nowrap}nav .wrap{display:flex;gap:8px;padding:9px 14px}nav a{text-decoration:none;color:#334454;padding:6px 10px;border-radius:8px;font-size:13px}nav a:hover{background:#eef3f7}
-main{padding:28px 20px 70px}section{margin:0 0 30px}.section-title{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:14px}.section-title h2{margin:0;font-size:25px}.section-title p{margin:0;color:var(--muted);max-width:660px}.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:900px){.g4,.g3{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.g2,.g3,.g4{grid-template-columns:1fr}}
+header{background:linear-gradient(120deg,#17324b,#214f73 60%,#2e648b);color:#fff;padding:48px 20px 36px}.wrap{max-width:1180px;margin:auto}.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.78;font-weight:700}h1{font-size:clamp(30px,5vw,54px);line-height:1.05;margin:8px 0 14px;max-width:940px}.lead{font-size:18px;max-width:970px;color:#e9f1f7}.stamp{display:inline-block;margin-top:18px;padding:7px 11px;border:1px solid rgba(255,255,255,.25);border-radius:999px;font-size:13px;background:rgba(255,255,255,.08)}
+nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);overflow:auto;white-space:nowrap}nav .wrap{display:flex;gap:7px;padding:9px 14px}nav a{text-decoration:none;color:#334454;padding:6px 9px;border-radius:8px;font-size:13px}nav a:hover{background:#eef3f7}
+main{padding:28px 20px 70px}section{margin:0 0 30px}.section-title{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:14px}.section-title h2{margin:0;font-size:25px}.section-title p{margin:0;color:var(--muted);max-width:690px}.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:900px){.g4,.g3{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.g2,.g3,.g4{grid-template-columns:1fr}}
 .card,.diagram,details{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.card{padding:17px}.card h3{margin:0 0 7px;font-size:17px}.card p{margin:0;color:var(--muted)}.tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;border-radius:999px;padding:4px 8px;margin-bottom:10px}.trusted{background:var(--green2);color:var(--green)}.boundary{background:var(--red2);color:var(--red)}.compute{background:var(--purple2);color:var(--purple)}.service{background:var(--blue2);color:var(--blue)}.pending{background:var(--orange2);color:var(--orange)}
-.diagram{padding:16px;overflow:auto}.diagram svg{display:block;width:100%;min-width:900px;height:auto}.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;color:var(--muted);font-size:12px}.legend span:before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}.l-green:before{background:#d9f0e2}.l-red:before{background:#f7d7d7}.l-purple:before{background:#e6def7}.l-blue:before{background:#dcecf8}.l-orange:before{background:#fde8c5}
-.flow{display:grid;grid-template-columns:repeat(7,auto);gap:8px;align-items:center;justify-content:start;overflow:auto;padding:8px 0}.node{min-width:155px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:#fff}.arrow{font-size:22px;color:#7a8794}.node b{display:block;font-size:13px}.node small{display:block;color:var(--muted);margin-top:2px}
+.diagram{padding:16px;overflow:auto}.diagram svg{display:block;width:100%;min-width:920px;height:auto}.flow{display:flex;align-items:stretch;gap:8px;overflow:auto;padding:7px 0}.node{min-width:155px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:#fff}.arrow{display:flex;align-items:center;font-size:22px;color:#7a8794}.node b{display:block;font-size:13px}.node small{display:block;color:var(--muted);margin-top:2px}
 table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}th,td{text-align:left;padding:10px 11px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#eef3f7;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#4b5b69}tr:last-child td{border-bottom:0}.yes{color:var(--green);font-weight:700}.no{color:var(--red);font-weight:700}.limited{color:var(--orange);font-weight:700}
-details{margin:10px 0;box-shadow:none}summary{cursor:pointer;font-weight:700;padding:14px 16px;list-style:none}summary::-webkit-details-marker{display:none}summary:after{content:"＋";float:right;color:var(--muted)}details[open] summary:after{content:"−"}.detail-body{border-top:1px solid var(--line);padding:14px 16px;color:#33414e}.detail-body p:first-child{margin-top:0}.detail-body p:last-child{margin-bottom:0}code{background:#eef2f5;padding:2px 5px;border-radius:5px;font-size:.92em}.code{background:#15202b;color:#dfe8ef;border-radius:12px;padding:15px;overflow:auto;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre}.callout{border-left:4px solid var(--blue);background:#edf5fb;padding:13px 15px;border-radius:8px;margin:12px 0}.warn{border-left-color:var(--red);background:#fff0f0}.decision{border-left-color:var(--green);background:#eef8f2}.license{border-left-color:var(--orange);background:#fff7e9}.footer{margin-top:42px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}.pillrow{display:flex;gap:7px;flex-wrap:wrap}.pill{font-size:12px;border:1px solid var(--line);background:#fff;padding:4px 8px;border-radius:999px}.num{font-size:28px;font-weight:800;line-height:1;margin-bottom:6px}.muted{color:var(--muted)}
+details{margin:10px 0;box-shadow:none}summary{cursor:pointer;font-weight:700;padding:14px 16px;list-style:none}summary::-webkit-details-marker{display:none}summary:after{content:"＋";float:right;color:var(--muted)}details[open] summary:after{content:"−"}.detail-body{border-top:1px solid var(--line);padding:14px 16px;color:#33414e}.detail-body p:first-child{margin-top:0}.detail-body p:last-child{margin-bottom:0}code{background:#eef2f5;padding:2px 5px;border-radius:5px;font-size:.92em}.code{background:#15202b;color:#dfe8ef;border-radius:12px;padding:15px;overflow:auto;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre}.callout{border-left:4px solid var(--blue);background:#edf5fb;padding:13px 15px;border-radius:8px;margin:12px 0}.warn{border-left-color:var(--red);background:#fff0f0}.decision{border-left-color:var(--green);background:#eef8f2}.license{border-left-color:var(--orange);background:#fff7e9}.pillrow{display:flex;gap:7px;flex-wrap:wrap}.pill{font-size:12px;border:1px solid var(--line);background:#fff;padding:4px 8px;border-radius:999px}.num{font-size:27px;font-weight:800;line-height:1;margin-bottom:6px}.muted{color:var(--muted)}.footer{margin-top:42px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+.status{font-weight:800;font-size:12px;text-transform:uppercase}.s-exp{color:#9c3030}.s-bench{color:#a15b12}.s-val{color:#24744a}.s-dep{color:#6b7280}
 </style>
 </head>
 <body>
-<header><div class="wrap"><div class="eyebrow">KNP Bauphysik · Planungsstand</div><h1>Systemarchitektur für die Integration einer Bauphysik-KI</h1><p class="lead">Lokale Verarbeitung vertraulicher Projekt- und Fachinformationen, pseudonymisierte Compute-Tickets, FEM-/Bauphysik-Rechenkern, Cloud-Agenten sowie ein geschützter Wissenspfad für Normen, Fachbücher und Fachartikel.</p><span class="stamp">Stand: 17. September 2026 · Architektur v0.2</span></div></header>
-<nav><div class="wrap"><a href="#prinzipien">Prinzipien</a><a href="#architektur">Architektur</a><a href="#wissen">Normen & Fachwissen</a><a href="#ingestion">PDF-Ingestion</a><a href="#datenfluss">Datenfluss</a><a href="#tasks">Tasks</a><a href="#zugriff">Zugriff</a><a href="#ergebnisse">Ergebnisse</a><a href="#offen">Offene Punkte</a></div></nav>
+<header><div class="wrap"><div class="eyebrow">KNP Bauphysik · Planungsstand</div><h1>Systemarchitektur für die Integration einer Bauphysik-KI</h1><p class="lead">Lokale Verarbeitung vertraulicher Projekt- und Fachinformationen, pseudonymisierte Compute-Tickets, Cloud-Agenten, adaptiver Bauphysik-Rechenkern, validierte Werkzeugketten und nachvollziehbares Reporting.</p><span class="stamp">Stand: 17. September 2026 · Architektur v0.3</span></div></header>
+<nav><div class="wrap"><a href="#prinzipien">Prinzipien</a><a href="#architektur">Architektur</a><a href="#wissen">Normen & Wissen</a><a href="#ingestion">PDF-Ingestion</a><a href="#tasks">Tasks</a><a href="#adaptive">Adaptiver Compute</a><a href="#validation">Validierung</a><a href="#reporting">Reporting/UI</a><a href="#zugriff">Zugriff</a><a href="#offen">Offen</a></div></nav>
 <main class="wrap">
-<section id="prinzipien"><div class="section-title"><h2>Leitprinzipien</h2><p>Vertrauliche Projektdaten und lizenzierte Fachquellen werden technisch von Cloud-Agenten getrennt.</p></div><div class="grid g4">
-<div class="card"><span class="tag trusted">01 · Intern</span><h3>Rohdaten bleiben intern</h3><p>Kunden-, Projekt-, E-Mail-, Originalplan- und geschützte Fachinformationen verbleiben in der vertrauenswürdigen KNP-Zone.</p></div>
-<div class="card"><span class="tag boundary">02 · Kein Direktzugriff</span><h3>Agenten schreiben nicht auf den Datenserver</h3><p>Weder lokales LLM noch Compute-/Cloud-Agenten erhalten freien Schreibzugriff auf den zentralen Projektbestand.</p></div>
-<div class="card"><span class="tag compute">03 · Ticket statt Projekt</span><h3>Pseudonymisierte Compute-Aufträge</h3><p>Die Compute-Zone sieht Ticket-ID, technische Eingaben und Rechenziel, nicht die reale Projektidentität.</p></div>
-<div class="card"><span class="tag service">04 · Belegt statt halluziniert</span><h3>Fachwissen mit Provenienz</h3><p>Normative oder fachliche Aussagen an Cloud-Agenten werden intern recherchiert und mit Quelle, Ausgabe und Fundstelle zurückgegeben.</p></div></div>
-<div class="callout warn"><b>Begrifflich wichtig:</b> Solange intern eine Zuordnung <code>Ticket-ID ↔ Projekt</code> existiert, handelt es sich um <b>Pseudonymisierung</b>, nicht um vollständige Anonymisierung.</div></section>
 
-<section id="architektur"><div class="section-title"><h2>Zielarchitektur</h2><p>Die wichtigste Grenze liegt zwischen der vertrauenswürdigen KNP-Zone und der Compute-/Cloud-Zone.</p></div><div class="diagram"><svg viewBox="0 0 1160 720" role="img" aria-label="KNP Systemarchitektur">
+<section id="prinzipien"><div class="section-title"><h2>Leitprinzipien</h2><p>Cloud-Fähigkeit und kontinuierliche Werkzeugentwicklung werden mit harten Datenschutz- und Qualitätsgrenzen kombiniert.</p></div><div class="grid g4">
+<div class="card"><span class="tag trusted">01 · Intern</span><h3>Rohdaten bleiben intern</h3><p>Kunden-, Projekt-, E-Mail-, Originalplan- und geschützte Fachinformationen verbleiben in der vertrauenswürdigen KNP-Zone.</p></div>
+<div class="card"><span class="tag boundary">02 · Grenze</span><h3>Kein Direktzugriff</h3><p>Compute-/Cloud-Agenten besitzen keine Route zu Originalprojekten oder zum zentralen Datenbestand.</p></div>
+<div class="card"><span class="tag compute">03 · Adaptiv</span><h3>System verbessert seine Werkzeuge</h3><p>Der Agent lernt aus Aufgaben, erkennt Lücken und entwickelt neue Methoden und Tools – zunächst ausschließlich experimentell.</p></div>
+<div class="card"><span class="tag service">04 · Freigabe</span><h3>Produktiv nur validiert</h3><p>Belastbare Ergebnisse dürfen ausschließlich auf KNP-validierten Versionen und freigegebenen Berechnungsschritten beruhen.</p></div></div>
+<div class="callout warn"><b>Wichtig:</b> „Selbstlernend“ bedeutet hier kein unkontrolliertes Online-Training des LLM. Gelernt werden Werkzeugwahl, Workflows, Benchmarks, Fehlerbilder und wiederverwendbare Rechenmethoden. Neue Logik gelangt nur über eine explizite Validierungs- und Freigabeschleuse in den produktiven Bestand.</div></section>
+
+<section id="architektur"><div class="section-title"><h2>Zielarchitektur</h2><p>Projekt- und Wissensdaten liegen intern; die Compute-/Agent-Zone arbeitet ausschließlich mit freigegebenen Ticketpaketen und fachlichen Evidence-Paketen.</p></div><div class="diagram"><svg viewBox="0 0 1160 760" role="img" aria-label="KNP KI Systemarchitektur">
 <defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#526372"/></marker></defs>
 <rect x="20" y="25" width="1120" height="300" rx="18" fill="#f0faf4" stroke="#82ba98" stroke-width="2"/><text x="42" y="58" font-size="18" font-weight="700" fill="#24744a">VERTRAUENSWÜRDIGE KNP-ZONE</text>
-<rect x="50" y="90" width="210" height="115" rx="13" fill="white" stroke="#b7c5cf"/><text x="70" y="120" font-weight="700">Linux-Datenserver</text><text x="70" y="145" font-size="13" fill="#5d6977">Projekte · Pläne · Archive</text><text x="70" y="169" font-size="13" fill="#9c3030">kein Agent-Schreibzugriff</text>
-<rect x="300" y="90" width="230" height="115" rx="13" fill="white" stroke="#b7c5cf"/><text x="320" y="120" font-weight="700">LLM-PC lokal</text><text x="320" y="145" font-size="13" fill="#5d6977">lokales LLM · Task-DB</text><text x="320" y="169" font-size="13" fill="#24744a">Projekt-/Kontextwissen</text>
-<rect x="570" y="90" width="240" height="115" rx="13" fill="#fff8ec" stroke="#d6aa70"/><text x="590" y="120" font-weight="700">Knowledge Vault</text><text x="590" y="145" font-size="13" fill="#5d6977">DIN · Fachbücher · Artikel</text><text x="590" y="169" font-size="13" fill="#a15b12">lizenz- und rechtegesteuert</text>
-<rect x="850" y="90" width="250" height="115" rx="13" fill="white" stroke="#b7c5cf"/><text x="870" y="120" font-weight="700">Gateway / Research Broker</text><text x="870" y="145" font-size="13" fill="#5d6977">reduzieren · belegen · freigeben</text><text x="870" y="169" font-size="13" fill="#1f5f99">einziger definierter Übergang</text>
-<rect x="300" y="230" width="230" height="65" rx="13" fill="white" stroke="#b7c5cf"/><text x="320" y="260" font-weight="700">Local PDF Ingestion</text><text x="320" y="282" font-size="12" fill="#5d6977">PDF → MD + Bilder + Metadaten</text>
-<line x1="260" y1="148" x2="295" y2="148" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><line x1="530" y1="148" x2="565" y2="148" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><line x1="810" y1="148" x2="845" y2="148" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><line x1="415" y1="205" x2="415" y2="225" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><line x1="530" y1="263" x2="690" y2="205" stroke="#526372" stroke-width="2" marker-end="url(#a)"/>
-<line x1="20" y1="365" x2="1140" y2="365" stroke="#c33f3f" stroke-width="4" stroke-dasharray="10 8"/><text x="36" y="350" font-size="15" font-weight="700" fill="#9c3030">HARTE SECURITY BOUNDARY · keine Originalprojekte und keine geschützten Quelldokumente</text>
-<rect x="20" y="410" width="1120" height="260" rx="18" fill="#f6f2fc" stroke="#9d86cb" stroke-width="2"/><text x="42" y="443" font-size="18" font-weight="700" fill="#624b9b">COMPUTE- / AGENT-ZONE</text>
-<rect x="60" y="485" width="220" height="125" rx="13" fill="white" stroke="#b7c5cf"/><text x="80" y="515" font-weight="700">Compute-Task-DB</text><text x="80" y="540" font-size="13" fill="#5d6977">Ticket · technische Inputs</text><text x="80" y="564" font-size="13" fill="#9c3030">keine Projektzuordnung</text>
-<rect x="330" y="485" width="240" height="125" rx="13" fill="white" stroke="#b7c5cf"/><text x="350" y="515" font-weight="700">Compute Runtime</text><text x="350" y="540" font-size="13" fill="#5d6977">Python · FEM · Meshing</text><text x="350" y="564" font-size="13" fill="#624b9b">isolierte Workspaces</text>
-<rect x="620" y="485" width="220" height="125" rx="13" fill="white" stroke="#b7c5cf"/><text x="640" y="515" font-weight="700">Agent Runtime</text><text x="640" y="540" font-size="13" fill="#5d6977">Codex · Claude Code</text><text x="640" y="564" font-size="13" fill="#624b9b">nur Ticket-Kontext</text>
-<rect x="890" y="485" width="200" height="125" rx="13" fill="#fff6e9" stroke="#d6aa70"/><text x="910" y="515" font-weight="700">Cloud-KI</text><text x="910" y="540" font-size="13" fill="#5d6977">OpenAI / Anthropic</text><text x="910" y="564" font-size="13" fill="#5d6977">reduzierte Inputs +</text><text x="910" y="586" font-size="13" fill="#5d6977">belegte Fachauskünfte</text>
-<line x1="280" y1="548" x2="325" y2="548" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><line x1="570" y1="548" x2="615" y2="548" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><line x1="840" y1="548" x2="885" y2="548" stroke="#526372" stroke-width="2" marker-end="url(#a)"/>
-<line x1="975" y1="205" x2="170" y2="480" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><text x="480" y="392" font-size="12" fill="#5d6977">API Push: Ticket / Fachauskunft</text>
-</svg><div class="legend"><span class="l-green">KNP-intern</span><span class="l-orange">geschützte Wissensbasis</span><span class="l-red">Security Boundary</span><span class="l-purple">Compute/Agent</span><span class="l-blue">kontrollierter Service</span></div></div></section>
+<rect x="50" y="90" width="205" height="115" rx="13" fill="white" stroke="#b7c5cf"/><text x="70" y="120" font-weight="700">Linux-Datenserver</text><text x="70" y="145" font-size="13" fill="#5d6977">Projekte · Pläne · Archive</text><text x="70" y="169" font-size="13" fill="#9c3030">kein Agent-Schreibzugriff</text>
+<rect x="290" y="90" width="220" height="115" rx="13" fill="white" stroke="#b7c5cf"/><text x="310" y="120" font-weight="700">LLM-PC lokal</text><text x="310" y="145" font-size="13" fill="#5d6977">lokales LLM · Task-DB</text><text x="310" y="169" font-size="13" fill="#24744a">Projekt-/Kontextwissen</text>
+<rect x="545" y="90" width="230" height="115" rx="13" fill="#fff8ec" stroke="#d6aa70"/><text x="565" y="120" font-weight="700">Knowledge Vault</text><text x="565" y="145" font-size="13" fill="#5d6977">DIN · Bücher · Fachartikel</text><text x="565" y="169" font-size="13" fill="#a15b12">lizenz-/rechtegesteuert</text>
+<rect x="810" y="90" width="285" height="115" rx="13" fill="white" stroke="#b7c5cf"/><text x="830" y="120" font-weight="700">Gateway / Research Broker</text><text x="830" y="145" font-size="13" fill="#5d6977">sanitizen · belegen · freigeben</text><text x="830" y="169" font-size="13" fill="#1f5f99">definierter Übergang</text>
+<rect x="290" y="230" width="220" height="65" rx="13" fill="white" stroke="#b7c5cf"/><text x="310" y="260" font-weight="700">Local PDF Ingestion</text><text x="310" y="282" font-size="12" fill="#5d6977">PDF → MD + Bilder + Metadaten</text>
+<line x1="255" y1="148" x2="285" y2="148" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><line x1="510" y1="148" x2="540" y2="148" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><line x1="775" y1="148" x2="805" y2="148" stroke="#526372" stroke-width="2" marker-end="url(#a)"/>
+<line x1="20" y1="365" x2="1140" y2="365" stroke="#c33f3f" stroke-width="4" stroke-dasharray="10 8"/><text x="36" y="350" font-size="15" font-weight="700" fill="#9c3030">HARTE SECURITY BOUNDARY · keine Originalprojekte / keine geschützten Quelldokumente</text>
+<rect x="20" y="410" width="1120" height="300" rx="18" fill="#f6f2fc" stroke="#9d86cb" stroke-width="2"/><text x="42" y="443" font-size="18" font-weight="700" fill="#624b9b">COMPUTE- / AGENT-ZONE</text>
+<rect x="55" y="485" width="205" height="145" rx="13" fill="white" stroke="#b7c5cf"/><text x="75" y="515" font-weight="700">Compute-Task-DB</text><text x="75" y="540" font-size="13" fill="#5d6977">Tickets · technische Inputs</text><text x="75" y="564" font-size="13" fill="#5d6977">Status · Resultate</text><text x="75" y="588" font-size="13" fill="#9c3030">keine Projektzuordnung</text>
+<rect x="295" y="485" width="220" height="145" rx="13" fill="white" stroke="#b7c5cf"/><text x="315" y="515" font-weight="700">Agent Orchestrator</text><text x="315" y="540" font-size="13" fill="#5d6977">Codex / Claude Code</text><text x="315" y="564" font-size="13" fill="#5d6977">Planung · Toolwahl</text><text x="315" y="588" font-size="13" fill="#624b9b">isolierter Workspace</text>
+<rect x="550" y="485" width="220" height="145" rx="13" fill="white" stroke="#b7c5cf"/><text x="570" y="515" font-weight="700">Tool Registry</text><text x="570" y="540" font-size="13" fill="#5d6977">FEM · Wärmebrücken</text><text x="570" y="564" font-size="13" fill="#5d6977">Parser · Solver · Utilities</text><text x="570" y="588" font-size="13" fill="#24744a">Version + Freigabestatus</text>
+<rect x="805" y="485" width="285" height="145" rx="13" fill="#fff6e9" stroke="#d6aa70"/><text x="825" y="515" font-weight="700">Cloud-KI / Entwicklung</text><text x="825" y="540" font-size="13" fill="#5d6977">Analyse · Codeentwicklung</text><text x="825" y="564" font-size="13" fill="#5d6977">nur Tickets / Evidence</text><text x="825" y="588" font-size="13" fill="#9c3030">keine automatische Freigabe</text>
+<line x1="260" y1="557" x2="290" y2="557" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><line x1="515" y1="557" x2="545" y2="557" stroke="#526372" stroke-width="2" marker-end="url(#a)"/><line x1="770" y1="557" x2="800" y2="557" stroke="#526372" stroke-width="2" marker-end="url(#a)"/>
+</svg></div></section>
 
-<section id="wissen"><div class="section-title"><h2>Normen, Fachbücher und Fachartikel</h2><p>Geschützte Quellen werden nicht als frei verfügbare Wissensdateien auf dem Cloud-/Compute-PC abgelegt.</p></div>
-<div class="grid g3"><div class="card"><span class="tag trusted">Interner Vault</span><h3>Originalquelle</h3><p>PDF/EPUB/XML und daraus erzeugte lokale Arbeitsrepräsentationen verbleiben auf einem internen, nicht aus der Cloud erreichbaren Speicher.</p></div><div class="card"><span class="tag service">Lokales LLM</span><h3>Research Agent</h3><p>Das lokale Modell beantwortet konkrete Fachfragen, sucht Fundstellen und erzeugt eine kompakte, belegte Fachauskunft.</p></div><div class="card"><span class="tag boundary">Cloud-Grenze</span><h3>Kein Volltext-Transfer</h3><p>Cloud-Agenten erhalten grundsätzlich keine kompletten Normen, Bücher oder Artikel. Übertragen werden nur für die Aufgabe erforderliche, rechtlich freigegebene Informationen.</p></div></div>
-<div class="callout license"><b>Lizenz ist Teil der Architektur:</b> Bei DIN reicht der Besitz einer Norm nicht automatisch für KI-Verarbeitung. DIN Media verlangt für die maschinelle/KI-gestützte interne Verarbeitung eine entsprechende KI-Lizenz zusätzlich zu den erforderlichen Nutzungsrechten. Das System muss daher Quellenrechte technisch mitführen und durchsetzen.</div>
-<table><thead><tr><th>Quelle</th><th>Interne Speicherung</th><th>Lokale KI-Verarbeitung</th><th>Cloud</th></tr></thead><tbody>
-<tr><td>DIN-Norm</td><td class="limited">nach erworbener Lizenz</td><td class="limited">nur wenn KI-/Nutzungsrechte dies erlauben</td><td class="no">kein Original/Volltext; nur explizit freigegebene Fachauskunft</td></tr>
-<tr><td>Fachbuch / E-Book</td><td class="limited">gemäß Erwerbs-/Nutzungsrecht</td><td class="limited">lizenzabhängig</td><td class="no">kein Original/Volltext ohne entsprechende Rechte</td></tr>
-<tr><td>Fachartikel / Paper</td><td class="limited">lizenzabhängig</td><td class="limited">lizenzabhängig / ggf. gesetzliche Schranken</td><td class="limited">nur zulässige, aufgabenspezifische Information</td></tr>
-<tr><td>Open-Access / eigene Dokumente</td><td class="yes">Ja</td><td class="yes">nach jeweiliger Lizenz</td><td class="limited">nur wenn Lizenz + Datenschutz dies erlauben</td></tr>
-</tbody></table>
-<details open><summary>Normen-Rechercheauftrag aus der Cloud</summary><div class="detail-body"><div class="flow"><div class="node"><b>1 · Cloud-Agent</b><small>„Welche Anforderungen gelten für …?“</small></div><div class="arrow">→</div><div class="node"><b>2 · Research Request</b><small>nur Fachfrage + Ticket-ID</small></div><div class="arrow">→</div><div class="node"><b>3 · lokales LLM</b><small>interne Recherche im erlaubten Bestand</small></div><div class="arrow">→</div><div class="node"><b>4 · Evidence Packet</b><small>Aussage + Quelle + Fundstelle</small></div></div>
-<pre class="code">research_request:
-  ticket_id: C-8F31A7
-  question: "Welche Anforderungen gelten für den betrachteten Anschluss?"
+<section id="wissen"><div class="section-title"><h2>Normen, Fachbücher und Fachartikel</h2><p>Lizenzierte oder urheberrechtlich geschützte Quellen werden nicht in die Cloud kopiert. Die lokale Wissensschicht beantwortet konkrete Fachfragen mit Provenienz.</p></div><div class="grid g3">
+<div class="card"><span class="tag trusted">Knowledge Vault</span><h3>Geschützter Bestand</h3><p>Originale und abgeleitete Markdown-/Bilddaten liegen ausschließlich intern und werden mit Quelle, Ausgabe, Rechten und zulässiger KI-Nutzung katalogisiert.</p></div>
+<div class="card"><span class="tag service">Research Agent</span><h3>Lokale Recherche</h3><p>Das lokale LLM erhält eine konkrete Fachfrage, recherchiert in den intern zulässigen Quellen und liefert eine belegte Antwort.</p></div>
+<div class="card"><span class="tag compute">Evidence Packet</span><h3>Cloud erhält nur Fachwissen</h3><p>Weitergegeben werden konkrete Aussagen, Parameter und Fundstellen – nicht die vollständigen geschützten Dokumente.</p></div></div>
+<div class="callout license"><b>Lizenz-Gate:</b> Ob ein Dokument überhaupt automatisiert extrahiert, indexiert oder von einem lokalen LLM verarbeitet werden darf, wird pro Quelle als Rechte-Metadatum hinterlegt. Technische Isolation ersetzt keine erforderliche Lizenz.</div>
+<details><summary>Beispiel eines Evidence Packets</summary><div class="detail-body"><pre class="code">research_request: R-0182
+question: "Welcher innere Wärmeübergang ist für diesen Nachweis anzusetzen?"
+answer:
+  value: ...
+  unit: ...
+  applicability: "..."
+evidence:
+  source_id: NORM-0041
+  edition: "..."
+  locator: "Abschnitt ... / Seite ..."
+  confidence: verified_local
+restrictions:
+  source_document_exported: false</pre></div></details></section>
 
-research_response:
-  status: VERIFIED
-  statement: "[fachlich zusammengefasste Aussage]"
-  source:
-    document_id: NORM-0042
-    title: "DIN …"
-    edition: "20xx-xx"
-    location: "Abschnitt x.x / Seite yy"
-  confidence: "source-verified"
-  note: "Originalquelle intern prüfen bei entscheidungsrelevanter Anwendung"
-</pre><p>Die Cloud erhält damit kein durchsuchbares Normenarchiv. Sie kann aber fachliche Rückfragen an den lokalen Research Agent stellen und bekommt belegte Antworten statt erfundener Norminhalte.</p></div></details>
-<details><summary>Rechte-Metadaten je Dokument</summary><div class="detail-body"><pre class="code">document_id: BOOK-0137
-source_type: technical_book
-rights:
-  acquired_legally: true
-  internal_storage: true
-  network_users: 4
-  ai_processing_allowed: false
-  derived_index_allowed: false
-  cloud_transfer_allowed: false
-  expires_at: null
-provenance:
-  publisher: "…"
-  edition: "…"
-  acquired_at: "…"
-</pre><p>Der Research Agent darf ein Dokument nur in den Verarbeitungspfad aufnehmen, wenn die Rechte-Metadaten den jeweiligen Schritt erlauben. Unklare Rechte führen zu <code>BLOCKED_LICENSE_REVIEW</code>, nicht zu einer stillschweigenden Verarbeitung.</p></div></details>
-</section>
+<section id="ingestion"><div class="section-title"><h2>Lokale PDF-Ingestion</h2><p>Normen, Bücher und Artikel werden – soweit rechtlich zulässig – lokal in ein maschinenlesbares, zitierfähiges Format überführt.</p></div><div class="flow"><div class="node"><b>PDF</b><small>Original unverändert</small></div><div class="arrow">→</div><div class="node"><b>Text/Layout Parser</b><small>Seiten, Überschriften, Tabellen</small></div><div class="arrow">→</div><div class="node"><b>Markdown</b><small>Seiten-/Abschnittsanker</small></div><div class="arrow">→</div><div class="node"><b>Bilder</b><small>deterministisch benannt</small></div><div class="arrow">→</div><div class="node"><b>Index</b><small>Metadaten + Retrieval</small></div></div>
+<details><summary>Vorgeschlagene Ablagestruktur</summary><div class="detail-body"><pre class="code">knowledge/NORM-0041/
+├── source.meta.json
+├── document.md
+├── pages.json
+├── tables/
+└── images/
+    ├── p003_img01.png
+    ├── p011_img01.png
+    └── p011_img02.png
 
-<section id="ingestion"><div class="section-title"><h2>Lokale PDF-Ingestion</h2><p>Ein eigener Offline-Dienst transformiert zugelassene Fachquellen in eine LLM-taugliche, zitierfähige interne Darstellung.</p></div>
-<div class="flow"><div class="node"><b>PDF</b><small>Original unverändert / Hash</small></div><div class="arrow">→</div><div class="node"><b>Parser</b><small>Textblöcke, Seiten, Überschriften</small></div><div class="arrow">→</div><div class="node"><b>Assets</b><small>Bilder/Grafiken extrahieren</small></div><div class="arrow">→</div><div class="node"><b>Markdown</b><small>Seitenanker + Bildreferenzen</small></div></div>
-<div class="grid g2"><div class="card"><span class="tag trusted">Ingestion Service</span><h3><code>ingest_pdf.py</code></h3><p>Läuft ausschließlich intern. Prüft zunächst Lizenzstatus, berechnet den Dokument-Hash, extrahiert Text und Bilder, erhält Seitenbezug und schreibt ein reproduzierbares internes Paket.</p></div><div class="card"><span class="tag service">Provenienz</span><h3>Jede Aussage zurück zur Seite</h3><p>Markdown-Abschnitte behalten Dokument-ID, Seitenzahl, Absatz-/Block-ID und Asset-Referenzen. Dadurch kann das lokale LLM seine Antworten exakt auf die Quelle zurückführen.</p></div></div>
-<details open><summary>Vorgeschlagene Verzeichnisstruktur</summary><div class="detail-body"><pre class="code">knowledge-vault/
-└── NORM-0042/
-    ├── source/
-    │   └── original.pdf
-    ├── document.md
-    ├── metadata.json
-    ├── rights.json
-    ├── assets/
-    │   ├── p003_img01.png
-    │   ├── p011_img01.png
-    │   └── p011_img02.png
-    └── index/
-        └── chunks.json
-</pre></div></details>
-<details><summary>Markdown-Format und Bildreferenzen</summary><div class="detail-body"><pre class="code">---
-document_id: NORM-0042
-source_sha256: "…"
-title: "…"
-edition: "…"
----
+# document.md
+## Abschnitt ... {#p11-s4}
+...
+![Abbildung](images/p011_img02.png)</pre><p>Die Referenzen müssen stabil bleiben, damit eine spätere Fachauskunft bis zur Originalseite zurückverfolgt werden kann.</p></div></details></section>
 
-&lt;a id="page-11"&gt;&lt;/a&gt;
-## [Seite 11] Abschnitt …
-
-Extrahierter Text …
-
-![Abbildung p11-01](assets/p011_img01.png)
-
-&lt;!-- source: page=11 block=7 --&gt;
-</pre><p>Die Assets werden deterministisch benannt: <code>p{seite}_img{laufnummer}</code>. Tabellen sollten zusätzlich strukturiert als Markdown/JSON abgelegt werden; bei komplexen Tabellen bleibt ein Seitenbild als Beleg erhalten.</p></div></details>
-<details><summary>Technische Anforderungen an das Extraktionsskript</summary><div class="detail-body"><ul><li>Keine Internetverbindung; Verarbeitung ausschließlich im internen Segment.</li><li>Rechteprüfung vor dem Parsen: <code>ai_processing_allowed</code> bzw. zulässiger Verarbeitungstyp.</li><li>Originaldatei niemals verändern; SHA-256 für Reproduzierbarkeit.</li><li>Text positions-/seitenbezogen extrahieren, nicht zu einem unreferenzierbaren Fließtext verschmelzen.</li><li>Bilder, Diagramme und eingebettete Rastergrafiken in <code>assets/</code> extrahieren und aus Markdown relativ referenzieren.</li><li>Optionaler lokaler OCR-Fallback nur für gescannte Seiten; OCR-Ergebnisse als solche kennzeichnen.</li><li>Tabellen möglichst strukturiert extrahieren; bei Unsicherheit zusätzlich Seiten-/Tabellenausschnitt erhalten.</li><li>Metadaten, Ausgabe/Edition und Seitenzahl jeder Chunk-/Indexeinheit mitgeben.</li><li>Keine abgeleitete MD-Datei auf den Compute-/Cloud-PC übertragen, wenn die Rechte dies nicht ausdrücklich erlauben.</li></ul></div></details>
-</section>
-
-<section id="datenfluss"><div class="section-title"><h2>Projekt- und Compute-Datenfluss</h2><p>Daten werden für einen konkreten Zweck in ein minimales technisches Paket transformiert.</p></div>
-<div class="flow"><div class="node"><b>1 · Originalquelle</b><small>E-Mail, PDF, Plan, Projektdaten</small></div><div class="arrow">→</div><div class="node"><b>2 · lokales LLM</b><small>verstehen, extrahieren, Task anlegen</small></div><div class="arrow">→</div><div class="node"><b>3 · Sanitization</b><small>Identifikatoren entfernen</small></div><div class="arrow">→</div><div class="node"><b>4 · Compute-Ticket</b><small>Ticket + technische Inputs</small></div></div>
-<div class="flow"><div class="node"><b>5 · Workspace</b><small>isolierter Task-Kontext</small></div><div class="arrow">→</div><div class="node"><b>6 · Agent / Solver</b><small>Codex, FEM, Python</small></div><div class="arrow">→</div><div class="node"><b>7 · Ergebnis</b><small>JSON, HTML, PDF, Logs</small></div><div class="arrow">→</div><div class="node"><b>8 · interne Zuordnung</b><small>Ticket → reales Projekt</small></div></div>
-<details open><summary>Was darf die Security Boundary passieren?</summary><div class="detail-body"><table><thead><tr><th>Datenart</th><th>Compute/Cloud</th><th>Regel</th></tr></thead><tbody>
-<tr><td>Ticket-ID</td><td class="yes">Ja</td><td>neutrale technische Referenz</td></tr><tr><td>Geometrie / Materialien / Randbedingungen</td><td class="yes">Ja</td><td>fachlich erforderlich und pseudonymisiert</td></tr><tr><td>Kundenname / Adresse / interne Projektnummer</td><td class="no">Nein</td><td>Zuordnung bleibt intern</td></tr><tr><td>Original-E-Mails / Originalpläne</td><td class="no">Nein</td><td>nur interne Verarbeitung</td></tr><tr><td>DIN-/Buch-/Artikel-Volltext oder lokale MD-Repräsentation</td><td class="no">Grundsätzlich nein</td><td>bleibt im Knowledge Vault; Ausnahme nur nach expliziter Rechteprüfung</td></tr><tr><td>Belegte fachliche Antwort</td><td class="limited">Ja, kontrolliert</td><td>minimal notwendige Information + Quellenmetadaten</td></tr>
-</tbody></table></div></details></section>
-
-<section id="tasks"><div class="section-title"><h2>Task-, Ticket- und Workspace-Modell</h2><p>Zwei Datenbanken statt einer gemeinsamen Datenwahrheit über beide Sicherheitszonen hinweg.</p></div><div class="grid g2"><div class="card"><span class="tag trusted">LLM-PC · interne Task-DB</span><h3>Interner Task</h3><p>Reale Projektzuordnung, Kunde, interne Quellen, Bearbeiter, Rechte, Originaldokumente, Research Requests und Mapping zum Compute-Ticket.</p></div><div class="card"><span class="tag compute">Compute-PC · Compute-Task-DB</span><h3>Compute-Ticket</h3><p>Nur Ticket-ID, technische Aufgabe, freigegebene Dateien, ACLs, Rechenstatus, Logs und Ergebnisse.</p></div></div>
-<div class="callout decision"><b>Entscheidung:</b> Die Datenbanken werden nicht gespiegelt. Die Compute-Datenbank erhält nur eine bewusst reduzierte Repräsentation.</div>
-<details><summary>Beispiel eines Compute-Pakets</summary><div class="detail-body"><pre class="code">ticket_id: C-8F31A7
-object: WALL-017
-geometry:
-  length_m: 12.40
-  height_m: 6.80
-layers:
-  - steel: 0.0006 m
-  - insulation: 0.150 m
-  - steel: 0.0006 m
-boundary_conditions:
-  side_a_C: -24
-  side_b_C: -4
-task: "Temperatur- und Feuchteanalyse"
-
-# Nicht enthalten:
-# Kunde, Adresse, Projektname, interne Projektnummer,
-# Original-E-Mail, Originalplan, Norm-/Buch-/Artikeldateien
-</pre></div></details>
-<details><summary>API zwischen LLM-PC und Compute-PC</summary><div class="detail-body"><pre class="code">POST /tasks
+<section id="tasks"><div class="section-title"><h2>Task-, Ticket- und Workspace-Modell</h2><p>Die interne Projektwahrheit und die Compute-Aufgabe bleiben getrennt.</p></div><div class="grid g2"><div class="card"><span class="tag trusted">LLM-PC</span><h3>Interner Task</h3><p>Reale Projektzuordnung, Kunde, Quellen, Bearbeiter, Originaldokumente, Rechte und Mapping zur neutralen Compute-Ticket-ID.</p></div><div class="card"><span class="tag compute">Compute-PC</span><h3>Compute-Ticket</h3><p>Nur Ticket-ID, technische Inputs, Aufgabenbeschreibung, ACLs, Rechenstatus, Evidence Packets, Logs und Ergebnisse.</p></div></div>
+<details><summary>Compute-API</summary><div class="detail-body"><pre class="code">POST /tasks
 POST /tasks/{ticket}/files
-POST /tasks/{ticket}/research-requests
-GET  /tasks/{ticket}/research-results
 GET  /tasks/{ticket}/status
 GET  /tasks/{ticket}/results
-</pre><p>Research Requests laufen kontrolliert zurück in die interne Zone. Die Compute-Seite erhält daraus nur das freigegebene Evidence Packet, nicht die zugrunde liegende Wissensdatenbank.</p></div></details></section>
+POST /research-requests
+GET  /research-results/{request}</pre></div></details></section>
 
-<section id="zugriff"><div class="section-title"><h2>Benutzer-, Projekt- und Codex-Zugriff</h2><p>Sichtbarkeit wird auf Identitäts-, Betriebssystem- und Workspace-Ebene durchgesetzt.</p></div><table><thead><tr><th>Rolle</th><th>Sicht</th><th>Durchsetzung</th></tr></thead><tbody><tr><td>Mitarbeiter</td><td>eigene Tasks + zugeordnete Projekte</td><td>persönlicher Account, SSH-Key, ACLs</td></tr><tr><td>Projektleiter</td><td>Tasks der zugeordneten Projekte</td><td>Projektgruppe / ACL</td></tr><tr><td>Administrator</td><td>alle Tasks / Audit</td><td>separate Admin-Rolle</td></tr><tr><td>Codex / Claude Code</td><td>nur geöffneter Ticket-Workspace</td><td>Container-/Dateisystem-Isolation</td></tr><tr><td>lokaler Research Agent</td><td>nur lizenzrechtlich freigegebene Wissensquellen</td><td>Rights Policy Engine + Vault-ACL</td></tr></tbody></table>
-<div class="grid g3" style="margin-top:14px"><div class="card"><span class="tag service">Remote-Zugriff</span><h3>VPN + SSH</h3><p>Kein öffentlich offener SSH-Port am Compute-PC.</p></div><div class="card"><span class="tag service">Persönliche Identität</span><h3>Kein Shared Login</h3><p>Eigene Linux-User/Schlüssel und nachvollziehbare Benutzeridentitäten.</p></div><div class="card"><span class="tag compute">Task Launcher</span><h3><code>knp-task open …</code></h3><p>Prüft Berechtigung, erzeugt Workspace und startet die Agenten-Session ausschließlich im Ticket-Kontext.</p></div></div></section>
+<section id="adaptive"><div class="section-title"><h2>Adaptiver / „selbstlernender“ Compute-Agent</h2><p>Der Compute-Agent soll für jede Aufgabe die geeignetste vorhandene Werkzeugkette auswählen und systematisch erkennen, wann neue Fähigkeiten erforderlich sind.</p></div>
+<div class="flow"><div class="node"><b>1 · Aufgabe verstehen</b><small>Physik, Zielgrößen, Genauigkeit</small></div><div class="arrow">→</div><div class="node"><b>2 · Tool Registry prüfen</b><small>welche freigegebenen Module passen?</small></div><div class="arrow">→</div><div class="node"><b>3 · Rechenplan</b><small>Methoden + Randbedingungen</small></div><div class="arrow">→</div><div class="node"><b>4 · Capability Gate</b><small>alles validiert?</small></div><div class="arrow">→</div><div class="node"><b>5 · Berechnung</b><small>oder Entwicklungs-Task</small></div></div>
+<div class="grid g3" style="margin-top:14px"><div class="card"><span class="tag service">Capability Memory</span><h3>Erfahrungen werden wiederverwendet</h3><p>Das System speichert, welche Tools für welche Problemklasse funktioniert haben, typische Fehlerbilder, Benchmarks, Laufzeiten und geeignete Modellierungsstrategien.</p></div><div class="card"><span class="tag compute">Gap Detection</span><h3>Fehlende Fähigkeit erkennen</h3><p>Reicht kein freigegebenes Werkzeug aus, wird die Aufgabe nicht stillschweigend improvisiert. Stattdessen erzeugt der Agent einen Tool-Development-/Validation-Task.</p></div><div class="card"><span class="tag boundary">No Auto-Promotion</span><h3>Keine Selbstfreigabe</h3><p>Ein vom Agenten entwickeltes Tool darf sich niemals selbst auf „produktiv“ setzen. Die Freigabe bleibt ein kontrollierter KNP-Prozess.</p></div></div>
+<details open><summary>Entscheidungslogik für eine Aufgabe</summary><div class="detail-body"><pre class="code">if all_required_steps.status == KNP_VALIDATED:
+    run_production_calculation()
+    assurance = "validated"
+elif validated_fallback_exists:
+    use_validated_fallback()
+    assurance = "validated_with_limitations"
+else:
+    create_tool_development_task()
+    optional_experimental_run()
+    assurance = "UNVERIFIED"
+    block_final_engineering_release()</pre></div></details></section>
 
-<section id="ergebnisse"><div class="section-title"><h2>Berechnung und Ergebnisbereitstellung</h2><p>Maschinenlesbare Daten bilden die Basis; daraus entstehen menschlich nutzbare Darstellungen.</p></div><div class="grid g4"><div class="card"><div class="num">JSON</div><p>strukturierte Ergebnis- und Provenienzdaten</p></div><div class="card"><div class="num">HTML</div><p>interaktive Darstellung und Review</p></div><div class="card"><div class="num">PDF</div><p>statischer Bericht und Nachweis</p></div><div class="card"><div class="num">+ Daten</div><p>CSV, SVG/PNG, FEM-Dateien, Logs</p></div></div>
-<details><summary>Was muss zu jedem Rechenjob protokolliert werden?</summary><div class="detail-body"><div class="pillrow"><span class="pill">Ticket-ID</span><span class="pill">Bearbeiter</span><span class="pill">Zeitpunkt</span><span class="pill">Input-Version</span><span class="pill">Core-Version</span><span class="pill">Solver</span><span class="pill">Annahmen</span><span class="pill">Randbedingungen</span><span class="pill">Research-Evidence</span><span class="pill">Quellenausgabe</span><span class="pill">Logs</span><span class="pill">Ergebnisversion</span></div><p class="muted">Auch fachliche Aussagen aus Normen/Literatur müssen reproduzierbar auf die verwendete Ausgabe und Fundstelle zurückgeführt werden können.</p></div></details></section>
+<section id="validation"><div class="section-title"><h2>Tool Registry, Validierung und Freigabegates</h2><p>Jeder Rechenkern, jedes Skript und jeder fachlich relevante Berechnungsschritt hat Version, Status, Gültigkeitsbereich und dokumentierte Validierungsbasis.</p></div>
+<table><thead><tr><th>Status</th><th>Bedeutung</th><th>Produktiver Nachweis</th></tr></thead><tbody>
+<tr><td><span class="status s-exp">Experimental</span></td><td>Prototyp oder neu entwickelte Methode; fachlich noch nicht ausreichend geprüft.</td><td class="no">Nein</td></tr>
+<tr><td><span class="status s-bench">Benchmarked</span></td><td>Automatische Testfälle/Referenzfälle bestanden, aber noch keine formale KNP-Freigabe.</td><td class="no">Nein</td></tr>
+<tr><td><span class="status s-val">KNP-validiert</span></td><td>Gegen Referenzsoftware, analytische Fälle und/oder belastbare Vergleichsdaten geprüft; Version und Anwendungsbereich freigegeben.</td><td class="yes">Ja</td></tr>
+<tr><td><span class="status s-dep">Deprecated</span></td><td>Alte Version; reproduzierbar archiviert, für neue Berechnungen gesperrt.</td><td class="no">Nein</td></tr>
+</tbody></table>
+<div class="grid g3" style="margin-top:14px"><div class="card"><span class="tag service">Referenzsoftware</span><h3>Cross-Validation</h3><p>Beispielsweise wird ein neuer Wärmebrückenkern gegen etablierte Software mit identischen Geometrien, Materialien und Randbedingungen gerechnet und die Abweichung bewertet.</p></div><div class="card"><span class="tag service">Regression Suite</span><h3>Freigabe bleibt reproduzierbar</h3><p>Jede Änderung muss den gesamten Bestand definierter Referenzfälle erneut bestehen. Numerische Toleranzen werden explizit festgelegt.</p></div><div class="card"><span class="tag trusted">Human Gate</span><h3>KNP gibt Version frei</h3><p>Ein Mensch prüft Validierungsreport, Grenzen und offene Abweichungen und setzt erst danach die konkrete Tool-Version auf KNP-validiert.</p></div></div>
+<details><summary>Was gehört zu einem Tool-Eintrag?</summary><div class="detail-body"><div class="pillrow"><span class="pill">tool_id</span><span class="pill">Version/Commit</span><span class="pill">Status</span><span class="pill">Problemklasse</span><span class="pill">Gültigkeitsbereich</span><span class="pill">Input-Schema</span><span class="pill">Output-Schema</span><span class="pill">Referenzfälle</span><span class="pill">Toleranzen</span><span class="pill">Freigegeben von</span><span class="pill">Freigabedatum</span><span class="pill">bekannte Grenzen</span></div></div></details>
+<div class="callout decision"><b>Grundregel:</b> Ein Bericht darf die Kennzeichnung „validiertes Ergebnis“ nur erhalten, wenn <em>jeder</em> fachlich ergebnisrelevante Schritt auf einer freigegebenen Version innerhalb ihres dokumentierten Gültigkeitsbereichs beruht.</div></section>
 
-<section><div class="section-title"><h2>Netzwerkregeln</h2><p>Unerlaubte Kommunikationspfade sollen technisch gar nicht existieren.</p></div><table><thead><tr><th>Quelle</th><th>Ziel</th><th>Regel</th></tr></thead><tbody><tr><td>LLM-PC</td><td>KNP-Datenserver</td><td><span class="limited">read-only / definierte Lesepfade</span></td></tr><tr><td>LLM-PC</td><td>Knowledge Vault</td><td><span class="limited">rechtegesteuert</span> · nur intern</td></tr><tr><td>LLM-PC / Gateway</td><td>Compute API</td><td><span class="yes">erlaubt</span> · definierte Endpunkte</td></tr><tr><td>Compute-PC</td><td>KNP-Datenserver</td><td><span class="no">keine direkte Route</span></td></tr><tr><td>Compute-PC</td><td>Knowledge Vault</td><td><span class="no">keine direkte Route</span></td></tr><tr><td>Compute-/Agent-PC</td><td>Internet</td><td><span class="limited">ausgehend eingeschränkt</span></td></tr><tr><td>Internet</td><td>Compute-PC</td><td><span class="no">kein offener Direktzugriff</span></td></tr><tr><td>Mitarbeiter-PC</td><td>Compute-PC</td><td><span class="yes">VPN/LAN + SSH</span></td></tr></tbody></table></section>
+<section id="reporting"><div class="section-title"><h2>Reporting und Benutzeroberfläche</h2><p>Der Rechenjob endet nicht bei einer Zahl. Das System erzeugt eine prüfbare technische Dokumentation und interaktive Visualisierung.</p></div><div class="grid g4">
+<div class="card"><div class="num">2D/3D</div><p>Geometrie, Netz, Materialien und Randbedingungen kontrollierbar visualisieren.</p></div>
+<div class="card"><div class="num">Felder</div><p>Temperaturfelder, Wärmestrom, Isothermen und weitere physikalische Ergebnisfelder anzeigen.</p></div>
+<div class="card"><div class="num">Kennwerte</div><p>z. B. ψ-Werte, Oberflächentemperaturen, fRsi, Wärmeströme und projektspezifische Zielgrößen.</p></div>
+<div class="card"><div class="num">Export</div><p>Grafiken als SVG/PNG, Daten als CSV/JSON und Bericht als HTML/PDF herunterladen.</p></div></div>
+<details open><summary>Inhalt eines technischen Reports</summary><div class="detail-body"><table><thead><tr><th>Block</th><th>Inhalt</th></tr></thead><tbody><tr><td>Aufgabe</td><td>Ziel, Ticket-ID, untersuchte Situation, Fragestellung</td></tr><tr><td>Modell</td><td>Geometrie, Materialien, Randbedingungen, Vereinfachungen</td></tr><tr><td>Methode</td><td>verwendete Tools und Versionen, Solver, Netz, Konvergenz</td></tr><tr><td>Fachgrundlagen</td><td>belegte Norm-/Literaturaussagen aus Evidence Packets</td></tr><tr><td>Ergebnisse</td><td>Kennwerte, Tabellen, Feldplots, kritische Stellen</td></tr><tr><td>Qualität</td><td>Validierungsstatus jedes relevanten Berechnungsschritts</td></tr><tr><td>Grenzen</td><td>Annahmen, Unsicherheiten, nicht validierte Teilaspekte</td></tr><tr><td>Provenienz</td><td>Input-Versionen, Tool-Commits, Zeitpunkte, Bearbeiter, Logs</td></tr></tbody></table></div></details>
+<div class="callout warn"><b>Ungesicherte Ergebnisse:</b> Experimentelle Berechnungen dürfen visualisiert und zur Entwicklung verwendet werden, müssen aber in UI, Export und Bericht unübersehbar als <b>NICHT VALIDIERTE / NICHT FÜR FACHLICHE FREIGABE GEEIGNETE ERGEBNISSE</b> gekennzeichnet sein.</div></section>
 
-<section id="offen"><div class="section-title"><h2>Noch zu entscheiden / zu verifizieren</h2><p>Planungsstand – keine abschließende Produktivfreigabe.</p></div><div class="grid g2"><div class="card"><span class="tag pending">Lizenzklärung</span><h3>DIN / VDI / VDE / Verlage</h3><p>Für jedes Regelwerk und jeden Literaturbestand sind die konkret erworbenen Rechte und KI-Nutzungsrechte zu dokumentieren.</p></div><div class="card"><span class="tag pending">Offen</span><h3>PDF-Ingestion-Stack</h3><p>Parserbibliothek, Tabellenextraktion, lokaler OCR-Fallback und Qualitätsprüfung werden noch technisch festgelegt.</p></div><div class="card"><span class="tag pending">Offen</span><h3>Compute-Hardware</h3><p>Langfristig spricht die Ressourcentrennung für einen dedizierten Compute-Node neben dem LLM-PC.</p></div><div class="card"><span class="tag pending">Zu verifizieren</span><h3>Codex-Session-Sichtbarkeit</h3><p>Berechtigungen werden unabhängig von nativen Thread-ACLs zusätzlich über Benutzerkonten und isolierte Workspaces erzwungen.</p></div></div></section>
+<section id="zugriff"><div class="section-title"><h2>Benutzer-, Projekt- und Codex-Zugriff</h2><p>Sichtbarkeit wird auf Identitäts-, Betriebssystem-, ACL- und Workspace-Ebene durchgesetzt.</p></div><table><thead><tr><th>Rolle</th><th>Sicht</th><th>Durchsetzung</th></tr></thead><tbody><tr><td>Mitarbeiter</td><td>eigene Tasks + freigegebene Projektgruppen</td><td>persönlicher Account, SSH-Key, ACLs, isolierte Workspaces</td></tr><tr><td>Projektleiter</td><td>Tasks zugeordneter Projekte</td><td>Projektgruppen / ACL</td></tr><tr><td>Administrator</td><td>alle Tasks, Tool Registry, Audit</td><td>separate administrative Rolle</td></tr><tr><td>Codex / Claude Code</td><td>aktuell freigegebener Ticket-Workspace</td><td>Container-/Dateisystemisolation; keine Projektablage</td></tr></tbody></table>
+<details><summary>Task-Start</summary><div class="detail-body"><pre class="code">$ knp-task open C-8F31A7
+✓ Benutzer autorisiert
+✓ Ticket geladen
+✓ erlaubte Evidence Packets geladen
+✓ isolierter Workspace erzeugt
+✓ Tool Registry für Problemklasse eingebunden
+✓ Agent gestartet</pre></div></details></section>
 
-<section><div class="section-title"><h2>Aktueller Soll-Workflow</h2><p>Vom Eingang einer Aufgabe bis zum belastbaren Ergebnis.</p></div><div class="card"><ol><li>Interne Quelle wird vom lokalen LLM analysiert; ein interner Task entsteht.</li><li>Benötigte Fachfragen werden lokal gegen freigegebene Normen/Literatur recherchiert.</li><li>Der Research Agent liefert Aussagen mit Dokument-ID, Ausgabe und Fundstelle; entscheidende Aussagen können human-in-the-loop geprüft werden.</li><li>Projektinformationen werden sanitisiert; das Gateway erzeugt eine neutrale Compute-Ticket-ID.</li><li>Nur technische Inputs und freigegebene Evidence Packets gelangen per API auf den Compute-PC.</li><li>Ein Mitarbeiter startet den isolierten Ticket-Workspace; Codex/Claude Code sieht ausschließlich diesen Kontext.</li><li>Agenten steuern Skripte, FEM-/Bauphysik-Core, Meshing und Simulationen.</li><li>Bei neuen Fachfragen stellt der Cloud-Agent einen Research Request an den internen Broker statt Normtexte zu erraten.</li><li>Ergebnisse werden mit Rechen- und Quellenprovenienz gespeichert und intern angezeigt.</li><li>Das interne System ordnet das Resultat anhand der Ticket-ID wieder dem realen Projekt zu.</li></ol></div></section>
+<section><div class="section-title"><h2>Netzwerkregeln</h2><p>Unerlaubte Kommunikationspfade sollen technisch nicht existieren.</p></div><table><thead><tr><th>Quelle</th><th>Ziel</th><th>Regel</th></tr></thead><tbody><tr><td>LLM-PC</td><td>KNP-Datenserver</td><td class="limited">read-only / definierte Lesepfade</td></tr><tr><td>LLM-PC / Gateway</td><td>Compute API</td><td class="yes">erlaubt · definierte Endpunkte</td></tr><tr><td>Compute-PC</td><td>KNP-Datenserver</td><td class="no">keine direkte Route</td></tr><tr><td>Compute-/Agent-PC</td><td>Internet</td><td class="limited">ausgehend eingeschränkt</td></tr><tr><td>Internet</td><td>Compute-PC</td><td class="no">kein offener Direktzugriff</td></tr><tr><td>Mitarbeiter-PC</td><td>Compute-PC</td><td class="yes">LAN/VPN + SSH + persönliche Identität</td></tr><tr><td>Cloud-Agent</td><td>Knowledge Vault</td><td class="no">kein Zugriff; nur Evidence Packet</td></tr></tbody></table></section>
 
-<section><div class="section-title"><h2>Hinweise zu Quellenrechten</h2><p>Die Architektur behandelt Rechte als technische Zugriffsbedingung, nicht als nachgelagerte Dokumentation.</p></div><div class="callout license"><b>DIN:</b> DIN Media beschreibt für KI-Verarbeitung ein gesondertes KI-Lizenzmodell für intern gekapselte Systeme. <a href="https://www.dinmedia.de/de/normen-produkte/ki-lizenzen-fuer-normen">DIN Media – KI-Lizenzen für Normen</a></div><div class="callout"><b>Allgemeine Werke:</b> Ob Bücher und Fachartikel automatisiert verarbeitet werden dürfen, hängt vom konkreten Nutzungsrecht und ggf. gesetzlichen Schranken ab. Die Architektur erzwingt deshalb eine dokumentbezogene Rechteprüfung vor der Ingestion.</div></section>
+<section id="offen"><div class="section-title"><h2>Noch zu entscheiden / zu implementieren</h2><p>Die Architektur definiert die Sicherheits- und Qualitätslogik; einige konkrete Technologien bleiben offen.</p></div><div class="grid g2">
+<div class="card"><span class="tag pending">Offen</span><h3>Tool-Registry-Technologie</h3><p>Datenbankschema, Paketformat, semantische Versionierung, Freigabe-Workflow und Signierung freigegebener Releases festlegen.</p></div>
+<div class="card"><span class="tag pending">Offen</span><h3>Validierungsstandard</h3><p>Pro Problemklasse Referenzfälle, Vergleichssoftware, Toleranzen und erforderliche menschliche Review-Schritte definieren.</p></div>
+<div class="card"><span class="tag pending">Offen</span><h3>Web-Frontend</h3><p>Viewer für Wärmebrücken, Feldplots, Parameter, Modellkontrolle, Reports und Grafik-/Datenexport konkretisieren.</p></div>
+<div class="card"><span class="tag pending">Offen</span><h3>Capability Memory</h3><p>Festlegen, welche Erfahrungen automatisch gespeichert werden dürfen und welche erst nach Review als empfohlene Methode gelten.</p></div></div></section>
 
-<div class="footer"><b>KNP Bauphysik – KI-Systemarchitektur v0.2.</b> Diese Seite dokumentiert den aktuellen Planungsstand. Vor Produktivbetrieb sind insbesondere Netzwerksegmentierung, Authentifizierung, Rechte-/Lizenzprüfung, DSGVO-/AVV-Fragen, Logging, Backup, Patch-Management sowie technische Security- und Qualitätsprüfungen verbindlich auszuarbeiten.</div>
-</main></body></html>
+<section><div class="section-title"><h2>Aktueller Soll-Workflow</h2><p>Vom Eingang einer Aufgabe bis zum fachlich freigabefähigen Ergebnis.</p></div><div class="card"><ol><li>Das lokale LLM analysiert interne Quellen und erzeugt einen internen Task.</li><li>Das Gateway bildet daraus ein pseudonymisiertes Compute-Ticket.</li><li>Der Compute-Agent analysiert die physikalische Problemklasse und prüft Tool Registry und Capability Memory.</li><li>Fehlende normative/fachliche Informationen werden als Research Request an das lokale LLM zurückgegeben und als Evidence Packet beantwortet.</li><li>Der Agent erstellt einen Rechenplan und prüft für jeden Schritt Status und Gültigkeitsbereich der vorgesehenen Tools.</li><li>Sind alle ergebnisrelevanten Schritte KNP-validiert, wird produktiv gerechnet.</li><li>Fehlt eine validierte Fähigkeit, wird ein Tool-Development-/Validation-Task erzeugt; optionale Ergebnisse bleiben ausdrücklich ungesichert.</li><li>Neue oder geänderte Tools werden gegen Referenzsoftware, analytische Fälle und Regressionstests geprüft.</li><li>Erst nach menschlicher KNP-Freigabe wird eine konkrete Version produktiv nutzbar.</li><li>Der Rechenjob erzeugt Ergebnisdaten, Visualisierungen und einen reproduzierbaren technischen Report.</li><li>Das interne System ordnet Ticket und Resultate wieder dem realen Projekt zu.</li></ol></div></section>
+
+<div class="footer"><b>KNP Bauphysik – KI-Systemarchitektur v0.3.</b> Planungsstand, keine bereits vollständig implementierte Sicherheits- oder Fachfreigabe. Vor Produktivbetrieb sind insbesondere Netzwerksegmentierung, Authentifizierung, Lizenzrechte, DSGVO/AVV, Toolvalidierung, Freigabeverfahren, Logging, Backup, Patch-Management und technische Security-Tests verbindlich auszuarbeiten.</div>
+</main>
+</body>
+</html>
