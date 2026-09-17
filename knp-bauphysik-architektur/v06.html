@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KNP Bauphysik – KI-Systemarchitektur v0.6</title>
+<style>
+:root{--bg:#f4f6f8;--surface:#fff;--ink:#17212b;--muted:#607080;--line:#d8e0e6;--blue:#1f5f99;--blue2:#eaf3fb;--green:#24744a;--green2:#edf8f1;--orange:#9a5a16;--orange2:#fff5e7;--red:#9c3030;--red2:#fff0f0;--purple:#624b9b;--purple2:#f3effb;--shadow:0 10px 28px rgba(28,42,55,.08)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}a{color:var(--blue)}
+header{background:linear-gradient(120deg,#17324b,#214f73 60%,#2e648b);color:#fff;padding:48px 20px 36px}.wrap{max-width:1220px;margin:auto}.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.8;font-weight:700}h1{font-size:clamp(30px,5vw,54px);line-height:1.05;margin:8px 0 14px;max-width:980px}.lead{font-size:18px;max-width:1020px;color:#eaf2f8}.stamp{display:inline-block;margin-top:18px;padding:7px 11px;border:1px solid rgba(255,255,255,.26);border-radius:999px;font-size:13px;background:rgba(255,255,255,.08)}
+nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);overflow:auto;white-space:nowrap}nav .wrap{display:flex;gap:7px;padding:9px 14px}nav a{text-decoration:none;color:#334454;padding:6px 9px;border-radius:8px;font-size:13px}nav a:hover{background:#eef3f7}
+main{padding:28px 20px 72px}section{margin:0 0 34px}.section-title{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:14px}.section-title h2{margin:0;font-size:25px}.section-title p{margin:0;color:var(--muted);max-width:730px}.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:900px){.g4,.g3{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.card,.diagram,details{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.card{padding:17px}.card h3{margin:0 0 7px;font-size:17px}.card p{margin:0;color:var(--muted)}.tag{display:inline-flex;font-size:12px;font-weight:700;border-radius:999px;padding:4px 8px;margin-bottom:10px}.trusted{background:var(--green2);color:var(--green)}.boundary{background:var(--red2);color:var(--red)}.compute{background:var(--purple2);color:var(--purple)}.service{background:var(--blue2);color:var(--blue)}.pending{background:var(--orange2);color:var(--orange)}
+.diagram{padding:18px;overflow:auto}.diagram svg{display:block;width:100%;min-width:1050px;height:auto}.diagram-note{margin:13px 4px 0;color:var(--muted);font-size:13px}.flow{display:flex;align-items:stretch;gap:8px;overflow:auto;padding:7px 0}.node{min-width:165px;padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:#fff}.arrow{display:flex;align-items:center;font-size:22px;color:#7a8794}.node b{display:block;font-size:13px}.node small{display:block;color:var(--muted);margin-top:2px}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}th,td{text-align:left;padding:10px 11px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#eef3f7;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#4b5b69}tr:last-child td{border-bottom:0}.yes{color:var(--green);font-weight:700}.no{color:var(--red);font-weight:700}.limited{color:var(--orange);font-weight:700}
+details{margin:10px 0;box-shadow:none}summary{cursor:pointer;font-weight:700;padding:14px 16px;list-style:none}summary::-webkit-details-marker{display:none}summary:after{content:"＋";float:right;color:var(--muted)}details[open] summary:after{content:"−"}.detail-body{border-top:1px solid var(--line);padding:14px 16px;color:#33414e}.detail-body p:first-child{margin-top:0}.detail-body p:last-child{margin-bottom:0}code{background:#eef2f5;padding:2px 5px;border-radius:5px;font-size:.92em}.code{background:#15202b;color:#dfe8ef;border-radius:12px;padding:15px;overflow:auto;font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre}.callout{border-left:4px solid var(--blue);background:#edf5fb;padding:13px 15px;border-radius:8px;margin:12px 0}.warn{border-left-color:var(--red);background:#fff0f0}.decision{border-left-color:var(--green);background:#eef8f2}.license{border-left-color:var(--orange);background:#fff7e9}.pillrow{display:flex;gap:7px;flex-wrap:wrap}.pill{font-size:12px;border:1px solid var(--line);background:#fff;padding:4px 8px;border-radius:999px}.num{font-size:27px;font-weight:800;line-height:1;margin-bottom:6px}.muted{color:var(--muted)}.footer{margin-top:42px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}.status{font-weight:800;font-size:12px;text-transform:uppercase}.s-exp{color:#9c3030}.s-bench{color:#a15b12}.s-val{color:#24744a}.s-dep{color:#6b7280}
+</style></head>
+<body>
+<header><div class="wrap"><div class="eyebrow">KNP Bauphysik · Planungsstand</div><h1>Systemarchitektur für die Integration einer Bauphysik-KI</h1><p class="lead">Lokale Verarbeitung vertraulicher Projekt- und Fachinformationen, Human-Gated Schreibprozesse, lokale Rechercheagenten, pseudonymisierte Compute-Tickets, adaptive Bauphysik-Berechnung, validierte Werkzeugketten und nachvollziehbares Reporting.</p><span class="stamp">Stand: 17. September 2026 · Architektur v0.6</span></div></header>
+<nav><div class="wrap"><a href="#prinzipien">Prinzipien</a><a href="#architektur">Architektur</a><a href="#mail">E-Mail & Access</a><a href="#recherche">Rechercheagenten</a><a href="#wissen">Wissensbasis</a><a href="#ingestion">PDF-Ingestion</a><a href="#tasks">Tasks</a><a href="#adaptive">Compute-Agent</a><a href="#validation">Validierung</a><a href="#reporting">Reporting</a><a href="#backup">Backup & Audit</a><a href="#offen">Offen</a></div></nav>
+<main class="wrap">
+
+<section id="prinzipien"><div class="section-title"><h2>Leitprinzipien</h2><p>KI darf analysieren, recherchieren und Vorschläge machen. Kritische Änderungen und fachlich belastbare Ergebnisse entstehen nur über definierte Gates.</p></div><div class="grid g4">
+<div class="card"><span class="tag trusted">01 · Intern</span><h3>Rohdaten bleiben intern</h3><p>Kunden, Adressen, E-Mails, Originalpläne, Access-Projektdaten und geschützte Fachquellen bleiben in der KNP-Zone.</p></div>
+<div class="card"><span class="tag boundary">02 · Schreibgrenze</span><h3>LLM schreibt nie direkt</h3><p>Die KI schlägt z. B. eine Projektablage vor. Erst nach Bestätigung führt ein deterministischer Worker exakt die erlaubte Aktion aus.</p></div>
+<div class="card"><span class="tag service">03 · Recherche-Proxy</span><h3>Cloud fragt lokal nach</h3><p>Das öffentliche LLM kann Fach- und Unternehmenswissen abfragen. Die lokale KI recherchiert und gibt nur pseudonymisierte, belegte Antworten zurück.</p></div>
+<div class="card"><span class="tag compute">04 · Qualität</span><h3>Produktiv nur validiert</h3><p>Neue Rechentools dürfen entstehen; fachlich freigabefähige Ergebnisse verwenden jedoch nur KNP-validierte Tool-Versionen.</p></div></div>
+<div class="callout warn"><b>Selbstlernend ≠ selbstfreigebend:</b> Das System darf bessere Workflows und Tools entwickeln. Produktive Schreibaktionen, neue Rechenmethoden und fachliche Freigaben bleiben kontrolliert.</div></section>
+
+<section id="architektur"><div class="section-title"><h2>Zielarchitektur</h2><p>Drei klare Wege: interne Arbeit, kontrolliertes Schreiben in echte KNP-Daten sowie pseudonymisierte Compute-/Cloud-Arbeit mit lokalem Recherchekanal.</p></div><div class="diagram">
+<svg viewBox="0 0 1260 1240" role="img" aria-label="KNP Zielarchitektur">
+<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#637684"/></marker><marker id="arrB" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1f5f99"/></marker><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#1b2a38" flood-opacity=".10"/></filter></defs>
+
+<!-- INTERNAL -->
+<rect x="30" y="25" width="1200" height="650" rx="28" fill="#f3fbf6" stroke="#7cad8e" stroke-width="2"/>
+<text x="62" y="67" font-size="22" font-weight="800" fill="#24744a">1 · KNP-INTERN</text><text x="62" y="93" font-size="14" fill="#537062">Hier liegen echte Projektidentitäten, E-Mails, Access-Daten und geschützte Fachquellen.</text>
+
+<rect x="70" y="130" width="500" height="150" rx="20" fill="#fff" stroke="#cfd9d3" filter="url(#sh)"/>
+<text x="100" y="166" font-size="18" font-weight="800">Unternehmensdaten</text>
+<rect x="100" y="190" width="135" height="58" rx="11" fill="#edf8f1"/><text x="117" y="214" font-size="13" font-weight="700">Projektordner</text><text x="117" y="235" font-size="11" fill="#5d6977">Pläne · Dateien</text>
+<rect x="252" y="190" width="135" height="58" rx="11" fill="#edf8f1"/><text x="269" y="214" font-size="13" font-weight="700">Access</text><text x="269" y="235" font-size="11" fill="#5d6977">Projekte · Verweise</text>
+<rect x="404" y="190" width="135" height="58" rx="11" fill="#edf8f1"/><text x="421" y="214" font-size="13" font-weight="700">E-Mail</text><text x="421" y="235" font-size="11" fill="#5d6977">Postfach · Anhänge</text>
+
+<rect x="690" y="130" width="500" height="150" rx="20" fill="#fffaf0" stroke="#dfbf88" filter="url(#sh)"/>
+<text x="720" y="166" font-size="18" font-weight="800">KNP-Wissensbasis</text>
+<rect x="720" y="190" width="135" height="58" rx="11" fill="#fff3dc"/><text x="737" y="214" font-size="13" font-weight="700">KNP-Wiki</text><text x="737" y="235" font-size="11" fill="#6d6250">Erfahrung · Regeln</text>
+<rect x="872" y="190" width="135" height="58" rx="11" fill="#fff3dc"/><text x="889" y="214" font-size="13" font-weight="700">DIN / Normen</text><text x="889" y="235" font-size="11" fill="#6d6250">geschützter Bestand</text>
+<rect x="1024" y="190" width="135" height="58" rx="11" fill="#fff3dc"/><text x="1041" y="214" font-size="13" font-weight="700">Literatur</text><text x="1041" y="235" font-size="11" fill="#6d6250">Bücher · Artikel</text>
+
+<path d="M320 280 V315 H580" fill="none" stroke="#637684" stroke-width="2.3" marker-end="url(#arr)"/><path d="M940 280 V315 H660" fill="none" stroke="#637684" stroke-width="2.3" marker-end="url(#arr)"/>
+<rect x="455" y="297" width="350" height="28" rx="14" fill="#f3fbf6"/><text x="630" y="316" text-anchor="middle" font-size="12" fill="#526372">lokal lesen, verstehen, verknüpfen und recherchieren</text>
+
+<rect x="430" y="345" width="400" height="125" rx="22" fill="#eaf3fb" stroke="#76a3c7" stroke-width="2" filter="url(#sh)"/>
+<text x="630" y="381" text-anchor="middle" font-size="20" font-weight="800" fill="#1f5f99">Lokale KI / Orchestrator</text>
+<text x="630" y="407" text-anchor="middle" font-size="13" fill="#465a6a">E-Mails zuordnen · interne Tasks anlegen · Projektkontext verstehen</text>
+<text x="630" y="431" text-anchor="middle" font-size="13" fill="#465a6a">Rechercheagenten steuern · Antworten pseudonymisieren</text>
+<text x="630" y="454" text-anchor="middle" font-size="12" font-weight="700" fill="#1f5f99">kennt die echte Zuordnung Ticket ↔ KNP-Projekt</text>
+
+<!-- WRITE PATH -->
+<path d="M535 470 V505 H305" fill="none" stroke="#637684" stroke-width="2.3" marker-end="url(#arr)"/>
+<rect x="70" y="525" width="470" height="115" rx="20" fill="#fff" stroke="#b8c9d5" filter="url(#sh)"/>
+<text x="100" y="558" font-size="17" font-weight="800" fill="#1f5f99">Human Gate + deterministischer Write Worker</text>
+<text x="100" y="584" font-size="12" fill="#516270">Mensch bestätigt die konkrete Aktion; der Worker kann nur freigegebene Befehle.</text>
+<text x="100" y="610" font-size="12" font-weight="700" fill="#33414e">Beispiel: „Mail 884 → Projekt 241 / 05_Korrespondenz verschieben“</text>
+<path d="M305 525 V495 H185 V280" fill="none" stroke="#637684" stroke-width="2.2" marker-end="url(#arr)"/>
+<rect x="80" y="475" width="215" height="27" rx="13" fill="#fff"/><text x="187" y="493" text-anchor="middle" font-size="11" fill="#526372">bestätigte Änderung zurückschreiben</text>
+
+<!-- RESEARCH -->
+<path d="M725 470 V505 H955" fill="none" stroke="#1f5f99" stroke-width="2.5" marker-end="url(#arrB)"/>
+<rect x="720" y="525" width="470" height="115" rx="20" fill="#f4f8fc" stroke="#8ab2d2" filter="url(#sh)"/>
+<text x="750" y="558" font-size="17" font-weight="800" fill="#1f5f99">Lokale Rechercheagenten / Research Broker</text>
+<text x="750" y="584" font-size="12" fill="#516270">suchen in Wiki, Normen und Literatur – ohne die Quelldokumente herauszugeben.</text>
+<text x="750" y="610" font-size="12" font-weight="700" fill="#33414e">Antwort: Fachinhalt + DIN/Quelle + Ausgabe + Abschnitt/Seite + Confidence</text>
+
+<!-- SECURITY BOUNDARY -->
+<rect x="30" y="705" width="1200" height="78" rx="22" fill="#fff4f4" stroke="#d99c9c"/>
+<text x="630" y="736" text-anchor="middle" font-size="18" font-weight="800" fill="#9c3030">2 · HARTE SECURITY BOUNDARY</text>
+<text x="630" y="761" text-anchor="middle" font-size="13" fill="#7f4747">Cloud/Compute erhält nur neutrale Ticket-IDs, technische Daten und pseudonymisierte Evidence – keine Kunden- oder Projektnamen.</text>
+
+<!-- COMPUTE ZONE -->
+<rect x="30" y="815" width="1200" height="380" rx="28" fill="#f7f4fc" stroke="#a996cb" stroke-width="2"/>
+<text x="62" y="857" font-size="22" font-weight="800" fill="#624b9b">3 · COMPUTE / CLOUD</text><text x="62" y="883" font-size="14" fill="#665c77">Bearbeitet die technische Aufgabe, ohne die reale Projektidentität zu kennen.</text>
+
+<rect x="70" y="930" width="220" height="120" rx="18" fill="#fff" stroke="#d5cce7" filter="url(#sh)"/><text x="180" y="964" text-anchor="middle" font-size="16" font-weight="800">Compute-Ticket</text><text x="180" y="990" text-anchor="middle" font-size="12" fill="#5d6977">C-8F31A7</text><text x="180" y="1012" text-anchor="middle" font-size="12" fill="#5d6977">Geometrie · Material</text><text x="180" y="1034" text-anchor="middle" font-size="12" fill="#5d6977">Randbedingungen · Ziel</text>
+<rect x="340" y="930" width="245" height="120" rx="18" fill="#fff" stroke="#d5cce7" filter="url(#sh)"/><text x="462" y="964" text-anchor="middle" font-size="16" font-weight="800">Compute-Agent</text><text x="462" y="990" text-anchor="middle" font-size="12" fill="#5d6977">Codex / Claude Code</text><text x="462" y="1012" text-anchor="middle" font-size="12" fill="#5d6977">Rechenplan · Toolwahl</text><text x="462" y="1034" text-anchor="middle" font-size="12" fill="#5d6977">stellt Research Requests</text>
+<rect x="635" y="930" width="245" height="120" rx="18" fill="#fff" stroke="#d5cce7" filter="url(#sh)"/><text x="757" y="964" text-anchor="middle" font-size="16" font-weight="800">KNP-validierte Tools</text><text x="757" y="990" text-anchor="middle" font-size="12" fill="#5d6977">FEM · Wärmebrücken</text><text x="757" y="1012" text-anchor="middle" font-size="12" fill="#5d6977">Parser · Solver</text><text x="757" y="1034" text-anchor="middle" font-size="12" fill="#24744a">nur freigegebene Versionen produktiv</text>
+<rect x="930" y="930" width="230" height="120" rx="18" fill="#fff" stroke="#d5cce7" filter="url(#sh)"/><text x="1045" y="964" text-anchor="middle" font-size="16" font-weight="800">Report / Web-UI</text><text x="1045" y="990" text-anchor="middle" font-size="12" fill="#5d6977">Plots · Kennwerte</text><text x="1045" y="1012" text-anchor="middle" font-size="12" fill="#5d6977">HTML · PDF · SVG/PNG</text><text x="1045" y="1034" text-anchor="middle" font-size="12" fill="#5d6977">Validierungsstatus sichtbar</text>
+<path d="M290 990 H334" fill="none" stroke="#637684" stroke-width="2.4" marker-end="url(#arr)"/><path d="M585 990 H629" fill="none" stroke="#637684" stroke-width="2.4" marker-end="url(#arr)"/><path d="M880 990 H924" fill="none" stroke="#637684" stroke-width="2.4" marker-end="url(#arr)"/>
+
+<!-- ticket down -->
+<path d="M1090 640 V670 H180 V924" fill="none" stroke="#637684" stroke-width="2.4" marker-end="url(#arr)"/>
+<rect x="445" y="657" width="300" height="28" rx="14" fill="#fff" stroke="#d8e0e6"/><text x="595" y="676" text-anchor="middle" font-size="11" fill="#526372">nur pseudonymisiertes Ticket + freigegebene Inputs</text>
+
+<!-- research request up/down -->
+<path d="M462 930 V892 H955 V646" fill="none" stroke="#1f5f99" stroke-width="2.5" marker-end="url(#arrB)"/>
+<rect x="610" y="870" width="335" height="28" rx="14" fill="#edf5fb" stroke="#bdd4e5"/><text x="777" y="889" text-anchor="middle" font-size="11" fill="#1f5f99">Research Request: konkrete Fachfrage, nur Ticket-Kontext</text>
+<path d="M1005 646 V900 H510 V924" fill="none" stroke="#1f5f99" stroke-width="2.5" stroke-dasharray="7 6" marker-end="url(#arrB)"/>
+<rect x="650" y="902" width="305" height="28" rx="14" fill="#edf5fb" stroke="#bdd4e5"/><text x="802" y="921" text-anchor="middle" font-size="11" fill="#1f5f99">Evidence Packet: belegt + pseudonymisiert zurück</text>
+
+<!-- development branch -->
+<rect x="400" y="1083" width="360" height="70" rx="17" fill="#fff5e7" stroke="#d9a466"/><text x="580" y="1111" text-anchor="middle" font-size="14" font-weight="800" fill="#9a5a16">Cloud-KI / Tool-Entwicklung</text><text x="580" y="1134" text-anchor="middle" font-size="11" fill="#6d6250">entwickelt Prototypen; KNP muss testen und freigeben</text>
+<path d="M462 1050 V1077 H500" fill="none" stroke="#b06a22" stroke-width="2.2" marker-end="url(#arr)"/>
+
+<!-- results back -->
+<path d="M1045 1050 V1168 H1198 V640 H1125" fill="none" stroke="#637684" stroke-width="2.3" marker-end="url(#arr)"/>
+<rect x="1000" y="1140" width="190" height="28" rx="14" fill="#fff" stroke="#d8e0e6"/><text x="1095" y="1159" text-anchor="middle" font-size="11" fill="#526372">Ergebnis + Ticket-ID zurück</text>
+</svg>
+<div class="diagram-note"><b>Beispiel:</b> Der Compute-Agent fragt: „Welche Randbedingung fordert DIN … für diesen Nachweis?“ Der lokale Research Broker recherchiert in Normen/KNP-Wiki/Literatur und antwortet z. B. mit „DIN …, Ausgabe …, Abschnitt …, Seite …: für diesen Fall ist … anzusetzen“. Kunde, Adresse und interne Projektnummer bleiben vollständig intern.</div>
+</div></section>
+
+<section id="mail"><div class="section-title"><h2>E-Mail-Sortierung, Projektablage und Access</h2><p>Der LLM-Vorschlag und die tatsächliche Änderung werden bewusst getrennt.</p></div>
+<div class="flow"><div class="node"><b>1 · Mail lesen</b><small>lokal inkl. Anhänge</small></div><div class="arrow">→</div><div class="node"><b>2 · KI-Vorschlag</b><small>Projekt 241 · Korrespondenz</small></div><div class="arrow">→</div><div class="node"><b>3 · Human Gate</b><small>Mitarbeiter bestätigt</small></div><div class="arrow">→</div><div class="node"><b>4 · Worker</b><small>führt erlaubte Aktion exakt aus</small></div><div class="arrow">→</div><div class="node"><b>5 · Audit</b><small>Änderung protokolliert</small></div></div>
+<div class="grid g3" style="margin-top:14px"><div class="card"><span class="tag service">Beispiel 1</span><h3>E-Mail in Projekt verschieben</h3><p>Nach Bestätigung verschiebt der Worker z. B. <code>mail_884.eml</code> nach <code>/P-0241/05_Korrespondenz/</code>, prüft den Datei-Hash und trägt den neuen relativen Pfad in Access ein.</p></div><div class="card"><span class="tag service">Beispiel 2</span><h3>Anhänge ablegen</h3><p>PDF-Anhänge können nach einem festen Namensschema in <code>/P-0241/06_Anlagen/</code> gespeichert und mit dem Mail-Datensatz verknüpft werden.</p></div><div class="card"><span class="tag boundary">Nicht erlaubt</span><h3>Keine freien Agentenbefehle</h3><p>Der Worker nimmt keine Shell-Befehle oder freie Prompts entgegen. Er kennt nur erlaubte Operationen mit validierten Parametern.</p></div></div>
+<details open><summary>Allowlist des deterministischen Workers</summary><div class="detail-body"><table><thead><tr><th>Operation</th><th>Konkretes Beispiel</th></tr></thead><tbody><tr><td><code>MOVE_EMAIL</code></td><td>Bestätigte E-Mail aus Staging in <code>/Projekt/05_Korrespondenz/</code> verschieben.</td></tr><tr><td><code>COPY_ATTACHMENT</code></td><td>PDF-Anhang in definierten Projektunterordner kopieren.</td></tr><tr><td><code>RENAME_DOCUMENT</code></td><td>Datei nach KNP-Namensschema umbenennen.</td></tr><tr><td><code>CREATE_ACCESS_LINK</code></td><td>Projekt-ID, Dokumentart und relativen Dateipfad in einem definierten Access-Feld hinterlegen.</td></tr><tr><td><code>UPDATE_ACCESS_METADATA</code></td><td>z. B. Eingangsdatum, Dokumenttyp oder Bearbeitungsstatus setzen.</td></tr><tr><td><code>WRITE_AUDIT</code></td><td>Wer hat wann welche bestätigte Änderung ausgeführt?</td></tr></tbody></table></div></details>
+<div class="callout decision"><b>Prinzip:</b> „KI entscheidet“ wird vermieden. Die KI <em>empfiehlt</em>; ein Mensch bestätigt; der deterministische Worker setzt genau den bestätigten Zielzustand um.</div></section>
+
+<section id="recherche"><div class="section-title"><h2>Lokale Rechercheagenten als Fach- und Unternehmenswissen-Proxy</h2><p>Das öffentliche LLM darf das lokale System fragen, aber weder in Normen noch im KNP-Wiki selbst browsen.</p></div>
+<div class="grid g3"><div class="card"><span class="tag trusted">Normen-Agent</span><h3>Konkrete DIN-Belege</h3><p>Beispiel: „Welche DIN regelt den Mindestwärmeschutz an dieser Stelle?“ Der Agent sucht lokal und liefert Norm, Ausgabe, Abschnitt/Seite und eine kurze fachliche Aussage.</p></div><div class="card"><span class="tag trusted">KNP-Wiki-Agent</span><h3>Unternehmenswissen</h3><p>Recherche in internen KNP-Arbeitsweisen, Erfahrungswerten, Checklisten, freigegebenen Modellierungsregeln und früher dokumentierten Entscheidungen.</p></div><div class="card"><span class="tag compute">Research Broker</span><h3>Pseudonymisierte Antwort</h3><p>Vor der Rückgabe werden Projektname, Kunde, Adresse, Personen und interne IDs entfernt. Zurück gehen nur die für das Ticket notwendigen Fachinformationen und Belege.</p></div></div>
+<details open><summary>Beispiel: Research Request → Evidence Packet</summary><div class="detail-body"><pre class="code"># aus der Compute-Zone
+research_request:
+  ticket_id: C-8F31A7
+  question: "Welche normative Randbedingung ist für die innere Oberfläche anzusetzen?"
+  context: "zweidimensionale Wärmebrückenberechnung; Wohnnutzung"
+
+# lokale Recherche – echte Projektidentität bleibt intern
+sources_checked:
+  - KNP-Wiki: WB-Randbedingungen-v3
+  - DIN-Quelle: NORM-0041
+
+# Rückgabe an Compute/Cloud
+evidence_packet:
+  answer: "..."
+  references:
+    - standard: "DIN ..."
+      edition: "..."
+      locator: "Abschnitt ... / Seite ..."
+    - knp_wiki: "WB-Randbedingungen-v3"
+      revision: "2026-08-12"
+  confidence: verified_local
+  project_identity_exported: false</pre></div></details>
+<div class="callout decision"><b>Ziel:</b> Das öffentliche LLM soll nicht „wissen müssen“, was in einer DIN steht. Es soll bei Bedarf präzise nachfragen und eine lokal verifizierte, zitierfähige Antwort bekommen.</div></section>
+
+<section id="wissen"><div class="section-title"><h2>KNP-Wiki, DIN-Normen und Fachliteratur</h2><p>Das KNP-Wiki wird zum zentralen Einstieg in das interne Fachwissen und kann Normen und Literatur strukturiert referenzieren.</p></div>
+<div class="grid g3"><div class="card"><span class="tag trusted">KNP-Wiki</span><h3>Eigene Wissensschicht</h3><p>KNP-eigene Arbeitsweisen, Best Practices, Modellierungsregeln, typische Fehler, Beispielrechnungen und freigegebene Entscheidungen. Jeder Artikel erhält Version und Änderungsverlauf.</p></div><div class="card"><span class="tag pending">Normen-Verlinkung</span><h3>Wiki verweist auf DIN</h3><p>Wiki-Artikel können auf konkrete DIN-Ausgaben und Fundstellen verweisen. Volltexte oder umfangreiche Auszüge werden nur eingebunden, soweit die jeweilige Lizenz dies erlaubt.</p></div><div class="card"><span class="tag service">Fachliteratur</span><h3>Bücher und Artikel</h3><p>Lokale Quellen können analog referenziert und recherchiert werden. Die Rechte-Metadaten entscheiden, ob Extraktion, Indexierung oder KI-Verarbeitung zulässig ist.</p></div></div>
+<div class="callout license"><b>Rechte-Gate:</b> Technische Isolation ersetzt keine Lizenz. Pro Quelle wird festgehalten, ob lokale Extraktion, Indexierung, LLM-Verarbeitung und Weitergabe einzelner Erkenntnisse erlaubt sind.</div></section>
+
+<section id="ingestion"><div class="section-title"><h2>Lokale PDF-Ingestion</h2><p>Soweit rechtlich zulässig, werden PDFs lokal in eine zitierfähige Wissensstruktur überführt.</p></div><div class="flow"><div class="node"><b>PDF</b><small>Original unverändert</small></div><div class="arrow">→</div><div class="node"><b>Layout Parser</b><small>Text · Tabellen · Bilder</small></div><div class="arrow">→</div><div class="node"><b>Markdown</b><small>Seiten-/Abschnittsanker</small></div><div class="arrow">→</div><div class="node"><b>Bilder</b><small>p011_img02.png</small></div><div class="arrow">→</div><div class="node"><b>Index</b><small>Retrieval + Metadaten</small></div></div>
+<details><summary>Ablagestruktur</summary><div class="detail-body"><pre class="code">knowledge/NORM-0041/
+├── source.meta.json
+├── document.md
+├── pages.json
+├── tables/
+└── images/
+    ├── p003_img01.png
+    ├── p011_img01.png
+    └── p011_img02.png
+
+# document.md
+## Abschnitt ... {#p11-s4}
+...
+![Abbildung](images/p011_img02.png)</pre><p>Stabile Seiten- und Abschnittsanker ermöglichen, jede Research-Antwort wieder bis zur Originalquelle zurückzuverfolgen.</p></div></details></section>
+
+<section id="tasks"><div class="section-title"><h2>Task-, Ticket- und Workspace-Modell</h2><p>Internes Projekt und Compute-Ticket bleiben bewusst getrennte Identitäten.</p></div><div class="grid g2"><div class="card"><span class="tag trusted">Interner Task</span><h3>KNP-Seite</h3><p>Enthält reales Projekt, Kunde, Quellen, Bearbeiter, Originaldokumente, Rechte, Mail-/Access-Kontext und Mapping zum Compute-Ticket.</p></div><div class="card"><span class="tag compute">Compute-Ticket</span><h3>Agent-Seite</h3><p>Enthält nur neutrale Ticket-ID, technische Eingaben, Aufgabe, freigegebene Dateien, Evidence Packets, Toolstatus, Logs und Ergebnisse.</p></div></div><details><summary>API-Idee</summary><div class="detail-body"><pre class="code">POST /tasks
+GET  /tasks/{ticket}
+GET  /tasks/{ticket}/results
+POST /research-requests
+GET  /research-results/{request}
+POST /write-proposals        # intern
+POST /write-proposals/{id}/approve
+POST /write-worker/execute   # nur validiertes Aktionsschema</pre></div></details></section>
+
+<section id="adaptive"><div class="section-title"><h2>Adaptiver / „selbstlernender“ Compute-Agent</h2><p>Für jede Aufgabe prüft der Agent, welche vorhandenen Tools und fachlichen Quellen geeignet sind.</p></div><div class="flow"><div class="node"><b>1 · Aufgabe verstehen</b><small>Physik · Zielgrößen</small></div><div class="arrow">→</div><div class="node"><b>2 · Tool Registry</b><small>was ist validiert?</small></div><div class="arrow">→</div><div class="node"><b>3 · Research</b><small>welches Fachwissen fehlt?</small></div><div class="arrow">→</div><div class="node"><b>4 · Rechenplan</b><small>Methoden · Randbedingungen</small></div><div class="arrow">→</div><div class="node"><b>5 · Berechnung</b><small>oder Entwicklungs-Task</small></div></div>
+<div class="grid g3" style="margin-top:14px"><div class="card"><span class="tag service">Capability Memory</span><h3>Erfahrungen wiederverwenden</h3><p>Geeignete Toolketten, Modellierungsstrategien, Fehlerbilder, Benchmarks und Laufzeiten werden strukturiert gespeichert.</p></div><div class="card"><span class="tag compute">Gap Detection</span><h3>Fehlende Fähigkeit erkennen</h3><p>Fehlt ein freigegebenes Verfahren, wird ein Tool-Development-/Validation-Task erzeugt statt stillschweigend improvisiert.</p></div><div class="card"><span class="tag boundary">No Auto-Promotion</span><h3>Keine Selbstfreigabe</h3><p>Ein vom Agenten entwickeltes Tool darf sich niemals selbst auf produktiv setzen.</p></div></div></section>
+
+<section id="validation"><div class="section-title"><h2>Tool Registry, Validierung und Freigabe</h2><p>Jeder fachlich relevante Rechenschritt besitzt Version, Status, Gültigkeitsbereich und dokumentierte Validierungsbasis.</p></div><table><thead><tr><th>Status</th><th>Bedeutung</th><th>Produktiver Nachweis</th></tr></thead><tbody><tr><td><span class="status s-exp">Experimental</span></td><td>Prototyp oder neue Methode; noch nicht ausreichend geprüft.</td><td class="no">Nein</td></tr><tr><td><span class="status s-bench">Benchmarked</span></td><td>Automatische Referenzfälle bestanden, aber noch keine KNP-Freigabe.</td><td class="no">Nein</td></tr><tr><td><span class="status s-val">KNP-validiert</span></td><td>Gegen Referenzsoftware, analytische Fälle und/oder belastbare Vergleichsdaten geprüft.</td><td class="yes">Ja</td></tr><tr><td><span class="status s-dep">Deprecated</span></td><td>Alte Version; archiviert und für neue Berechnungen gesperrt.</td><td class="no">Nein</td></tr></tbody></table>
+<div class="grid g3" style="margin-top:14px"><div class="card"><span class="tag service">Cross-Validation</span><h3>Gegen Referenzsoftware</h3><p>Beispiel Wärmebrücke: identische Geometrie, Materialien und Randbedingungen werden mit etablierter Software gegengerechnet.</p></div><div class="card"><span class="tag service">Regression</span><h3>Freigabe bleibt stabil</h3><p>Jede Codeänderung muss den Bestand definierter Referenzfälle innerhalb festgelegter Toleranzen erneut bestehen.</p></div><div class="card"><span class="tag trusted">Human Gate</span><h3>KNP gibt frei</h3><p>Erst menschlicher Review setzt eine konkrete Tool-Version und ihren Anwendungsbereich auf KNP-validiert.</p></div></div>
+<div class="callout decision"><b>Grundregel:</b> „Validiertes Ergebnis“ ist nur möglich, wenn jeder ergebnisrelevante Schritt auf einer freigegebenen Version innerhalb ihres Gültigkeitsbereichs beruht.</div></section>
+
+<section id="reporting"><div class="section-title"><h2>Reporting und Benutzeroberfläche</h2><p>Der Rechenjob endet mit einer prüfbaren technischen Dokumentation und interaktiven Visualisierung.</p></div><div class="grid g4"><div class="card"><div class="num">2D/3D</div><p>Geometrie, Netz, Materialien und Randbedingungen kontrollieren.</p></div><div class="card"><div class="num">Felder</div><p>Temperaturfeld, Wärmestrom, Isothermen und weitere physikalische Felder.</p></div><div class="card"><div class="num">Kennwerte</div><p>z. B. ψ-Wert, fRsi, Oberflächentemperatur und Wärmestrom.</p></div><div class="card"><div class="num">Export</div><p>SVG/PNG, CSV/JSON sowie HTML-/PDF-Bericht.</p></div></div>
+<details open><summary>Technischer Report</summary><div class="detail-body"><table><thead><tr><th>Block</th><th>Beispielinhalt</th></tr></thead><tbody><tr><td>Aufgabe</td><td>Ticket-ID, Fragestellung, Zielgrößen</td></tr><tr><td>Modell</td><td>Geometrie, Materialien, Randbedingungen, Vereinfachungen</td></tr><tr><td>Fachgrundlagen</td><td>Evidence Packets mit DIN-/Wiki-/Literaturbelegen</td></tr><tr><td>Methode</td><td>Tool-Version, Solver, Netz, Konvergenz</td></tr><tr><td>Ergebnisse</td><td>Kennwerte, Tabellen, Feldplots, kritische Stellen</td></tr><tr><td>Qualität</td><td>Validierungsstatus jedes Rechenschritts</td></tr><tr><td>Provenienz</td><td>Inputs, Tool-Commits, Zeitpunkte, Bearbeiter, Logs</td></tr></tbody></table></div></details>
+<div class="callout warn"><b>Ungesicherte Ergebnisse:</b> Experimentelle Rechnungen dürfen dargestellt werden, müssen aber in UI, Export und Bericht deutlich als <b>NICHT VALIDIERTE ERGEBNISSE</b> gekennzeichnet sein.</div></section>
+
+<section id="backup"><div class="section-title"><h2>Backup, Audit und Wiederherstellung</h2><p>Jede produktive Änderung muss nachvollziehbar sein; Backups liegen außerhalb des Agenten- und Write-Worker-Zugriffs.</p></div><table><thead><tr><th>Ebene</th><th>Vorgabe</th></tr></thead><tbody><tr><td>Access-Transaktion</td><td>Zusammengehörige Datenbankänderungen werden als Transaktion ausgeführt: Commit nur bei vollständigem Erfolg, sonst Rollback.</td></tr><tr><td>Audit Journal</td><td>Transaction-ID, Benutzer, Aktion, Zielprojekt, betroffene Datensätze/Pfade, Vorher-/Nachher-Werte und Datei-Hashes.</td></tr><tr><td>Dateiänderungen</td><td>Verschieben/Kopieren erst als erfolgreich markieren, wenn Ziel existiert und Hash/Größe geprüft wurden.</td></tr><tr><td>Snapshots</td><td>Regelmäßige, unabhängige Server-/Volume-Snapshots; nicht durch LLM oder Write Worker löschbar.</td></tr><tr><td>Offsite/immutable Backup</td><td>Zusätzliche Generation außerhalb des produktiven Servers gegen Bedienfehler, Ransomware und Hardwareausfall.</td></tr><tr><td>Restore-Test</td><td>Wiederherstellung von Access-Backend und Projektdateien regelmäßig praktisch testen.</td></tr></tbody></table></section>
+
+<section id="offen"><div class="section-title"><h2>Noch zu entscheiden / zu implementieren</h2><p>Die Architektur legt die Grenzen fest; konkrete Technologien und Betriebsdetails werden im nächsten Schritt ausgewählt.</p></div><div class="grid g2"><div class="card"><span class="tag pending">Bestandsaufnahme</span><h3>Access-Struktur</h3><p>Tabellen, Frontend/Backend-Trennung, aktuelle Mail-Verknüpfung und Dateipfade dokumentieren.</p></div><div class="card"><span class="tag pending">Wissenssystem</span><h3>KNP-Wiki-Technologie</h3><p>Festlegen, wo das Wiki läuft, wie Artikel versioniert werden und wie Norm-/Literaturreferenzen technisch modelliert werden.</p></div><div class="card"><span class="tag pending">Research API</span><h3>Evidence-Schema</h3><p>Einheitliches Schema für Fachfrage, Antwort, Quelle, Ausgabe, Fundstelle, Confidence und Pseudonymisierungsstatus definieren.</p></div><div class="card"><span class="tag pending">Write Worker</span><h3>Operationskatalog</h3><p>Konkrete erlaubte Datei- und Access-Aktionen, Validierungen, Undo-Verhalten und Fehlerfälle verbindlich festlegen.</p></div></div></section>
+
+<div class="footer"><b>KNP Bauphysik – KI-Systemarchitektur v0.6.</b> Planungsstand. Vor Produktivbetrieb sind insbesondere Netzwerksegmentierung, Authentifizierung, DSGVO/AVV, Lizenzrechte, Wiki-/Normenrechte, Access-/Backup-Konzept, Toolvalidierung, Audit und technische Security-Tests verbindlich auszuarbeiten.</div>
+</main></body></html>
